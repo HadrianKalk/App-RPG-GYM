@@ -4,6 +4,8 @@ import 'character_repository.dart';
 import 'workout_repository.dart';
 import 'activity_repository.dart';
 import 'quest_repository.dart';
+import 'hero_repository.dart';
+import '../../core/game/hero_profile.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -19,7 +21,7 @@ final characterRepositoryProvider = Provider<CharacterRepository>((ref) {
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final charRepo = ref.watch(characterRepositoryProvider);
-  final repo = WorkoutRepository(db, charRepo);
+  final repo = WorkoutRepository(db, charRepo, ref.watch(questRepositoryProvider));
   repo.ensureSeeded();
   return repo;
 });
@@ -27,7 +29,7 @@ final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
 final activityRepositoryProvider = Provider<ActivityRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final charRepo = ref.watch(characterRepositoryProvider);
-  return ActivityRepository(db, charRepo);
+  return ActivityRepository(db, charRepo, ref.watch(questRepositoryProvider));
 });
 
 final questRepositoryProvider = Provider<QuestRepository>((ref) {
@@ -44,4 +46,13 @@ final characterStreamProvider = StreamProvider<CharacterState>((ref) {
 final todayQuestsStreamProvider = StreamProvider<List<DailyQuestsTableData>>((ref) {
   final repo = ref.watch(questRepositoryProvider);
   return repo.watchTodayQuests();
+});
+
+final heroRepositoryProvider = Provider<HeroRepository>((ref) {
+  return HeroRepository(ref.watch(databaseProvider));
+});
+
+/// Perfil do herói; `null` enquanto o onboarding não foi concluído.
+final heroStreamProvider = StreamProvider<HeroProfile?>((ref) {
+  return ref.watch(heroRepositoryProvider).watchHero();
 });

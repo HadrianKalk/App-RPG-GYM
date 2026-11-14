@@ -3,6 +3,402 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
+class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HeroesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<HeroForm, String> form =
+      GeneratedColumn<String>(
+        'form',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<HeroForm>($HeroesTable.$converterform);
+  @override
+  late final GeneratedColumnWithTypeConverter<HeroOrigin, String> origin =
+      GeneratedColumn<String>(
+        'origin',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<HeroOrigin>($HeroesTable.$converterorigin);
+  static const VerificationMeta _oathMeta = const VerificationMeta('oath');
+  @override
+  late final GeneratedColumn<String> oath = GeneratedColumn<String>(
+    'oath',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    form,
+    origin,
+    oath,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'heroes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HeroRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('oath')) {
+      context.handle(
+        _oathMeta,
+        oath.isAcceptableOrUnknown(data['oath']!, _oathMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HeroRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HeroRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      form: $HeroesTable.$converterform.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}form'],
+        )!,
+      ),
+      origin: $HeroesTable.$converterorigin.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}origin'],
+        )!,
+      ),
+      oath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}oath'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $HeroesTable createAlias(String alias) {
+    return $HeroesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<HeroForm, String, String> $converterform =
+      const EnumNameConverter<HeroForm>(HeroForm.values);
+  static JsonTypeConverter2<HeroOrigin, String, String> $converterorigin =
+      const EnumNameConverter<HeroOrigin>(HeroOrigin.values);
+}
+
+class HeroRow extends DataClass implements Insertable<HeroRow> {
+  final int id;
+  final String name;
+  final HeroForm form;
+  final HeroOrigin origin;
+  final String? oath;
+  final DateTime createdAt;
+  const HeroRow({
+    required this.id,
+    required this.name,
+    required this.form,
+    required this.origin,
+    this.oath,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    {
+      map['form'] = Variable<String>($HeroesTable.$converterform.toSql(form));
+    }
+    {
+      map['origin'] = Variable<String>(
+        $HeroesTable.$converterorigin.toSql(origin),
+      );
+    }
+    if (!nullToAbsent || oath != null) {
+      map['oath'] = Variable<String>(oath);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  HeroesCompanion toCompanion(bool nullToAbsent) {
+    return HeroesCompanion(
+      id: Value(id),
+      name: Value(name),
+      form: Value(form),
+      origin: Value(origin),
+      oath: oath == null && nullToAbsent ? const Value.absent() : Value(oath),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory HeroRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HeroRow(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      form: $HeroesTable.$converterform.fromJson(
+        serializer.fromJson<String>(json['form']),
+      ),
+      origin: $HeroesTable.$converterorigin.fromJson(
+        serializer.fromJson<String>(json['origin']),
+      ),
+      oath: serializer.fromJson<String?>(json['oath']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'form': serializer.toJson<String>(
+        $HeroesTable.$converterform.toJson(form),
+      ),
+      'origin': serializer.toJson<String>(
+        $HeroesTable.$converterorigin.toJson(origin),
+      ),
+      'oath': serializer.toJson<String?>(oath),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  HeroRow copyWith({
+    int? id,
+    String? name,
+    HeroForm? form,
+    HeroOrigin? origin,
+    Value<String?> oath = const Value.absent(),
+    DateTime? createdAt,
+  }) => HeroRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    form: form ?? this.form,
+    origin: origin ?? this.origin,
+    oath: oath.present ? oath.value : this.oath,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  HeroRow copyWithCompanion(HeroesCompanion data) {
+    return HeroRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      form: data.form.present ? data.form.value : this.form,
+      origin: data.origin.present ? data.origin.value : this.origin,
+      oath: data.oath.present ? data.oath.value : this.oath,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HeroRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('form: $form, ')
+          ..write('origin: $origin, ')
+          ..write('oath: $oath, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, form, origin, oath, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HeroRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.form == this.form &&
+          other.origin == this.origin &&
+          other.oath == this.oath &&
+          other.createdAt == this.createdAt);
+}
+
+class HeroesCompanion extends UpdateCompanion<HeroRow> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<HeroForm> form;
+  final Value<HeroOrigin> origin;
+  final Value<String?> oath;
+  final Value<DateTime> createdAt;
+  const HeroesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.form = const Value.absent(),
+    this.origin = const Value.absent(),
+    this.oath = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  HeroesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required HeroForm form,
+    required HeroOrigin origin,
+    this.oath = const Value.absent(),
+    required DateTime createdAt,
+  }) : name = Value(name),
+       form = Value(form),
+       origin = Value(origin),
+       createdAt = Value(createdAt);
+  static Insertable<HeroRow> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? form,
+    Expression<String>? origin,
+    Expression<String>? oath,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (form != null) 'form': form,
+      if (origin != null) 'origin': origin,
+      if (oath != null) 'oath': oath,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  HeroesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<HeroForm>? form,
+    Value<HeroOrigin>? origin,
+    Value<String?>? oath,
+    Value<DateTime>? createdAt,
+  }) {
+    return HeroesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      form: form ?? this.form,
+      origin: origin ?? this.origin,
+      oath: oath ?? this.oath,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (form.present) {
+      map['form'] = Variable<String>(
+        $HeroesTable.$converterform.toSql(form.value),
+      );
+    }
+    if (origin.present) {
+      map['origin'] = Variable<String>(
+        $HeroesTable.$converterorigin.toSql(origin.value),
+      );
+    }
+    if (oath.present) {
+      map['oath'] = Variable<String>(oath.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HeroesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('form: $form, ')
+          ..write('origin: $origin, ')
+          ..write('oath: $oath, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ExercisesTable extends Exercises
     with TableInfo<$ExercisesTable, Exercise> {
   @override
@@ -3346,6 +3742,7 @@ class DailyQuestsTableCompanion extends UpdateCompanion<DailyQuestsTableData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $HeroesTable heroes = $HeroesTable(this);
   late final $ExercisesTable exercises = $ExercisesTable(this);
   late final $WorkoutSessionsTable workoutSessions = $WorkoutSessionsTable(
     this,
@@ -3364,6 +3761,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+    heroes,
     exercises,
     workoutSessions,
     workoutSets,
@@ -3374,6 +3772,222 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
 }
 
+typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
+  Value<int> id,
+  required String name,
+  required HeroForm form,
+  required HeroOrigin origin,
+  Value<String?> oath,
+  required DateTime createdAt,
+});
+typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<HeroForm> form,
+  Value<HeroOrigin> origin,
+  Value<String?> oath,
+  Value<DateTime> createdAt,
+});
+
+class $$HeroesTableFilterComposer
+    extends Composer<_$AppDatabase, $HeroesTable> {
+  $$HeroesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<HeroForm, HeroForm, String> get form =>
+      $composableBuilder(
+        column: $table.form,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<HeroOrigin, HeroOrigin, String> get origin =>
+      $composableBuilder(
+        column: $table.origin,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get oath => $composableBuilder(
+    column: $table.oath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HeroesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HeroesTable> {
+  $$HeroesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get form => $composableBuilder(
+    column: $table.form,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get origin => $composableBuilder(
+    column: $table.origin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get oath => $composableBuilder(
+    column: $table.oath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HeroesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HeroesTable> {
+  $$HeroesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<HeroForm, String> get form =>
+      $composableBuilder(column: $table.form, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<HeroOrigin, String> get origin =>
+      $composableBuilder(column: $table.origin, builder: (column) => column);
+
+  GeneratedColumn<String> get oath =>
+      $composableBuilder(column: $table.oath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$HeroesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HeroesTable,
+          HeroRow,
+          $$HeroesTableFilterComposer,
+          $$HeroesTableOrderingComposer,
+          $$HeroesTableAnnotationComposer,
+          $$HeroesTableCreateCompanionBuilder,
+          $$HeroesTableUpdateCompanionBuilder,
+          (HeroRow, BaseReferences<_$AppDatabase, $HeroesTable, HeroRow>),
+          HeroRow,
+          PrefetchHooks Function()
+        > {
+  $$HeroesTableTableManager(_$AppDatabase db, $HeroesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HeroesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HeroesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HeroesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<HeroForm> form = const Value.absent(),
+                Value<HeroOrigin> origin = const Value.absent(),
+                Value<String?> oath = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => HeroesCompanion(
+                id: id,
+                name: name,
+                form: form,
+                origin: origin,
+                oath: oath,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required HeroForm form,
+                required HeroOrigin origin,
+                Value<String?> oath = const Value.absent(),
+                required DateTime createdAt,
+              }) => HeroesCompanion.insert(
+                id: id,
+                name: name,
+                form: form,
+                origin: origin,
+                oath: oath,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$HeroesTable, HeroRow>(table),
+                  BaseReferences<_$AppDatabase, $HeroesTable, HeroRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HeroesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HeroesTable,
+      HeroRow,
+      $$HeroesTableFilterComposer,
+      $$HeroesTableOrderingComposer,
+      $$HeroesTableAnnotationComposer,
+      $$HeroesTableCreateCompanionBuilder,
+      $$HeroesTableUpdateCompanionBuilder,
+      (HeroRow, BaseReferences<_$AppDatabase, $HeroesTable, HeroRow>),
+      HeroRow,
+      PrefetchHooks Function()
+    >;
 typedef $$ExercisesTableCreateCompanionBuilder = ExercisesCompanion Function({
   required String id,
   required String name,
@@ -5739,6 +6353,8 @@ typedef $$DailyQuestsTableTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
+  $$HeroesTableTableManager get heroes =>
+      $$HeroesTableTableManager(_db, _db.heroes);
   $$ExercisesTableTableManager get exercises =>
       $$ExercisesTableTableManager(_db, _db.exercises);
   $$WorkoutSessionsTableTableManager get workoutSessions =>

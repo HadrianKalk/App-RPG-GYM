@@ -5,7 +5,7 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 **Última atualização:** 2026-11-14 (Claude Code)
 
 ## Fase atual
-**Fase 1 — MVP offline: concluída.** Próxima: Fase 2 (Mundo Vivo & Narrador IA).
+**Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes,
@@ -15,9 +15,20 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   (1RM Epley), atividades, livro-razão de XP, missões.
 - Telas: Herói, Treino (estilo Hevy, timer de descanso), Atividades (Pomodoro,
   sono, meditação), Missões.
-- 15 testes passando; `flutter analyze` limpo (último verificado pelo Gemini).
+- Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
+- 32 testes passando; `flutter analyze` limpo.
 
-## Próximos passos (Fase 2)
+## Fechamento da Fase 1 (em andamento)
+- [x] Criação do herói (onboarding).
+- [x] Missões avançam sozinhas com treinos/atividades; Inspiração real.
+- [ ] Registro de atividade genérico (DES: yoga/mobilidade; CAR: idiomas,
+      social, falar em público…). Hoje a missão de CAR é impossível.
+- [ ] Rotinas Populares pré-carregadas com exercícios.
+- [ ] Histórico de treinos, PRs, evolução de carga, sequência de dias.
+- [ ] Botão "?" em cada exercício: GIF/ilustração + passo a passo.
+- [ ] Animação pixel art do herói por grupo muscular treinado.
+
+## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).
 - [ ] Escolhas com rolagem d20 + modificador; IA só narra o resultado.
 - [ ] Gasto de Inspiração para re-rolar.

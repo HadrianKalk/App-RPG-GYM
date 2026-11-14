@@ -1,6 +1,6 @@
 ﻿import 'package:drift/drift.dart';
-import '../../core/game/attributes.dart';
 import '../../core/game/quest_generator.dart';
+import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_event.dart';
 import '../database.dart';
 import 'character_repository.dart';
@@ -51,27 +51,48 @@ class QuestRepository {
               isCompleted: Value(q.isCompleted),
             ),
           ),
+          // Idempotente: se outra chamada já gerou as missões, ignora.
+          mode: InsertMode.insertOrIgnore,
         );
       });
     }
   }
 
-  /// Atualiza o progresso de missões vinculadas a um atributo e concede recompensas ao completar.
-  Future<void> incrementProgress({
-    required Attribute attribute,
-    required double delta,
-  }) async {
+  /// Gera as missões de hoje a partir do estado atual do herói, se ainda
+  /// não existirem. Deve ser chamado ANTES de registrar XP de uma ação, para
+  /// que a primeira ação do dia não altere o sorteio das missões.
+  Future<void> ensureTodayQuests() async {
+    final character = await _characterRepo.watchCharacter().first;
+    await ensureTodayQuestsGenerated(character);
+  }
+
+  /// Aplica às missões de hoje o crédito gerado por uma ação real
+  /// (treino, atividade, sono) e concede as recompensas das que concluírem.
+  ///
+  /// Garante antes que as missões do dia existam, para que um treino feito
+  /// antes de abrir a aba Missões não seja perdido.
+  Future<void> applyCredit(QuestCredit credit) async {
+    if (credit.isEmpty) return;
+
+    await ensureTodayQuests();
+
     final todayStr = _getTodayDateStr();
     final quests = await (_db.select(_db.dailyQuestsTable)
           ..where((tbl) => tbl.dateStr.equals(todayStr))
-          ..where((tbl) => tbl.targetAttribute.equals(attribute.name))
           ..where((tbl) => tbl.isCompleted.equals(false)))
         .get();
 
     for (final q in quests) {
-      final newCurrent = q.currentValue + delta;
-      final completed = newCurrent >= q.targetValue;
+      final newCurrent = QuestProgress.apply(
+        credit: credit,
+        attribute: q.targetAttribute,
+        unit: q.unit,
+        currentValue: q.currentValue,
+        targetValue: q.targetValue,
+      );
+      if (newCurrent == q.currentValue) continue;
 
+      final completed = newCurrent >= q.targetValue;
       await (_db.update(_db.dailyQuestsTable)..where((tbl) => tbl.id.equals(q.id))).write(
         DailyQuestsTableCompanion(
           currentValue: Value(newCurrent),
@@ -80,7 +101,6 @@ class QuestRepository {
       );
 
       if (completed) {
-        // Concede bônus de XP da missão
         await _characterRepo.addXp(
           XpEvent(
             id: 'quest_reward_${q.id}',

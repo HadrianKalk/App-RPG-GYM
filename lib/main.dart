@@ -14,16 +14,16 @@ void main() {
   );
 }
 
-class GrindheimApp extends StatelessWidget {
+class GrindheimApp extends ConsumerWidget {
   const GrindheimApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: AppBrand.fullTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      routerConfig: appRouter,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

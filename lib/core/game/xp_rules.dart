@@ -29,6 +29,14 @@ abstract final class XpRules {
   static const double tier3Efficiency = 0.50;
   static const double tier4Efficiency = 0.25;
 
+  // --- Missões Diárias ---
+  /// Horas de sono que completam sozinhas a missão de Constituição.
+  static const double questSleepHoursForCompletion = 8.0;
+
+  /// Teto de minutos que um único treino pode creditar às missões
+  /// (protege contra sessões esquecidas abertas por horas).
+  static const double questMaxMinutesPerWorkout = 180.0;
+
   // --- Pontuação de Atributo e Níveis ---
   /// Todo atributo começa no valor padrão humano do D&D (10)
   static const int baseAttributeScore = 10;

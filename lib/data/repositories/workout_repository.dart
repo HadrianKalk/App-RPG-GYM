@@ -1,10 +1,12 @@
 ﻿import 'package:drift/drift.dart';
 import '../../core/game/attributes.dart';
+import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_calculator.dart';
 import '../../core/game/xp_event.dart';
 import '../database.dart';
 import '../seed/exercise_seed.dart';
 import 'character_repository.dart';
+import 'quest_repository.dart';
 
 final class WorkoutSessionWithSets {
   const WorkoutSessionWithSets({
@@ -19,10 +21,11 @@ final class WorkoutSessionWithSets {
 }
 
 class WorkoutRepository {
-  WorkoutRepository(this._db, this._characterRepo);
+  WorkoutRepository(this._db, this._characterRepo, this._questRepo);
 
   final AppDatabase _db;
   final CharacterRepository _characterRepo;
+  final QuestRepository _questRepo;
 
   /// Garante que o catálogo de exercícios padrão em pt-BR seja inserido se a tabela estiver vazia.
   Future<void> ensureSeeded() async {
@@ -75,7 +78,7 @@ class WorkoutRepository {
       startedAt: DateTime.now(),
     );
     await _db.into(_db.workoutSessions).insert(companion);
-    return _db.select(_db.workoutSessions).getSingle();
+    return (_db.select(_db.workoutSessions)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 
   /// Adiciona ou atualiza uma série de exercício.
@@ -144,7 +147,9 @@ class WorkoutRepository {
 
   /// Finaliza o treino, computa o XP de todas as séries efetivas e salva no livro-razão.
   Future<double> completeWorkoutSession(String sessionId, {String? notes}) async {
+    await _questRepo.ensureTodayQuests();
     final now = DateTime.now();
+    final session = await (_db.select(_db.workoutSessions)..where((tbl) => tbl.id.equals(sessionId))).getSingle();
     await (_db.update(_db.workoutSessions)..where((tbl) => tbl.id.equals(sessionId))).write(
       WorkoutSessionsCompanion(
         completedAt: Value(now),
@@ -160,11 +165,13 @@ class WorkoutRepository {
     // Agrupa séries por exercício e atributo
     double totalEarnedXp = 0.0;
     final Map<Attribute, double> attributeXpMap = {};
+    final Map<Attribute, int> setsByAttribute = {};
 
     for (final set in completedSets) {
       final exercise = await (_db.select(_db.exercises)..where((tbl) => tbl.id.equals(set.exerciseId))).getSingle();
       final setXp = XpCalculator.calculateWorkoutSetXp(intensity: set.rpe / 8.0);
       attributeXpMap[exercise.attribute] = (attributeXpMap[exercise.attribute] ?? 0.0) + setXp;
+      setsByAttribute[exercise.attribute] = (setsByAttribute[exercise.attribute] ?? 0) + 1;
       totalEarnedXp += setXp;
     }
 
@@ -181,6 +188,14 @@ class WorkoutRepository {
         ),
       );
     }
+
+    // Missões diárias avançam sozinhas com o treino.
+    await _questRepo.applyCredit(
+      QuestProgress.fromWorkout(
+        completedSetsByAttribute: setsByAttribute,
+        sessionDuration: now.difference(session.startedAt),
+      ),
+    );
 
     return totalEarnedXp;
   }

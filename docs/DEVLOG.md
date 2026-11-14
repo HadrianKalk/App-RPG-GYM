@@ -3,6 +3,32 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-14 — Claude Code — Criação do herói + missões automáticas
+- **Bug:** "Bad state: Too many elements" ao iniciar o 2º treino —
+  `startWorkoutSession` buscava "a única sessão" sem filtrar por id. Corrigido.
+- **Criação do herói (onboarding):** prólogo → nome + forma de tratamento
+  (Ele/Herói, Ela/Heroína, Neutro/Lenda) → origem (6, só narrativa) →
+  juramento opcional. Enquanto não houver herói, o roteador redireciona tudo
+  para `/onboarding`. Nome e origem aparecem na tela do Herói.
+- **Missões automáticas:** botão "Registrar Progresso" removido (dava progresso
+  grátis). Treinos e atividades geram `QuestCredit` (motor:
+  `core/game/quest_progress.dart`) aplicado por `QuestRepository.applyCredit`.
+  As missões do dia são geradas ANTES do XP da primeira ação do dia.
+- **Inspiração** deixou de ser fixa em 1: agora = nº de missões cumpridas
+  (eventos `dailyQuest` no livro-razão). Gasto chega na Fase 2.
+- Schema Drift **v2**: tabela `heroes` (+ migração `from < 2`).
+- Arquivos novos: `core/game/hero_profile.dart`, `core/game/quest_progress.dart`,
+  `data/repositories/hero_repository.dart`, `features/onboarding/...`.
+  `appRouter` virou `routerProvider` (Riverpod).
+- Testes: 32 (motor, repositórios com SQLite em memória, fluxo de onboarding).
+- **Avisos para o próximo agente:**
+  - Testes de widget não usam `GrindheimApp` (o tema baixa Google Fonts);
+    montam `MaterialApp.router` com `routerProvider` + `ThemeData.dark()`.
+  - Testes com Drift em widget test: chamar `disposeApp` no fim (ver
+    `test/widget_test.dart`), senão o teste trava ou acusa timers pendentes.
+  - Missão de Carisma ainda não tem como avançar (falta registro de atividade
+    genérico — item 2 do STATUS).
+
 ## 2026-11-14 — Claude Code — Correção: assertion de ListTile no seletor de exercícios
 - `exercise_picker_sheet.dart`: fundo do modal trocado de `Container` colorido
   para `Material` (mesma cor/borda). Antes, cada item da lista disparava

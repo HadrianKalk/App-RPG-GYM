@@ -1,15 +1,18 @@
 ﻿import 'package:drift/drift.dart';
 import '../../core/game/attributes.dart';
+import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_calculator.dart';
 import '../../core/game/xp_event.dart';
 import '../database.dart';
 import 'character_repository.dart';
+import 'quest_repository.dart';
 
 class ActivityRepository {
-  ActivityRepository(this._db, this._characterRepo);
+  ActivityRepository(this._db, this._characterRepo, this._questRepo);
 
   final AppDatabase _db;
   final CharacterRepository _characterRepo;
+  final QuestRepository _questRepo;
 
   /// Registra uma sessão de estudo focado (Pomodoro) gerando XP de Inteligência (INT).
   Future<double> logPomodoroStudy({
@@ -43,14 +46,19 @@ class ActivityRepository {
       calculatedMinutes = 20.0;
     }
 
-    return _logActivityInternal(
+    final xp = await _logActivityInternal(
       type: 'Sono Reparador (${hoursSlept.toStringAsFixed(1)}h)',
       attribute: Attribute.constitution,
       durationMinutes: calculatedMinutes,
       intensity: 1.0,
       source: XpSource.sleep,
       description: notes ?? 'Descanso e recuperação física',
+      // Os "minutos" do sono são pontos de XP, não tempo acordado:
+      // não contam para missões em minutos.
+      creditQuests: false,
     );
+    await _questRepo.applyCredit(QuestProgress.fromSleep(hoursSlept: hoursSlept));
+    return xp;
   }
 
   /// Registra uma sessão de meditação / reflexão gerando XP de Sabedoria (SAB).
@@ -93,7 +101,9 @@ class ActivityRepository {
     required double intensity,
     required XpSource source,
     String? description,
+    bool creditQuests = true,
   }) async {
+    await _questRepo.ensureTodayQuests();
     final now = DateTime.now();
     final alreadyLoggedToday = await _characterRepo.getMinutesOrXpLoggedToday(attribute);
 
@@ -127,6 +137,12 @@ class ActivityRepository {
         description: '$type (${durationMinutes.toInt()} min) -> +${earnedXp.toStringAsFixed(1)} XP',
       ),
     );
+
+    if (creditQuests) {
+      await _questRepo.applyCredit(
+        QuestProgress.fromActivity(attribute: attribute, durationMinutes: durationMinutes),
+      );
+    }
 
     return earnedXp;
   }

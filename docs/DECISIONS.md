@@ -18,3 +18,11 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
    Classe, Desafio Diário. Recompensa: XP + Inspiração.
 10. **Nome desacoplado** em `lib/app/brand.dart`; pacote `package:app`.
 11. **Offline-first** com Drift/SQLite em todas as plataformas.
+12. **Origem do herói é só narrativa** — nenhuma origem dá bônus numérico.
+    Forma de tratamento (Herói/Heroína/Lenda) existe porque o pt-BR é flexionado.
+13. **Missões avançam só por ações registradas**, nunca por botão manual.
+    Séries contam para missões em séries; minutos do treino são divididos entre
+    atributos pela proporção de séries (teto 180 min/treino); sono ≥ 8h conclui
+    a missão de CON; o "XP de sono" não conta como minutos.
+14. **Missões do dia são sorteadas antes do XP da primeira ação do dia.**
+15. **Inspiração = nº de missões diárias cumpridas** (derivado do livro-razão).

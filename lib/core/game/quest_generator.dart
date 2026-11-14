@@ -1,6 +1,7 @@
 ﻿import 'dart:math' as math;
 import 'attributes.dart';
 import 'class_resolver.dart';
+import 'quest_progress.dart';
 
 final class DailyQuest {
   const DailyQuest({
@@ -127,7 +128,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 6.0,
           currentValue: 0.0,
-          unit: 'séries',
+          unit: QuestUnit.sets,
           bonusXp: 30.0,
           grantsInspiration: true,
           isCompleted: false,
@@ -140,7 +141,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 15.0,
           currentValue: 0.0,
-          unit: 'minutos',
+          unit: QuestUnit.minutes,
           bonusXp: 25.0,
           grantsInspiration: true,
           isCompleted: false,
@@ -153,7 +154,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 20.0,
           currentValue: 0.0,
-          unit: 'minutos',
+          unit: QuestUnit.minutes,
           bonusXp: 25.0,
           grantsInspiration: true,
           isCompleted: false,
@@ -166,7 +167,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 50.0,
           currentValue: 0.0,
-          unit: 'minutos',
+          unit: QuestUnit.minutes,
           bonusXp: 35.0,
           grantsInspiration: true,
           isCompleted: false,
@@ -179,7 +180,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 10.0,
           currentValue: 0.0,
-          unit: 'minutos',
+          unit: QuestUnit.minutes,
           bonusXp: 20.0,
           grantsInspiration: true,
           isCompleted: false,
@@ -192,7 +193,7 @@ abstract final class QuestGenerator {
           targetAttribute: attribute,
           targetValue: 15.0,
           currentValue: 0.0,
-          unit: 'minutos',
+          unit: QuestUnit.minutes,
           bonusXp: 20.0,
           grantsInspiration: true,
           isCompleted: false,

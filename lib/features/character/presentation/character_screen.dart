@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/brand.dart';
 import '../../../app/theme.dart';
 import '../../../core/game/attributes.dart';
+import '../../../core/game/hero_profile.dart';
 import '../../../data/repositories/character_repository.dart';
 import '../../../data/repositories/providers.dart';
 
@@ -39,7 +40,7 @@ class CharacterScreen extends ConsumerWidget {
         ],
       ),
       body: characterAsync.when(
-        data: (char) => _buildHeroContent(context, char, textTheme),
+        data: (char) => _buildHeroContent(context, char, ref.watch(heroStreamProvider).valueOrNull, textTheme),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.emberGold),
         ),
@@ -50,7 +51,7 @@ class CharacterScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeroContent(BuildContext context, CharacterState char, TextTheme textTheme) {
+  Widget _buildHeroContent(BuildContext context, CharacterState char, HeroProfile? hero, TextTheme textTheme) {
     final level = char.levelInfo;
     final characterClass = char.characterClass;
 
@@ -91,6 +92,19 @@ class CharacterScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (hero != null) ...[
+                          Text(
+                            hero.name,
+                            style: textTheme.titleLarge?.copyWith(color: AppTheme.ashWhite),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            '${hero.origin.icon} ${hero.origin.name}',
+                            style: textTheme.bodySmall?.copyWith(color: AppTheme.dullSilver),
+                          ),
+                          const SizedBox(height: 6),
+                        ],
                         Row(
                           children: [
                             Text(

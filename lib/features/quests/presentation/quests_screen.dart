@@ -1,7 +1,9 @@
 ﻿import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/game/attributes.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
 
@@ -160,23 +162,46 @@ class QuestsScreen extends ConsumerWidget {
           ),
           if (!isDone) ...[
             const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                icon: const Icon(Icons.add_task, size: 16, color: AppTheme.emberGold),
-                label: const Text('Registrar Progresso', style: TextStyle(color: AppTheme.emberGold, fontSize: 12)),
-                onPressed: () async {
-                  final questRepo = ref.read(questRepositoryProvider);
-                  await questRepo.incrementProgress(
-                    attribute: quest.targetAttribute,
-                    delta: quest.unit == 'séries' ? 2.0 : 10.0,
-                  );
-                },
-              ),
-            ),
+            _QuestHint(attribute: quest.targetAttribute),
           ],
         ],
       ),
+    );
+  }
+}
+
+
+/// Explica como a missão avança — o progresso é automático, vindo dos
+/// treinos e atividades registrados, e não de um botão.
+class _QuestHint extends StatelessWidget {
+  const _QuestHint({required this.attribute});
+
+  final Attribute attribute;
+
+  @override
+  Widget build(BuildContext context) {
+    final (String hint, String? route) = switch (attribute) {
+      Attribute.strength => ('Avança ao finalizar um treino.', '/workout'),
+      Attribute.dexterity => ('Avança com exercícios de mobilidade no treino.', '/workout'),
+      Attribute.constitution => ('Avança com cardio no treino ou 8h+ de sono.', '/activities'),
+      Attribute.intelligence => ('Avança com sessões de Pomodoro.', '/activities'),
+      Attribute.wisdom => ('Avança registrando meditação.', '/activities'),
+      Attribute.charisma => ('Registro de Carisma chega em breve.', null),
+    };
+
+    return Row(
+      children: [
+        const Icon(Icons.auto_mode, size: 14, color: AppTheme.dullSilver),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(hint, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
+        ),
+        if (route != null)
+          TextButton(
+            onPressed: () => context.go(route),
+            child: const Text('Ir', style: TextStyle(color: AppTheme.emberGold, fontSize: 12)),
+          ),
+      ],
     );
   }
 }

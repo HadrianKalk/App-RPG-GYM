@@ -2,6 +2,7 @@
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../core/game/attributes.dart';
+import '../core/game/hero_profile.dart';
 import '../core/game/xp_event.dart';
 
 part 'database.g.dart';
@@ -97,7 +98,22 @@ class DailyQuestsTable extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Perfil do herói (linha única, id = 1). Criado no onboarding.
+@DataClassName('HeroRow')
+class Heroes extends Table {
+  IntColumn get id => integer()();
+  TextColumn get name => text()();
+  TextColumn get form => textEnum<HeroForm>()();
+  TextColumn get origin => textEnum<HeroOrigin>()();
+  TextColumn get oath => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
+  Heroes,
   Exercises,
   WorkoutSessions,
   WorkoutSets,
@@ -110,7 +126,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          // v2: criação de personagem (tabela heroes).
+          if (from < 2) {
+            await m.createTable(heroes);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
