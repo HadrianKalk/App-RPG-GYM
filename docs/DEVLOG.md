@@ -3,6 +3,17 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-14 — Claude Code — Correção: assertion de ListTile no seletor de exercícios
+- `exercise_picker_sheet.dart`: fundo do modal trocado de `Container` colorido
+  para `Material` (mesma cor/borda). Antes, cada item da lista disparava
+  "ListTile background color or ink splashes may be invisible" no modo debug.
+- Novo teste `test/features/workout/exercise_picker_sheet_test.dart` (falha sem
+  a correção). 16 testes passando.
+- Aviso: o app importa `package:material_ui/material_ui.dart`, não
+  `flutter/material.dart` — testes de widget devem usar o mesmo import.
+- A mensagem "Using WasmStorageImplementation.sharedIndexedDb..." na Web é
+  informativa (Drift escolhendo o armazenamento), não é erro.
+
 ## 2026-11-14 — Claude Code — Correção: banco de dados na Web
 - Bug: na Web todas as telas davam "When compiling to the web, the `web`
   parameter needs to be set" — o Drift não sabia carregar o SQLite em WebAssembly.

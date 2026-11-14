@@ -34,13 +34,15 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
   Widget build(BuildContext context) {
     final workoutRepo = ref.watch(workoutRepositoryProvider);
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppTheme.castIron,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
+    // Material (e não Container com cor) para que o efeito de toque dos
+    // ListTile seja pintado sobre o fundo do modal.
+    return Material(
+      color: AppTheme.castIron,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -146,6 +148,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
