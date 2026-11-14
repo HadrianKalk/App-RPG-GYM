@@ -33,3 +33,19 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
 19. **Rotinas**: 4 modelos fixos (Push, Pull, Legs, Cardio & Mobilidade) como
     ponto de partida + rotinas personalizadas criadas pelo usuário com
     exercícios do catálogo.
+20. **Visual pixel art (revamp)**: fonte **Jersey 10** (títulos, números,
+    botões, rótulos) + **Inter** (texto corrido). Molduras com cantos em
+    degrau, barras segmentadas, ícones em pixel. Fontes empacotadas como
+    assets (offline), sem baixar do Google em runtime.
+    Referência aprovada: `docs/design/prototype-pixel-v1.png`.
+21. **Sequência semanal** em vez de diária: meta padrão **3 treinos/semana**
+    (ajustável no perfil); a sequência conta semanas seguidas com a meta
+    cumprida. Calendário do mês mostra os dias treinados (sem contador que zera).
+22. **Bônus por consistência** (valores em `xp_rules.dart`, ajustáveis):
+    - *Meta Cumprida*: +50 XP ao atingir a meta da semana.
+    - *Além do Dever*: cada treino acima da meta na semana: +15, +20, +25…
+      (até 7 treinos/semana).
+    - *Chama da Constância*: +10% nos bônus semanais por semana seguida com
+      meta cumprida (máx. +50%).
+    - Toda recompensa aparece **com o motivo** na tela "Treino Concluído",
+      linha por linha, para reforçar a sensação de conquista.

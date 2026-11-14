@@ -3,6 +3,12 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-14 — Claude Code — Protótipo pixel art + regras de bônus semanal
+- Usuário escolheu fonte **D (Jersey 10 + Inter)** e aprovou o revamp pixel.
+- `docs/design/prototype-pixel-v1.png`: protótipo de 3 telas (Herói, Treino
+  ativo, Treino Concluído com recompensas explicadas). Ainda não aplicado ao app.
+- Decisões 20–22 em `DECISIONS.md` (visual, sequência semanal, bônus).
+
 ## 2026-11-14 — Claude Code — Novas regras do projeto + estudo de fonte pixel
 - Regras novas em `AGENTS.md`: modularidade/catálogos como dados, i18n
   pt-BR + en obrigatório, comentários de código em inglês.
