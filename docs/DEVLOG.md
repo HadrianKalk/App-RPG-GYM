@@ -3,6 +3,15 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-14 — Claude Code — Novas regras do projeto + estudo de fonte pixel
+- Regras novas em `AGENTS.md`: modularidade/catálogos como dados, i18n
+  pt-BR + en obrigatório, comentários de código em inglês.
+- `docs/design/font-comparison.png`: comparação de 4 estilos tipográficos
+  (atual, tudo pixel, híbrido Pixelify, híbrido Jersey 10) — aguardando
+  decisão do usuário para o revamp visual.
+- Ordem combinada: rotinas (fixas + personalizadas) → histórico/sequência →
+  registro de atividades → botão "?" → pixel art. i18n entra como base antes.
+
 ## 2026-11-14 — Claude Code — Criação do herói + missões automáticas
 - **Bug:** "Bad state: Too many elements" ao iniciar o 2º treino —
   `startWorkoutSession` buscava "a única sessão" sem filtrar por id. Corrigido.

@@ -26,3 +26,10 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     a missão de CON; o "XP de sono" não conta como minutos.
 14. **Missões do dia são sorteadas antes do XP da primeira ação do dia.**
 15. **Inspiração = nº de missões diárias cumpridas** (derivado do livro-razão).
+16. **Modularidade > velocidade**: catálogos como dados, features isoladas
+    (ver AGENTS.md §2).
+17. **Idiomas pt-BR + en** desde a Fase 1; conteúdo de jogo também é traduzido.
+18. **Comentários de código em inglês.**
+19. **Rotinas**: 4 modelos fixos (Push, Pull, Legs, Cardio & Mobilidade) como
+    ponto de partida + rotinas personalizadas criadas pelo usuário com
+    exercícios do catálogo.

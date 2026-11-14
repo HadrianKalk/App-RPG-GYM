@@ -55,6 +55,19 @@ Sangue Carmesim `#9E2A2B`.
   ou "RPGym" literal em outro lugar. Pacote Dart é `package:app/...`.
 - Offline-first: o app deve funcionar sem rede. Rede (IA, sync) é opcional.
 - Provedores externos (IA etc.) ficam atrás de uma interface, trocáveis.
+- **Flexibilidade e modularidade acima de velocidade.** Preferir a solução
+  mais extensível mesmo que custe mais agora. Em especial:
+  - Catálogos (atividades, rotinas, exercícios, origens, missões…) são
+    **dados**, definidos em um único lugar e consumidos pela UI — nunca listas
+    fixas espalhadas em widgets. Adicionar/remover um item não deve exigir
+    mexer em telas.
+  - Cada feature isolada em seu módulo (`features/<nome>/`), comunicando-se
+    via repositórios/providers, não por acesso direto entre telas.
+- **Idiomas: pt-BR e inglês desde já.** Nenhum texto visível ao usuário fica
+  literal no código: tudo passa pelo sistema de localização (arquivos ARB).
+  Isso inclui conteúdo de jogo (nomes de classes, origens, missões,
+  exercícios, atividades). O motor (`core/game/`) expõe **chaves/ids**, e a
+  camada de UI resolve o texto no idioma atual.
 
 ## 3. Estrutura
 
@@ -85,5 +98,9 @@ flutter run -d chrome    # ou -d windows / dispositivo Android
   `test:`, `docs:`, `chore:`.
 - Mudou schema do Drift → incrementar `schemaVersion`, escrever migração,
   regerar `database.g.dart` e commitar o arquivo gerado.
-- Comentários e textos de UI em pt-BR; identificadores em inglês.
+- **Comentários de código em inglês**, descrevendo o que cada etapa faz /
+  deve fazer (doc comments em classes e métodos públicos, comentários curtos
+  nos passos não óbvios). Identificadores em inglês. Textos de UI via
+  localização (pt-BR + en). Docs em `docs/` continuam em pt-BR.
+  Código antigo com comentários em pt-BR é convertido quando for tocado.
 - Não adicionar dependências sem registrar o motivo no DEVLOG.
