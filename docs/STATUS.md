@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-14 (Claude Code)
+**Última atualização:** 2026-11-14 (Claude Code) — Etapa 1 concluída
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
@@ -16,17 +16,23 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - Telas: Herói, Treino (estilo Hevy, timer de descanso), Atividades (Pomodoro,
   sono, meditação), Missões.
 - Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
-- 32 testes passando; `flutter analyze` limpo.
+- Visual pixel art, pt-BR + inglês, configurações e créditos.
+- 43 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
 - [x] Missões avançam sozinhas com treinos/atividades; Inspiração real.
-- [ ] Registro de atividade genérico (DES: yoga/mobilidade; CAR: idiomas,
-      social, falar em público…). Hoje a missão de CAR é impossível.
-- [ ] Rotinas Populares pré-carregadas com exercícios.
-- [ ] Histórico de treinos, PRs, evolução de carga, sequência de dias.
-- [ ] Botão "?" em cada exercício: GIF/ilustração + passo a passo.
-- [ ] Animação pixel art do herói por grupo muscular treinado.
+- [x] **Etapa 1:** pt-BR + inglês, visual pixel (Jersey 10 + Inter),
+      configurações (idioma, fonte), créditos.
+- [ ] **Etapa 2:** rotinas — 4 modelos fixos (Push/Pull/Legs/Cardio &
+      Mobilidade) + rotinas personalizadas; séries por tempo e só-reps.
+- [ ] **Etapa 3:** histórico de treinos, PRs, evolução de carga, sequência
+      semanal (meta padrão 3) + calendário do mês, bônus (Meta Cumprida, Além
+      do Dever, Chama da Constância) e tela "Treino Concluído".
+- [ ] **Etapa 4:** registro de atividades genérico (catálogo: CAR, DES, CON,
+      SAB, INT) + saúde em CON (água e dieta).
+- [ ] Botão "?" em cada exercício (passo a passo; imagens a definir).
+- [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).
@@ -41,5 +47,9 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
 ## Avisos / dívidas conhecidas
 - `README.md` ainda é o template padrão do Flutter.
+- Telas de Treino ativo e Atividades ganharam o visual novo, mas serão
+  refeitas nas etapas 2–4 (rotinas, séries por tempo, recompensas).
+- Comentários antigos em pt-BR ainda existem em arquivos não tocados
+  (motor: progression, xp_calculator, class_resolver; repositórios).
 - Documentos de design originais (`game_design.md`, `implementation_plan.md`,
   `walkthrough.md`) estão só no PC, na pasta do Antigravity — copiar para `docs/`.

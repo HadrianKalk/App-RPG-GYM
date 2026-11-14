@@ -3,13 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/brand.dart';
 import '../../../app/theme.dart';
+import '../../../app/ui/pixel_button.dart';
+import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/game/hero_profile.dart';
 import '../../../data/repositories/providers.dart';
 
-/// Criação do herói: prólogo → nome → origem → juramento.
+/// Hero creation: prologue → name → origin → oath.
 ///
-/// Ao concluir, o herói é salvo e o roteador leva automaticamente
-/// para a tela do personagem.
+/// When finished the hero is saved and the router automatically moves on
+/// to the hero screen.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -28,7 +32,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   HeroForm _form = HeroForm.masculine;
   HeroOrigin? _origin;
   bool _saving = false;
-  String? _nameError;
+  HeroNameError? _nameError;
 
   @override
   void dispose() {
@@ -78,12 +82,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             origin: _origin!,
             oath: _oathController.text,
           );
-      // O roteador observa o herói e redireciona sozinho.
+      // The router watches the hero and redirects by itself.
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Não foi possível forjar o herói: $e')),
+        SnackBar(content: Text(context.l10n.onbForgeError('$e'))),
       );
     }
   }
@@ -104,7 +108,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   _NameStep(
                     controller: _nameController,
                     form: _form,
-                    errorText: _nameError,
+                    errorText: _nameErrorText(context),
                     onFormChanged: (f) => setState(() => _form = f),
                     onNameChanged: (_) => setState(() => _nameError = null),
                     onSubmitted: _next,
@@ -139,8 +143,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             width: 48,
             child: _step > 0
                 ? IconButton(
-                    tooltip: 'Voltar',
-                    icon: const Icon(Icons.arrow_back, color: AppTheme.dullSilver),
+                    tooltip: context.l10n.commonBack,
+                    icon: const PixelIcon(PixelIcons.back, size: 22, color: AppTheme.dullSilver),
                     onPressed: _saving ? null : () => _goTo(_step - 1),
                   )
                 : null,
@@ -169,46 +173,34 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
+  /// Maps the engine's validation reason to a localized message.
+  String? _nameErrorText(BuildContext context) => switch (_nameError) {
+        null => null,
+        HeroNameError.empty => context.l10n.nameErrorEmpty,
+        HeroNameError.tooShort => context.l10n.nameErrorTooShort,
+        HeroNameError.tooLong => context.l10n.nameErrorTooLong(HeroProfile.maxNameLength),
+      };
+
   Widget _buildFooter() {
+    final l10n = context.l10n;
     final label = switch (_step) {
-      0 => 'Iniciar a Jornada',
-      3 => 'Forjar Herói',
-      _ => 'Continuar',
+      0 => l10n.onbBegin,
+      3 => l10n.onbForge,
+      _ => l10n.commonContinue,
     };
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.emberGold,
-            foregroundColor: AppTheme.obsidianBlack,
-            disabledBackgroundColor: AppTheme.ironBorder,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onPressed: _saving || !_canAdvance ? null : _next,
-          child: _saving
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.obsidianBlack),
-                )
-              : Text(
-                  label.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppTheme.obsidianBlack,
-                        fontSize: 15,
-                      ),
-                ),
-        ),
+      child: PixelButton(
+        label: label.toUpperCase(),
+        loading: _saving,
+        onPressed: _saving || !_canAdvance ? null : _next,
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Passos
+// Steps
 // ---------------------------------------------------------------------------
 
 class _StepScaffold extends StatelessWidget {
@@ -239,53 +231,26 @@ class _StepScaffold extends StatelessWidget {
 class _PrologueStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
       children: [
-        Center(
-          child: Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              color: AppTheme.castIron,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.emberGold, width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.emberOrange.withValues(alpha: 0.35),
-                  blurRadius: 32,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: const Icon(Icons.local_fire_department, color: AppTheme.emberGold, size: 48),
-          ),
-        ),
-        const SizedBox(height: 28),
-        Text(
-          AppBrand.appName,
-          textAlign: TextAlign.center,
-          style: textTheme.displaySmall?.copyWith(color: AppTheme.emberGold),
-        ),
+        const Center(child: PixelIcon(PixelIcons.flame, size: 88, color: AppTheme.emberOrange, accent: AppTheme.emberGold)),
+        const SizedBox(height: 20),
+        Text(AppBrand.appName, textAlign: TextAlign.center, style: display.style(56, color: AppTheme.emberGold, height: 1)),
         const SizedBox(height: 4),
+        Text(l10n.brandSubtitle, textAlign: TextAlign.center, style: display.style(22, color: AppTheme.dullSilver)),
+        const SizedBox(height: 24),
         Text(
-          AppBrand.subtitle,
+          l10n.onbPrologue,
           textAlign: TextAlign.center,
-          style: textTheme.titleMedium?.copyWith(color: AppTheme.dullSilver),
+          style: const TextStyle(color: AppTheme.ashWhite, fontSize: 16, height: 1.5),
         ),
-        const SizedBox(height: 28),
-        Text(
-          'Nas terras cinzentas, heróis não nascem escolhidos pelos deuses. '
-          'Eles se forjam — repetição após repetição, noite após noite, '
-          'na dor e na disciplina.',
-          textAlign: TextAlign.center,
-          style: textTheme.bodyLarge?.copyWith(height: 1.5),
-        ),
-        const SizedBox(height: 28),
-        const _LoreRow(icon: Icons.fitness_center, text: 'Treinos reais forjam Força, Destreza e Constituição.'),
-        const _LoreRow(icon: Icons.menu_book, text: 'Estudo afia a Inteligência; meditação, a Sabedoria.'),
-        const _LoreRow(icon: Icons.auto_awesome, text: 'Sua classe não é escolhida: ela emerge dos seus hábitos.'),
+        const SizedBox(height: 24),
+        _LoreRow(icon: PixelIcons.dumbbell, text: l10n.onbLoreTraining),
+        _LoreRow(icon: PixelIcons.scroll, text: l10n.onbLoreMind),
+        _LoreRow(icon: PixelIcons.star, text: l10n.onbLoreClass),
       ],
     );
   }
@@ -294,7 +259,7 @@ class _PrologueStep extends StatelessWidget {
 class _LoreRow extends StatelessWidget {
   const _LoreRow({required this.icon, required this.text});
 
-  final IconData icon;
+  final List<String> icon;
   final String text;
 
   @override
@@ -303,7 +268,7 @@ class _LoreRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppTheme.emberGold),
+          PixelIcon(icon, size: 20, color: AppTheme.emberGold),
           const SizedBox(width: 12),
           Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
         ],
@@ -332,8 +297,8 @@ class _NameStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScaffold(
-      title: 'Quem é você?',
-      subtitle: 'O nome que os bardos cantarão — ou que os corvos esquecerão.',
+      title: context.l10n.onbNameTitle,
+      subtitle: context.l10n.onbNameSubtitle,
       children: [
         TextField(
           controller: controller,
@@ -344,7 +309,7 @@ class _NameStep extends StatelessWidget {
           onChanged: onNameChanged,
           onSubmitted: (_) => onSubmitted(),
           decoration: InputDecoration(
-            labelText: 'Nome do herói',
+            labelText: context.l10n.onbNameLabel,
             errorText: errorText,
             filled: true,
             fillColor: AppTheme.castIron,
@@ -357,14 +322,14 @@ class _NameStep extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Text('Como o narrador deve se referir a você?', style: Theme.of(context).textTheme.bodyMedium),
+        Text(context.l10n.onbFormQuestion, style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           children: [
             for (final f in HeroForm.values)
               ChoiceChip(
-                label: Text('${f.label} · ${f.title}'),
+                label: Text('${context.game.heroFormLabel(f)} · ${context.game.heroFormTitle(f)}'),
                 selected: form == f,
                 onSelected: (_) => onFormChanged(f),
                 selectedColor: AppTheme.emberGold,
@@ -392,9 +357,8 @@ class _OriginStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScaffold(
-      title: 'De onde você veio?',
-      subtitle: 'Sua origem é apenas história: ela não muda seus atributos. '
-          'Quem decide seus números é o seu esforço.',
+      title: context.l10n.onbOriginTitle,
+      subtitle: context.l10n.onbOriginSubtitle,
       children: [
         for (final origin in HeroOrigin.values)
           Padding(
@@ -419,50 +383,32 @@ class _OriginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return PixelFrame(
+      highlight: selected,
       color: selected ? AppTheme.forgedSteel : AppTheme.castIron,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: selected ? AppTheme.emberGold : AppTheme.ironBorder,
-              width: selected ? 1.5 : 1,
+      onTap: onTap,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(origin.icon, style: const TextStyle(fontSize: 26)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.game.originName(origin),
+                  style: DisplayFont.from(context).style(22, color: selected ? AppTheme.emberGold : AppTheme.ashWhite),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  context.game.originDescription(origin),
+                  style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13, height: 1.35),
+                ),
+              ],
             ),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(origin.icon, style: const TextStyle(fontSize: 26)),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      origin.name,
-                      style: TextStyle(
-                        color: selected ? AppTheme.emberGold : AppTheme.ashWhite,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      origin.description,
-                      style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13, height: 1.35),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -485,8 +431,8 @@ class _OathStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return _StepScaffold(
-      title: 'Seu juramento',
-      subtitle: 'Por que você treina? O narrador lembrará disso nos momentos difíceis. (Opcional)',
+      title: context.l10n.onbOathTitle,
+      subtitle: context.l10n.onbOathSubtitle,
       children: [
         TextField(
           controller: controller,
@@ -494,7 +440,7 @@ class _OathStep extends StatelessWidget {
           maxLines: 3,
           style: const TextStyle(color: AppTheme.ashWhite),
           decoration: InputDecoration(
-            hintText: 'Ex.: Ficar forte o bastante para carregar meus filhos sem dor nas costas.',
+            hintText: context.l10n.onbOathHint,
             hintStyle: const TextStyle(color: AppTheme.darkAsh),
             filled: true,
             fillColor: AppTheme.castIron,
@@ -519,13 +465,12 @@ class _OathStep extends StatelessWidget {
               Text(name.isEmpty ? '—' : name, style: textTheme.titleLarge?.copyWith(color: AppTheme.emberGold)),
               const SizedBox(height: 4),
               Text(
-                '${form.title} · ${origin?.name ?? '—'} · Nível 1',
+                context.l10n.onbSummaryLine(context.game.heroFormTitle(form), origin == null ? '—' : context.game.originName(origin!)),
                 style: textTheme.bodyMedium,
               ),
               const SizedBox(height: 10),
               Text(
-                'Todos os atributos começam em 10. A partir de agora, '
-                'cada treino, cada página estudada e cada noite bem dormida conta.',
+                context.l10n.onbSummaryNote,
                 style: textTheme.bodySmall?.copyWith(color: AppTheme.dullSilver, height: 1.4),
               ),
             ],

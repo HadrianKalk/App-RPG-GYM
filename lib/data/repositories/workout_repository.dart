@@ -1,4 +1,4 @@
-﻿import 'package:drift/drift.dart';
+import 'package:drift/drift.dart';
 import '../../core/game/attributes.dart';
 import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_calculator.dart';
@@ -27,46 +27,32 @@ class WorkoutRepository {
   final CharacterRepository _characterRepo;
   final QuestRepository _questRepo;
 
-  /// Garante que o catálogo de exercícios padrão em pt-BR seja inserido se a tabela estiver vazia.
-  Future<void> ensureSeeded() async {
-    final countExp = _db.exercises.id.count();
-    final query = _db.selectOnly(_db.exercises)..addColumns([countExp]);
-    final result = await query.map((row) => row.read(countExp)).getSingle();
-
-    if (result == null || result == 0) {
-      await _db.batch((batch) {
-        batch.insertAll(
-          _db.exercises,
-          ExerciseSeed.defaultExercises.map(
-            (item) => ExercisesCompanion.insert(
-              id: item.id,
-              name: item.name,
-              muscleGroup: item.muscleGroup,
-              equipment: item.equipment,
-              attribute: item.attribute,
-              isCustom: const Value(false),
-            ),
+  /// Upserts the built-in catalog into the database. Runs on every start so
+  /// changes to `ExerciseSeed` (new exercises, re-classification) propagate
+  /// to existing installs. Custom exercises are never touched.
+  Future<void> syncCatalog() async {
+    await _db.batch((batch) {
+      batch.insertAllOnConflictUpdate(
+        _db.exercises,
+        ExerciseSeed.defaultExercises.map(
+          (item) => ExercisesCompanion.insert(
+            id: item.id,
+            name: item.name,
+            muscleGroup: item.muscle,
+            equipment: item.equipment,
+            attribute: item.attribute,
+            tracking: Value(item.tracking),
+            isCustom: const Value(false),
           ),
-        );
-      });
-    }
+        ),
+      );
+    });
   }
 
-  /// Observa a lista de exercícios com filtros opcionais de busca e grupo muscular.
-  Stream<List<Exercise>> watchExercises({String? query, String? muscleGroup}) {
-    final selectQuery = _db.select(_db.exercises);
-
-    if (muscleGroup != null && muscleGroup.isNotEmpty && muscleGroup != 'Todos') {
-      selectQuery.where((tbl) => tbl.muscleGroup.equals(muscleGroup));
-    }
-
-    if (query != null && query.trim().isNotEmpty) {
-      final term = '%${query.trim()}%';
-      selectQuery.where((tbl) => tbl.name.like(term));
-    }
-
-    selectQuery.orderBy([(t) => OrderingTerm.asc(t.name)]);
-    return selectQuery.watch();
+  /// Watches every exercise in the catalog. Filtering by text/muscle happens
+  /// in the UI so the search can match the *localized* names.
+  Stream<List<Exercise>> watchAllExercises() {
+    return _db.select(_db.exercises).watch();
   }
 
   /// Inicia uma nova sessão de treino ativa.

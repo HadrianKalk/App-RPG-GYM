@@ -1,7 +1,8 @@
-﻿import 'package:drift/drift.dart';
+import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../core/game/attributes.dart';
+import '../core/game/exercise_taxonomy.dart';
 import '../core/game/hero_profile.dart';
 import '../core/game/xp_event.dart';
 
@@ -10,9 +11,11 @@ part 'database.g.dart';
 class Exercises extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
-  TextColumn get muscleGroup => text()();
-  TextColumn get equipment => text()();
+  TextColumn get muscleGroup => textEnum<MuscleGroup>()();
+  TextColumn get equipment => textEnum<Equipment>()();
   TextColumn get attribute => textEnum<Attribute>()();
+  TextColumn get tracking =>
+      textEnum<SetTracking>().withDefault(Constant(SetTracking.weightReps.name))();
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 
   @override
@@ -126,7 +129,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -135,6 +138,33 @@ class AppDatabase extends _$AppDatabase {
           // v2: criação de personagem (tabela heroes).
           if (from < 2) {
             await m.createTable(heroes);
+          }
+          // v3: normalized exercise taxonomy. Old rows stored Portuguese
+          // labels; convert them to enum names so textEnum can read them.
+          // The catalog sync on startup then fixes per-exercise details.
+          if (from < 3) {
+            await m.addColumn(exercises, exercises.tracking);
+            for (final entry in _legacyMuscleGroups.entries) {
+              await customStatement(
+                'UPDATE exercises SET muscle_group = ? WHERE muscle_group = ?',
+                [entry.value.name, entry.key],
+              );
+            }
+            for (final entry in _legacyEquipment.entries) {
+              await customStatement(
+                'UPDATE exercises SET equipment = ? WHERE equipment = ?',
+                [entry.value.name, entry.key],
+              );
+            }
+            // Anything unknown (should not exist) falls back to safe values.
+            final muscles = MuscleGroup.values.map((e) => "'${e.name}'").join(',');
+            final equipment = Equipment.values.map((e) => "'${e.name}'").join(',');
+            await customStatement(
+              "UPDATE exercises SET muscle_group = 'fullBody' WHERE muscle_group NOT IN ($muscles)",
+            );
+            await customStatement(
+              "UPDATE exercises SET equipment = 'other' WHERE equipment NOT IN ($equipment)",
+            );
           }
         },
       );
@@ -154,3 +184,42 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 }
+
+/// Portuguese muscle-group labels used before schema v3.
+const Map<String, MuscleGroup> _legacyMuscleGroups = {
+  'Peitoral': MuscleGroup.chest,
+  'Dorsal': MuscleGroup.back,
+  'Costas / Cadeia Posterior': MuscleGroup.back,
+  'Deltoides': MuscleGroup.shoulders,
+  'Deltoides Posterior': MuscleGroup.shoulders,
+  'Trapézio': MuscleGroup.traps,
+  'Bíceps': MuscleGroup.biceps,
+  'Bíceps / Braquiorradial': MuscleGroup.biceps,
+  'Antebraço': MuscleGroup.forearms,
+  'Tríceps': MuscleGroup.triceps,
+  'Quadríceps / Glúteos': MuscleGroup.quads,
+  'Quadríceps': MuscleGroup.quads,
+  'Pernas': MuscleGroup.quads,
+  'Pernas / Glúteos': MuscleGroup.quads,
+  'Isquiotibiais': MuscleGroup.hamstrings,
+  'Isquiotibiais / Glúteos': MuscleGroup.hamstrings,
+  'Glúteos': MuscleGroup.glutes,
+  'Panturrilhas': MuscleGroup.calves,
+  'Core / Abdômen': MuscleGroup.core,
+  'Abdômen': MuscleGroup.core,
+  'Core': MuscleGroup.core,
+  'Cardiovascular': MuscleGroup.cardio,
+  'Pernas / Cardiovascular': MuscleGroup.cardio,
+  'Membros Inferiores': MuscleGroup.mobility,
+  'Corpo Inteiro': MuscleGroup.fullBody,
+};
+
+/// Portuguese equipment labels used before schema v3.
+const Map<String, Equipment> _legacyEquipment = {
+  'Barra': Equipment.barbell,
+  'Halter': Equipment.dumbbell,
+  'Máquina': Equipment.machine,
+  'Polia': Equipment.cable,
+  'Peso Corporal': Equipment.bodyweight,
+  'Outro': Equipment.other,
+};

@@ -3,6 +3,33 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-14 — Claude Code — Etapa 1: i18n pt/en, revamp pixel, configurações e créditos
+- **Idiomas:** ARB (`lib/l10n/arb`) para interface + mapas de conteúdo de jogo
+  (`lib/l10n/content`) com 170 chaves (atributos, 16 classes, origens,
+  missões, 64 exercícios, músculos, equipamentos). O motor não tem mais
+  textos: expõe ids/chaves. Missões gravam chaves no banco (linhas antigas
+  com texto pt continuam sendo exibidas).
+- **Visual pixel:** fontes empacotadas (Jersey 10/Inter/Cinzel, sem
+  google_fonts), kit `lib/app/ui/` e todas as telas reestilizadas.
+- **Configurações** (engrenagem no topo): idioma e estilo de fonte, salvos em
+  shared_preferences. **Créditos** com Leonardo Heck.
+- **Schema v3:** exercícios com `MuscleGroup`/`Equipment` (enums) + coluna
+  `tracking`; migração converte rótulos pt antigos. Catálogo sincronizado a
+  cada start (`syncCatalog`).
+- **Bugs corrigidos:**
+  - Retornos decrescentes nunca funcionavam: o enum `Attribute` tinha um
+    campo `name` ("Força") que sombreava o `.name` do Dart; a consulta do XP
+    do dia comparava "Força" com "strength". Teste de regressão adicionado.
+  - Com `material_ui`, os delegates gerados pelo gen-l10n não dão
+    MaterialLocalizations em pt → campos de texto/chips quebravam. Usar
+    `appLocalizationsDelegates`.
+- Dependências: + `flutter_localizations` (gen-l10n), − `google_fonts`
+  (fontes agora são assets, app 100% offline).
+- Testes: 43 (inclui conteúdo traduzido completo, configurações, fluxo de
+  onboarding em pt e en, busca do seletor em inglês).
+- **Próximo:** Etapa 2 — rotinas (4 modelos + personalizadas) e séries por
+  tempo (`SetTracking.duration` já existe no catálogo).
+
 ## 2026-11-14 — Claude Code — Protótipo pixel art + regras de bônus semanal
 - Usuário escolheu fonte **D (Jersey 10 + Inter)** e aprovou o revamp pixel.
 - `docs/design/prototype-pixel-v1.png`: protótipo de 3 telas (Herói, Treino

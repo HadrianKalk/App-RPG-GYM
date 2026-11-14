@@ -1,167 +1,123 @@
-﻿import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
+import '../../../app/ui/game_app_bar.dart';
+import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/pixel_tag.dart';
+import '../../../app/ui/segmented_bar.dart';
 import '../../../core/game/attributes.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
+import '../../../l10n/l10n.dart';
 
+/// Today's three quests. Progress is automatic (fed by workouts and
+/// activities); this screen only displays it.
 class QuestsScreen extends ConsumerWidget {
   const QuestsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final questsAsync = ref.watch(todayQuestsStreamProvider);
     final charAsync = ref.watch(characterStreamProvider);
-    final questRepo = ref.watch(questRepositoryProvider);
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Missões Diárias'),
-        actions: [
-          charAsync.when(
-            data: (char) => Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Chip(
-                avatar: const Text('✨', style: TextStyle(fontSize: 14)),
-                label: Text(
-                  '${char.inspirationCount} Inspiração',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                ),
-                backgroundColor: AppTheme.castIron,
-                side: const BorderSide(color: AppTheme.emberGold),
-              ),
-            ),
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-          ),
-        ],
-      ),
+      appBar: GameAppBar(title: l10n.questsTitle),
       body: questsAsync.when(
         data: (quests) {
           if (quests.isEmpty && charAsync.hasValue) {
-            // Gera as missões do dia
-            questRepo.ensureTodayQuestsGenerated(charAsync.value!);
-            return const Center(child: CircularProgressIndicator(color: AppTheme.emberGold));
+            // First visit of the day: generate (idempotent) and wait for the stream.
+            ref.read(questRepositoryProvider).ensureTodayQuestsGenerated(charAsync.value!);
+            return const Center(child: CircularProgressIndicator());
           }
-
           return ListView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12),
             children: [
-              // Banner Informativo
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.castIron,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.emberGold.withValues(alpha: 0.4)),
-                ),
+              PixelFrame(
                 child: Row(
-                  children: const [
-                    Icon(Icons.auto_stories, color: AppTheme.emberGold, size: 28),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'As missões diárias fortalecem seus pontos fracos e recompensam consistência com Inspiração ✨ para refazer rolagens na história.',
-                        style: TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-                      ),
-                    ),
+                  children: [
+                    const PixelIcon(PixelIcons.scroll, size: 26, color: AppTheme.emberGold),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(l10n.questsBanner, style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13))),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              Text('Objetivos de Hoje', style: textTheme.titleMedium),
               const SizedBox(height: 12),
-              ...quests.map((q) => _buildQuestCard(context, ref, q)),
+              Padding(
+                padding: const EdgeInsets.only(left: 2, bottom: 6),
+                child: Text(l10n.questsToday, style: Theme.of(context).textTheme.titleLarge),
+              ),
+              for (final q in quests) _QuestCard(quest: q),
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.emberGold)),
-        error: (err, _) => Center(child: Text('Erro ao carregar missões: $err', style: textTheme.bodyMedium)),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text(l10n.loadError('$err'))),
       ),
     );
   }
+}
 
-  Widget _buildQuestCard(BuildContext context, WidgetRef ref, DailyQuestsTableData quest) {
-    final progress = (quest.currentValue / quest.targetValue).clamp(0.0, 1.0);
+class _QuestCard extends StatelessWidget {
+  const _QuestCard({required this.quest});
+
+  final DailyQuestsTableData quest;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final game = context.game;
+    final display = DisplayFont.from(context);
     final isDone = quest.isCompleted;
+    final progress = quest.targetValue > 0 ? quest.currentValue / quest.targetValue : 0.0;
+    final attrColor = AppTheme.attributeColor(quest.targetAttribute);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDone ? AppTheme.emberGold.withValues(alpha: 0.08) : AppTheme.castIron,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDone ? AppTheme.emberGold : AppTheme.ironBorder,
-          width: isDone ? 1.5 : 1.0,
-        ),
-      ),
+    return PixelFrame(
+      highlight: isDone,
+      margin: const EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (isDone) ...[
+                const PixelIcon(PixelIcons.check, size: 18, color: AppTheme.emberGold),
+                const SizedBox(width: 6),
+              ],
+              Expanded(
+                child: Text(
+                  game.questTitle(quest.title, quest.description),
+                  style: display.style(21, color: isDone ? AppTheme.emberGold : AppTheme.ashWhite),
+                ),
+              ),
+              PixelTag(text: game.attributeCode(quest.targetAttribute), color: attrColor, fontSize: 15),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(game.questDescription(quest.description), style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13)),
+          const SizedBox(height: 10),
+          Row(
             children: [
               Expanded(
                 child: Text(
-                  quest.title,
-                  style: TextStyle(
-                    color: isDone ? AppTheme.emberGold : AppTheme.ashWhite,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                  l10n.questProgress(quest.currentValue.toInt(), quest.targetValue.toInt(), game.questUnit(quest.unit)),
+                  style: display.style(17),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppTheme.obsidianBlack,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppTheme.ironBorder),
-                ),
-                child: Text(
-                  quest.targetAttribute.code,
-                  style: const TextStyle(color: AppTheme.emberGold, fontWeight: FontWeight.bold, fontSize: 11),
-                ),
-              ),
+              if (quest.grantsInspiration) ...[
+                const PixelIcon(PixelIcons.star, size: 13, color: AppTheme.emberGold),
+                Text(' +1  ', style: display.style(17, color: AppTheme.emberGold)),
+              ],
+              Text(l10n.xpGain('${quest.bonusXp.toInt()}'), style: display.style(17, color: AppTheme.emberGold)),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            quest.description,
-            style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Progresso: ${quest.currentValue.toInt()} / ${quest.targetValue.toInt()} ${quest.unit}',
-                style: const TextStyle(color: AppTheme.ashWhite, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  const Text('✨ +1  ', style: TextStyle(color: AppTheme.emberGold, fontWeight: FontWeight.bold, fontSize: 12)),
-                  Text('+${quest.bonusXp.toInt()} XP', style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold, fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: AppTheme.obsidianBlack,
-              color: isDone ? AppTheme.emberGold : AppTheme.bloodCrimson,
-            ),
-          ),
+          const SizedBox(height: 5),
+          SegmentedBar(value: progress, color: isDone ? AppTheme.emberGold : AppTheme.bloodCrimson),
           if (!isDone) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             _QuestHint(attribute: quest.targetAttribute),
           ],
         ],
@@ -170,9 +126,7 @@ class QuestsScreen extends ConsumerWidget {
   }
 }
 
-
-/// Explica como a missão avança — o progresso é automático, vindo dos
-/// treinos e atividades registrados, e não de um botão.
+/// Explains how a quest advances and links to the right tab.
 class _QuestHint extends StatelessWidget {
   const _QuestHint({required this.attribute});
 
@@ -180,27 +134,23 @@ class _QuestHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final (String hint, String? route) = switch (attribute) {
-      Attribute.strength => ('Avança ao finalizar um treino.', '/workout'),
-      Attribute.dexterity => ('Avança com exercícios de mobilidade no treino.', '/workout'),
-      Attribute.constitution => ('Avança com cardio no treino ou 8h+ de sono.', '/activities'),
-      Attribute.intelligence => ('Avança com sessões de Pomodoro.', '/activities'),
-      Attribute.wisdom => ('Avança registrando meditação.', '/activities'),
-      Attribute.charisma => ('Registro de Carisma chega em breve.', null),
+      Attribute.strength => (l10n.questHintStrength, '/workout'),
+      Attribute.dexterity => (l10n.questHintDexterity, '/workout'),
+      Attribute.constitution => (l10n.questHintConstitution, '/activities'),
+      Attribute.intelligence => (l10n.questHintIntelligence, '/activities'),
+      Attribute.wisdom => (l10n.questHintWisdom, '/activities'),
+      Attribute.charisma => (l10n.questHintCharisma, null),
     };
 
     return Row(
       children: [
-        const Icon(Icons.auto_mode, size: 14, color: AppTheme.dullSilver),
+        const Icon(Icons.auto_mode, size: 14, color: AppTheme.darkAsh),
         const SizedBox(width: 6),
-        Expanded(
-          child: Text(hint, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
-        ),
+        Expanded(child: Text(hint, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12))),
         if (route != null)
-          TextButton(
-            onPressed: () => context.go(route),
-            child: const Text('Ir', style: TextStyle(color: AppTheme.emberGold, fontSize: 12)),
-          ),
+          TextButton(onPressed: () => context.go(route), child: Text(l10n.commonGo)),
       ],
     );
   }

@@ -1,146 +1,96 @@
-﻿import '../../../core/game/attributes.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../app/ui/game_app_bar.dart';
+import '../../../app/ui/pixel_button.dart';
+import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
 import '../../../data/repositories/providers.dart';
+import '../../../l10n/l10n.dart';
 import 'active_workout_screen.dart';
 
+/// Workout hub: start an empty workout or pick a routine.
+///
+/// NOTE: routine cards are temporary placeholders; the next step replaces
+/// them with the data-driven routine catalog (templates + custom routines).
 class WorkoutScreen extends ConsumerWidget {
   const WorkoutScreen({super.key});
 
+  Future<void> _start(BuildContext context, WidgetRef ref, String title) async {
+    final session = await ref.read(workoutRepositoryProvider).startWorkoutSession(title: title);
+    if (context.mounted) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(session: session)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textTheme = Theme.of(context).textTheme;
-    final workoutRepo = ref.watch(workoutRepositoryProvider);
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final routines = [
+      (l10n.routinePushTitle, l10n.routinePushSubtitle),
+      (l10n.routinePullTitle, l10n.routinePullSubtitle),
+      (l10n.routineLegsTitle, l10n.routineLegsSubtitle),
+      (l10n.routineCardioTitle, l10n.routineCardioSubtitle),
+    ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Treino do Aço'),
-      ),
+      appBar: GameAppBar(title: l10n.workoutTitle),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12),
         children: [
-          // Banner de Iniciar Treino
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.castIron, AppTheme.darkBlood],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.bloodCrimson.withValues(alpha: 0.6)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.bloodCrimson.withValues(alpha: 0.2),
-                  blurRadius: 16,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
+          PixelFrame(
+            highlight: true,
+            color: AppTheme.darkBlood,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.flash_on, color: AppTheme.emberGold, size: 28),
-                    SizedBox(width: 8),
-                    Text(
-                      'Forjar o Corpo',
-                      style: TextStyle(
-                        color: AppTheme.ashWhite,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  children: [
+                    const PixelIcon(PixelIcons.flame, size: 26, color: AppTheme.emberGold),
+                    const SizedBox(width: 10),
+                    Text(l10n.workoutForgeTitle, style: display.style(28)),
                   ],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Cada repetição alimenta Força, Destreza e Constituição. Recordes Pessoais geram bônus de XP instantâneo.',
-                  style: TextStyle(color: AppTheme.dullSilver, fontSize: 13),
+                const SizedBox(height: 6),
+                Text(l10n.workoutForgeBody, style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13)),
+                const SizedBox(height: 14),
+                PixelButton(
+                  label: l10n.workoutStartEmpty,
+                  icon: const Icon(Icons.play_arrow),
+                  onPressed: () => _start(context, ref, l10n.workoutDefaultTitle),
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('INICIAR TREINO VAZIO', style: TextStyle(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.emberGold,
-                      foregroundColor: AppTheme.obsidianBlack,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.only(left: 2, bottom: 6),
+            child: Text(l10n.routinesTitle, style: Theme.of(context).textTheme.titleLarge),
+          ),
+          for (final (title, subtitle) in routines)
+            PixelFrame(
+              margin: const EdgeInsets.only(bottom: 8),
+              onTap: () => _start(context, ref, title),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: display.style(21)),
+                        const SizedBox(height: 2),
+                        Text(subtitle, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
+                      ],
                     ),
-                    onPressed: () async {
-                      final session = await workoutRepo.startWorkoutSession(title: 'Treino de Força');
-                      if (context.mounted) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ActiveWorkoutScreen(session: session),
-                          ),
-                        );
-                      }
-                    },
                   ),
-                ),
-              ],
+                  const Icon(Icons.play_arrow, color: AppTheme.emberGold, size: 28),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text('Rotinas Populares', style: textTheme.titleMedium),
-          const SizedBox(height: 12),
-          _buildRoutineCard(context, ref, 'Push / Peito, Ombro e Tríceps', 'Supino, Militar, Elevação Lateral, Paralelas', Attribute.strength),
-          const SizedBox(height: 8),
-          _buildRoutineCard(context, ref, 'Pull / Costas e Bíceps', 'Puxada Alta, Remada Curvada, Terra, Rosca', Attribute.strength),
-          const SizedBox(height: 8),
-          _buildRoutineCard(context, ref, 'Legs / Pernas e Glúteos', 'Agachamento, Leg Press, Stiff, Panturrilhas', Attribute.strength),
-          const SizedBox(height: 8),
-          _buildRoutineCard(context, ref, 'Cardio & Mobilidade', 'Corrida, Corda, Alongamentos, Yoga', Attribute.constitution),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRoutineCard(BuildContext context, WidgetRef ref, String title, String subtitle, Attribute attr) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.castIron,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.ironBorder),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.play_circle_outline, color: AppTheme.emberGold, size: 28),
-            onPressed: () async {
-              final workoutRepo = ref.read(workoutRepositoryProvider);
-              final session = await workoutRepo.startWorkoutSession(title: title);
-              if (context.mounted) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => ActiveWorkoutScreen(session: session),
-                  ),
-                );
-              }
-            },
-          ),
         ],
       ),
     );
   }
 }
-

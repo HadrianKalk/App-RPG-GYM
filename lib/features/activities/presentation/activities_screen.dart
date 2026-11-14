@@ -1,8 +1,14 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../app/ui/game_app_bar.dart';
+import '../../../app/ui/pixel_button.dart';
+import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/segmented_bar.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/game/attributes.dart';
 import '../../../data/repositories/providers.dart';
 
@@ -14,14 +20,14 @@ class ActivitiesScreen extends ConsumerStatefulWidget {
 }
 
 class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
-  // Pomodoro State
+  // Pomodoro state
   Timer? _pomodoroTimer;
   int _pomodoroSeconds = 25 * 60;
   int _initialSeconds = 25 * 60;
   bool _isRunning = false;
-  final TextEditingController _subjectController = TextEditingController(text: 'Estudo Focado');
+  final TextEditingController _subjectController = TextEditingController();
 
-  // Sono State
+  // Sleep state
   double _hoursSlept = 7.5;
 
   @override
@@ -59,102 +65,58 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
   }
 
   Future<void> _completePomodoroSession() async {
+    final l10n = context.l10n;
     final elapsedMinutes = ((_initialSeconds - _pomodoroSeconds) / 60).round();
-    final actualMinutes = elapsedMinutes > 0 ? elapsedMinutes : (_initialSeconds / 60).round();
-
-    final activityRepo = ref.read(activityRepositoryProvider);
-    final earnedXp = await activityRepo.logPomodoroStudy(
-      durationMinutes: actualMinutes,
-      subject: _subjectController.text.trim().isNotEmpty ? _subjectController.text.trim() : null,
-    );
-
+    final minutes = elapsedMinutes > 0 ? elapsedMinutes : (_initialSeconds / 60).round();
+    final subject = _subjectController.text.trim();
+    final earnedXp = await ref.read(activityRepositoryProvider).logPomodoroStudy(
+          durationMinutes: minutes,
+          subject: subject.isNotEmpty ? subject : l10n.pomodoroDefaultSubject,
+        );
     _resetPomodoro(25);
-
     if (mounted) {
-      _showRewardDialog(
-        title: 'Mente Forjada!',
-        attribute: Attribute.intelligence,
-        earnedXp: earnedXp,
-        message: 'Você completou $actualMinutes minutos de foco e ganhou XP de Inteligência.',
-      );
+      _showReward(l10n.rewardIntTitle, Attribute.intelligence, earnedXp, l10n.rewardIntMessage(minutes));
     }
   }
 
   Future<void> _logSleep() async {
-    final activityRepo = ref.read(activityRepositoryProvider);
-    final earnedXp = await activityRepo.logSleep(hoursSlept: _hoursSlept);
-
+    final l10n = context.l10n;
+    final earnedXp = await ref.read(activityRepositoryProvider).logSleep(hoursSlept: _hoursSlept);
     if (mounted) {
-      _showRewardDialog(
-        title: 'Corpo Recuperado!',
-        attribute: Attribute.constitution,
-        earnedXp: earnedXp,
-        message: '${_hoursSlept.toStringAsFixed(1)} horas de descanso registradas. Sua Constituição aumentou.',
-      );
+      _showReward(l10n.rewardConTitle, Attribute.constitution, earnedXp, l10n.rewardConMessage(_hoursSlept.toStringAsFixed(1)));
     }
   }
 
   Future<void> _logMeditation(int minutes) async {
-    final activityRepo = ref.read(activityRepositoryProvider);
-    final earnedXp = await activityRepo.logMeditation(durationMinutes: minutes);
-
+    final l10n = context.l10n;
+    final earnedXp = await ref.read(activityRepositoryProvider).logMeditation(durationMinutes: minutes);
     if (mounted) {
-      _showRewardDialog(
-        title: 'Quietude Interior',
-        attribute: Attribute.wisdom,
-        earnedXp: earnedXp,
-        message: '$minutes minutos de presença e reflexão. Sua Sabedoria aumentou.',
-      );
+      _showReward(l10n.rewardWisTitle, Attribute.wisdom, earnedXp, l10n.rewardWisMessage(minutes));
     }
   }
 
-  void _showRewardDialog({
-    required String title,
-    required Attribute attribute,
-    required double earnedXp,
-    required String message,
-  }) {
+  /// Small reward dialog after logging an activity.
+  void _showReward(String title, Attribute attribute, double earnedXp, String message) {
+    final display = DisplayFont.from(context);
+    final color = AppTheme.attributeColor(attribute);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.castIron,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppTheme.emberGold),
-        ),
-        title: Text(title, style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold)),
+        title: Text(title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppTheme.obsidianBlack,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppTheme.emberGold),
-                  ),
-                  child: Text('+${earnedXp.toStringAsFixed(1)} XP', style: const TextStyle(color: AppTheme.emberGold, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(width: 8),
-                Text('(${attribute.name})', style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold)),
-              ],
+            Text(
+              '${ctx.l10n.xpGain(earnedXp.toStringAsFixed(1))}  ${ctx.game.attributeName(attribute)}',
+              style: display.style(28, color: color),
             ),
-            const SizedBox(height: 12),
-            Text(message, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13)),
+            const SizedBox(height: 8),
+            Text(message),
           ],
         ),
         actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.emberGold,
-              foregroundColor: AppTheme.obsidianBlack,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Ótimo'),
-          ),
+          PixelButton(label: ctx.l10n.commonGreat, expand: false, onPressed: () => Navigator.of(ctx).pop()),
         ],
       ),
     );
@@ -166,213 +128,132 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  /// Section header: colored attribute square + title.
+  Widget _header(String title, Attribute attribute, {Widget? trailing}) {
+    return Row(
+      children: [
+        Container(width: 10, height: 10, color: AppTheme.attributeColor(attribute)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(title, style: DisplayFont.from(context).style(22))),
+        ?trailing,
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
     final progress = (_initialSeconds - _pomodoroSeconds) / _initialSeconds;
+    final intColor = AppTheme.attributeColor(Attribute.intelligence);
+    final conColor = AppTheme.attributeColor(Attribute.constitution);
+    final wisColor = AppTheme.attributeColor(Attribute.wisdom);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Atividades da Vida Real'),
-      ),
+      appBar: GameAppBar(title: l10n.activitiesTitle),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12),
         children: [
-          // --- CARD DO POMODORO (INTELIGÊNCIA) ---
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppTheme.castIron,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.colorIntelligence.withValues(alpha: 0.6)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.colorIntelligence.withValues(alpha: 0.1),
-                  blurRadius: 16,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
+          // --- Pomodoro (INT) ---
+          PixelFrame(
+            borderColor: intColor,
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.auto_stories, color: AppTheme.colorIntelligence, size: 22),
-                        SizedBox(width: 8),
-                        Text(
-                          'Timer Pomodoro (INT)',
-                          style: TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${(_initialSeconds / 60).round()} min',
-                      style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
-                    ),
-                  ],
+                _header(
+                  '${l10n.pomodoroTitle} · ${context.game.attributeCode(Attribute.intelligence)}',
+                  Attribute.intelligence,
+                  trailing: Text(l10n.minutesShort((_initialSeconds / 60).round()), style: display.style(17, color: AppTheme.dullSilver)),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 TextField(
                   controller: _subjectController,
-                  style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: 'O que você está estudando?',
-                    hintStyle: const TextStyle(color: AppTheme.darkAsh),
-                    filled: true,
-                    fillColor: AppTheme.obsidianBlack,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppTheme.ironBorder)),
-                  ),
+                  style: const TextStyle(color: AppTheme.ashWhite, fontSize: 14),
+                  decoration: InputDecoration(hintText: l10n.pomodoroSubjectHint, isDense: true),
                 ),
-                const SizedBox(height: 20),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 140,
-                      height: 140,
-                      child: CircularProgressIndicator(
-                        value: progress,
-                        strokeWidth: 8,
-                        backgroundColor: AppTheme.obsidianBlack,
-                        color: AppTheme.colorIntelligence,
-                      ),
-                    ),
-                    Text(
-                      _formatTimer(_pomodoroSeconds),
-                      style: const TextStyle(color: AppTheme.ashWhite, fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                Text(_formatTimer(_pomodoroSeconds), style: display.style(72, height: 1)),
+                const SizedBox(height: 8),
+                SegmentedBar(value: progress, segments: 25, color: intColor, height: 10),
+                const SizedBox(height: 14),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    OutlinedButton(
-                      onPressed: () => _resetPomodoro(25),
-                      child: const Text('25 min', style: TextStyle(color: AppTheme.ashWhite)),
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: () => _resetPomodoro(50),
-                      child: const Text('50 min', style: TextStyle(color: AppTheme.ashWhite)),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton.icon(
-                      onPressed: _togglePomodoro,
-                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                      label: Text(_isRunning ? 'Pausar' : 'Iniciar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.colorIntelligence,
-                        foregroundColor: AppTheme.ashWhite,
-                      ),
-                    ),
-                    if (_pomodoroSeconds < _initialSeconds) ...[
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.check, color: AppTheme.emberGold),
-                        tooltip: 'Concluir Agora',
-                        onPressed: _completePomodoroSession,
+                    for (final m in const [25, 50]) ...[
+                      if (m != 25) const SizedBox(width: 8),
+                      Expanded(
+                        child: PixelButton(
+                          label: l10n.minutesShort(m),
+                          variant: (_initialSeconds == m * 60) ? PixelButtonVariant.primary : PixelButtonVariant.secondary,
+                          onPressed: _isRunning ? null : () => _resetPomodoro(m),
+                        ),
                       ),
                     ],
                   ],
                 ),
+                const SizedBox(height: 8),
+                PixelButton(
+                  label: _isRunning ? l10n.timerPause : l10n.timerStart,
+                  icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                  variant: _isRunning ? PixelButtonVariant.danger : PixelButtonVariant.primary,
+                  onPressed: _togglePomodoro,
+                ),
+                if (_pomodoroSeconds < _initialSeconds)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(onPressed: _completePomodoroSession, child: Text(l10n.timerFinishNow)),
+                  ),
               ],
             ),
           ),
-
-          const SizedBox(height: 20),
-          Text('Descanso & Saúde', style: textTheme.titleMedium),
-          const SizedBox(height: 12),
-
-          // --- CARD DE SONO (CONSTITUIÇÃO) ---
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.castIron,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.ironBorder),
-            ),
+          const SizedBox(height: 14),
+          Text(l10n.healthSection, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 6),
+          // --- Sleep (CON) ---
+          PixelFrame(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.bedtime_outlined, color: AppTheme.colorConstitution, size: 20),
-                        SizedBox(width: 8),
-                        Text('Sono Reparador (CON)', style: TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    Text(
-                      '${_hoursSlept.toStringAsFixed(1)} horas',
-                      style: const TextStyle(color: AppTheme.colorConstitution, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                _header(
+                  '${l10n.sleepTitle} · ${context.game.attributeCode(Attribute.constitution)}',
+                  Attribute.constitution,
+                  trailing: Text(l10n.hoursValue(_hoursSlept.toStringAsFixed(1)), style: display.style(24, color: conColor)),
                 ),
-                const SizedBox(height: 8),
                 Slider(
                   value: _hoursSlept,
                   min: 4.0,
                   max: 12.0,
                   divisions: 16,
-                  activeColor: AppTheme.colorConstitution,
-                  inactiveColor: AppTheme.obsidianBlack,
+                  activeColor: conColor,
+                  thumbColor: conColor,
                   onChanged: (val) => setState(() => _hoursSlept = val),
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.obsidianBlack,
-                      foregroundColor: AppTheme.colorConstitution,
-                      side: const BorderSide(color: AppTheme.colorConstitution),
-                    ),
-                    onPressed: _logSleep,
-                    child: const Text('Registrar Sono de Ontem'),
-                  ),
-                ),
+                PixelButton(label: l10n.sleepLog, variant: PixelButtonVariant.secondary, onPressed: _logSleep),
               ],
             ),
           ),
-
-          const SizedBox(height: 16),
-          Text('Sabedoria & Presença', style: textTheme.titleMedium),
-          const SizedBox(height: 12),
-
-          // --- CARD DE MEDITAÇÃO (SABEDORIA) ---
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.castIron,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.ironBorder),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(height: 14),
+          Text(l10n.wisdomSection, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 6),
+          // --- Meditation (WIS) ---
+          PixelFrame(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: const [
-                    Icon(Icons.self_improvement, color: AppTheme.colorWisdom, size: 24),
-                    SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Meditação & Diário (SAB)', style: TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold)),
-                        Text('Quietude mental e presença', style: TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
-                      ],
-                    ),
-                  ],
-                ),
+                _header('${l10n.meditationTitle} · ${context.game.attributeCode(Attribute.wisdom)}', Attribute.wisdom),
+                const SizedBox(height: 2),
+                Text(l10n.meditationSubtitle, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    TextButton(onPressed: () => _logMeditation(10), child: const Text('+10m', style: TextStyle(color: AppTheme.colorWisdom))),
-                    TextButton(onPressed: () => _logMeditation(20), child: const Text('+20m', style: TextStyle(color: AppTheme.colorWisdom))),
+                    for (final m in const [10, 20]) ...[
+                      if (m != 10) const SizedBox(width: 8),
+                      Expanded(
+                        child: PixelButton(
+                          label: l10n.plusMinutes(m),
+                          variant: PixelButtonVariant.secondary,
+                          icon: PixelIcon(PixelIcons.plus, size: 14, color: wisColor),
+                          onPressed: () => _logMeditation(m),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

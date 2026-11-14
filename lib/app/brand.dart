@@ -1,23 +1,17 @@
-﻿/// Centraliza toda a identidade de marca e nomenclatura do aplicativo.
+/// Single source of truth for the product name.
 ///
-/// Se no futuro você quiser alterar o nome do projeto (ex: de "Grindheim"
-/// para qualquer outro ou mudar para uma franquia), basta alterar os valores abaixo.
+/// Changing the game/franchise name only requires editing these constants.
+/// Taglines/subtitles are translatable, so they live in the ARB files.
 abstract final class AppBrand {
-  /// Nome da série / franquia (opcional)
+  /// Franchise / series name.
   static const String seriesTitle = 'RPGym';
 
-  /// Nome do jogo / universo atual
+  /// Current game name.
   static const String appName = 'Grindheim';
 
-  /// Subtítulo / Tema
-  static const String subtitle = 'A Forja dos Heróis';
-
-  /// Slogan de apresentação
-  static const String tagline = 'Forje seu personagem através do esforço real.';
-
-  /// Título completo para cabeçalhos e janelas
+  /// Full title used in window titles and headers.
   static const String fullTitle = '$seriesTitle: $appName';
 
-  /// Versão de exibição
-  static const String version = '0.1.0 (Alfa)';
+  /// Display version.
+  static const String version = '0.2.0 (Alfa)';
 }

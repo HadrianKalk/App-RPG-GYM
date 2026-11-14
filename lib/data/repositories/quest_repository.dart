@@ -40,8 +40,8 @@ class QuestRepository {
             (q) => DailyQuestsTableCompanion.insert(
               id: q.id,
               dateStr: todayStr,
-              title: q.title,
-              description: q.description,
+              title: q.titleKey,
+              description: q.descriptionKey,
               targetAttribute: q.targetAttribute,
               targetValue: q.targetValue,
               currentValue: q.currentValue,

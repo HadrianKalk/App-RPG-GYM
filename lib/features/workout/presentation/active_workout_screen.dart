@@ -1,8 +1,14 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../app/ui/pixel_button.dart';
+import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/pixel_tag.dart';
+import '../../../app/ui/segmented_bar.dart';
+import '../../../l10n/l10n.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
 import 'exercise_picker_sheet.dart';
@@ -48,6 +54,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   // Timer de Descanso entre séries
   Timer? _restTimer;
   int _restSecondsRemaining = 0;
+  int _restTotalSeconds = 90;
 
   @override
   void initState() {
@@ -66,7 +73,10 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   void _startRestTimer(int seconds) {
     _restTimer?.cancel();
-    setState(() => _restSecondsRemaining = seconds);
+    setState(() {
+      _restSecondsRemaining = seconds;
+      _restTotalSeconds = seconds;
+    });
     _restTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_restSecondsRemaining > 0) {
         if (mounted) setState(() => _restSecondsRemaining--);
@@ -123,7 +133,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     });
 
     if (newStatus) {
-      _startRestTimer(90); // 90 segundos padrão de descanso
+      _startRestTimer(90); // default rest: 90 seconds
     }
   }
 
@@ -132,51 +142,35 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     final earnedXp = await workoutRepo.completeWorkoutSession(widget.session.id);
 
     if (!mounted) return;
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
 
+    // Temporary summary; replaced by the full "Workout Complete" rewards
+    // screen (with every bonus and its reason) in the history/bonus step.
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.castIron,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppTheme.emberGold),
-        ),
-        title: Row(
-          children: const [
-            Icon(Icons.workspace_premium, color: AppTheme.emberGold, size: 28),
-            SizedBox(width: 8),
-            Text('Treino Concluído!', style: TextStyle(color: AppTheme.ashWhite)),
-          ],
-        ),
+        title: Text(l10n.workoutDoneTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Duração: ${_formatDuration(_secondsElapsed)}', style: const TextStyle(color: AppTheme.dullSilver)),
+            Text(l10n.workoutDuration(_formatDuration(_secondsElapsed))),
             const SizedBox(height: 8),
-            Text(
-              'XP Conquistado: +${earnedXp.toStringAsFixed(1)} XP',
-              style: const TextStyle(color: AppTheme.emberGold, fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Seus músculos se fortaleceram e seu personagem absorveu a experiência do aço.',
-              style: TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-            ),
+            Text(l10n.xpGain(earnedXp.toStringAsFixed(1)), style: display.style(30, color: AppTheme.emberGold)),
+            const SizedBox(height: 8),
+            Text(l10n.workoutDoneFlavor, style: const TextStyle(color: AppTheme.ashWhite)),
           ],
         ),
         actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.emberGold,
-              foregroundColor: AppTheme.obsidianBlack,
-            ),
+          PixelButton(
+            label: l10n.workoutDoneButton,
+            expand: false,
             onPressed: () {
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Retornar à Forja', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -185,20 +179,20 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.session.title),
         actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Text(
-                _formatDuration(_secondsElapsed),
-                style: const TextStyle(
-                  color: AppTheme.emberGold,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              child: PixelTag(
+                text: _formatDuration(_secondsElapsed),
+                color: AppTheme.ashWhite,
+                background: AppTheme.darkBlood,
+                fontSize: 20,
               ),
             ),
           ),
@@ -206,94 +200,86 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       ),
       body: Column(
         children: [
-          // Banner de Descanso (se ativo)
           if (_restSecondsRemaining > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: AppTheme.darkBlood,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            PixelFrame(
+              margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Column(
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.timer, color: AppTheme.ashWhite, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Descanso: ${_formatDuration(_restSecondsRemaining)}',
-                        style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold),
+                      Text(l10n.restLabel, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13)),
+                      const Spacer(),
+                      Text(_formatDuration(_restSecondsRemaining), style: display.style(30, color: AppTheme.emberGold, height: 1)),
+                      TextButton(
+                        onPressed: () => setState(() => _restSecondsRemaining = 0),
+                        child: Text(l10n.restSkip),
                       ),
                     ],
                   ),
-                  TextButton(
-                    onPressed: () => setState(() => _restSecondsRemaining = 0),
-                    child: const Text('Pular', style: TextStyle(color: AppTheme.ashWhite, fontSize: 12)),
+                  SegmentedBar(
+                    value: _restSecondsRemaining / _restTotalSeconds,
+                    segments: 30,
+                    color: AppTheme.bloodCrimson,
                   ),
                 ],
               ),
             ),
-
           Expanded(
             child: _exercises.isEmpty
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.fitness_center_outlined, size: 64, color: AppTheme.ironBorder),
-                        const SizedBox(height: 16),
-                        const Text('Nenhum exercício adicionado ainda.', style: TextStyle(color: AppTheme.dullSilver)),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: _addExercise,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Adicionar Exercício'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.emberGold,
-                            foregroundColor: AppTheme.obsidianBlack,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const PixelIcon(PixelIcons.dumbbell, size: 64, color: AppTheme.ironBorder),
+                          const SizedBox(height: 12),
+                          Text(l10n.activeEmpty),
+                          const SizedBox(height: 16),
+                          PixelButton(
+                            label: l10n.addExercise,
+                            expand: false,
+                            icon: const Icon(Icons.add),
+                            onPressed: _addExercise,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(12),
                     itemCount: _exercises.length,
-                    itemBuilder: (context, index) {
-                      final group = _exercises[index];
-                      return _buildExerciseCard(group);
-                    },
+                    itemBuilder: (context, index) => _buildExerciseCard(_exercises[index]),
                   ),
           ),
-
-          // Botões de Ação Inferiores
           Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(
               color: AppTheme.castIron,
-              border: Border(top: BorderSide(color: AppTheme.ironBorder)),
+              border: Border(top: BorderSide(color: AppTheme.forgedSteel, width: 3)),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _addExercise,
-                    icon: const Icon(Icons.add, color: AppTheme.emberGold),
-                    label: const Text('Exercício', style: TextStyle(color: AppTheme.emberGold)),
-                    style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.emberGold)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _exercises.isNotEmpty ? _finishWorkout : null,
-                    icon: const Icon(Icons.check),
-                    label: const Text('Concluir'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.colorStrength,
-                      foregroundColor: AppTheme.ashWhite,
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PixelButton(
+                      label: l10n.exerciseShort,
+                      variant: PixelButtonVariant.secondary,
+                      icon: const Icon(Icons.add),
+                      onPressed: _addExercise,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: PixelButton(
+                      label: l10n.finishWorkout,
+                      icon: const Icon(Icons.check),
+                      onPressed: _exercises.isNotEmpty ? _finishWorkout : null,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -302,130 +288,98 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   }
 
   Widget _buildExerciseCard(LocalExerciseGroup group) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.castIron,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.ironBorder),
-      ),
+    final l10n = context.l10n;
+    final game = context.game;
+    final display = DisplayFont.from(context);
+    final ex = group.exercise;
+    final head = display.style(15, color: AppTheme.darkAsh);
+
+    return PixelFrame(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  group.exercise.name,
-                  style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.obsidianBlack,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  group.exercise.attribute.code,
-                  style: const TextStyle(color: AppTheme.emberGold, fontWeight: FontWeight.bold, fontSize: 11),
-                ),
-              ),
+              Expanded(child: Text(game.exerciseName(ex.id, ex.name), style: display.style(22))),
+              PixelTag(text: game.attributeCode(ex.attribute), color: AppTheme.attributeColor(ex.attribute), fontSize: 15),
             ],
           ),
-          const SizedBox(height: 12),
-          // Cabeçalho da tabela
-          const Row(
+          Text(
+            '${game.muscle(ex.muscleGroup)} · ${game.equipment(ex.equipment)}',
+            style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
+          ),
+          const SizedBox(height: 10),
+          Row(
             children: [
-              SizedBox(width: 40, child: Text('SÉRIE', style: TextStyle(fontSize: 10, color: AppTheme.darkAsh, fontWeight: FontWeight.bold))),
-              Expanded(child: Center(child: Text('KG', style: TextStyle(fontSize: 10, color: AppTheme.darkAsh, fontWeight: FontWeight.bold)))),
-              Expanded(child: Center(child: Text('REPS', style: TextStyle(fontSize: 10, color: AppTheme.darkAsh, fontWeight: FontWeight.bold)))),
-              SizedBox(width: 48, child: Center(child: Text('✔', style: TextStyle(fontSize: 12, color: AppTheme.darkAsh, fontWeight: FontWeight.bold)))),
+              SizedBox(width: 44, child: Text(l10n.colSet, style: head)),
+              Expanded(child: Center(child: Text(l10n.colKg, style: head))),
+              Expanded(child: Center(child: Text(l10n.colReps, style: head))),
+              const SizedBox(width: 44),
             ],
           ),
-          const Divider(height: 8),
-          // Linhas de séries
-          ...group.sets.map((s) {
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-              decoration: BoxDecoration(
-                color: s.isCompleted ? AppTheme.emberGold.withValues(alpha: 0.1) : AppTheme.obsidianBlack,
-                borderRadius: BorderRadius.circular(8),
-              ),
+          for (final s in group.sets)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              color: s.isCompleted ? AppTheme.doneGreen : null,
               child: Row(
                 children: [
                   SizedBox(
-                    width: 34,
+                    width: 44,
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${s.setOrder}', style: const TextStyle(color: AppTheme.ashWhite, fontWeight: FontWeight.bold)),
-                        if (s.isPr) const Text('🏆', style: TextStyle(fontSize: 10)),
+                        Text('${s.setOrder}', style: display.style(20)),
+                        if (s.isPr) ...[
+                          const SizedBox(width: 2),
+                          const PixelIcon(PixelIcons.trophy, size: 12, color: AppTheme.emberGold),
+                        ],
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: TextFormField(
-                        initialValue: s.weightKg.toStringAsFixed(1),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-                        onChanged: (val) => s.weightKg = double.tryParse(val) ?? s.weightKg,
-                        decoration: const InputDecoration(isDense: true, border: InputBorder.none),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: TextFormField(
-                        initialValue: '${s.reps}',
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-                        onChanged: (val) => s.reps = int.tryParse(val) ?? s.reps,
-                        decoration: const InputDecoration(isDense: true, border: InputBorder.none),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _numberCell(s.weightKg.toStringAsFixed(1), true, (v) => s.weightKg = double.tryParse(v.replaceAll(',', '.')) ?? s.weightKg)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _numberCell('${s.reps}', false, (v) => s.reps = int.tryParse(v) ?? s.reps)),
                   SizedBox(
-                    width: 48,
+                    width: 44,
                     child: IconButton(
-                      icon: Icon(
-                        s.isCompleted ? Icons.check_circle : Icons.check_circle_outline,
-                        color: s.isCompleted ? AppTheme.emberGold : AppTheme.darkAsh,
-                        size: 24,
-                      ),
+                      icon: s.isCompleted
+                          ? const PixelIcon(PixelIcons.check, size: 22, color: AppTheme.emberGold)
+                          : Container(width: 20, height: 20, decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2))),
                       onPressed: () => _toggleSetCompleted(group, s),
                     ),
                   ),
                 ],
               ),
-            );
-          }),
-          const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: () {
-              setState(() {
-                final lastSet = group.sets.last;
-                group.sets.add(
-                  LocalSetItem(
-                    setOrder: group.sets.length + 1,
-                    weightKg: lastSet.weightKg,
-                    reps: lastSet.reps,
-                  ),
-                );
-              });
-            },
-            icon: const Icon(Icons.add, size: 16, color: AppTheme.emberGold),
-            label: const Text('Adicionar Série', style: TextStyle(color: AppTheme.emberGold, fontSize: 12)),
+            ),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: () => setState(() {
+              final last = group.sets.last;
+              group.sets.add(LocalSetItem(setOrder: group.sets.length + 1, weightKg: last.weightKg, reps: last.reps));
+            }),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2)),
+              child: Text('+ ${l10n.addSet}', textAlign: TextAlign.center, style: display.style(18, color: AppTheme.dullSilver)),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Numeric input cell styled as a dark pixel box.
+  Widget _numberCell(String initial, bool decimal, ValueChanged<String> onChanged) {
+    return TextFormField(
+      initialValue: initial,
+      keyboardType: TextInputType.numberWithOptions(decimal: decimal),
+      textAlign: TextAlign.center,
+      style: DisplayFont.from(context).style(20),
+      onChanged: onChanged,
+      decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 6)),
     );
   }
 }

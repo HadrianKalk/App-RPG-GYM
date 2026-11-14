@@ -1,113 +1,79 @@
-﻿import 'attributes.dart';
+import 'attributes.dart';
 
-/// As 16 classes possíveis no jogo (15 combinações dos 2 maiores atributos + Aventureiro equilibrado).
+/// The 16 possible classes: 15 combinations of the two highest attributes,
+/// plus the balanced Adventurer. Texts live in the localized game content
+/// under `class.<enumName>.title` / `.lore`.
 enum CharacterClass {
   adventurer(
-    title: 'Aventureiro',
-    lore: 'Seus atributos são equilibrados. Versátil e pronto para qualquer desafio que o mundo imponha.',
     primary: null,
     secondary: null,
   ),
   warrior(
-    title: 'Guerreiro',
-    lore: 'Mestre da técnica de combate e potência pura. União devastadora de Força e Destreza.',
     primary: Attribute.strength,
     secondary: Attribute.dexterity,
   ),
   barbarian(
-    title: 'Bárbaro',
-    lore: 'Resistência implacável e poder bruto. Um colosso forjado em Força e Constituição.',
     primary: Attribute.strength,
     secondary: Attribute.constitution,
   ),
   eldritchKnight(
-    title: 'Cavaleiro Arcano',
-    lore: 'Canaliza inteligência lógica através da lâmina. A perfeita síntese de Força e Mente analítica.',
     primary: Attribute.strength,
     secondary: Attribute.intelligence,
   ),
   templar(
-    title: 'Templário',
-    lore: 'Fé inabalável e músculos de ferro. Guiado pela intuição da Sabedoria e força da determinação.',
     primary: Attribute.strength,
     secondary: Attribute.wisdom,
   ),
   paladin(
-    title: 'Paladino',
-    lore: 'Liderança inspiradora e força indomável. Seu juramento brilha na Força e no Carisma.',
     primary: Attribute.strength,
     secondary: Attribute.charisma,
   ),
   ranger(
-    title: 'Patrulheiro',
-    lore: 'Resistência nas marchas selvagens e reflexos afiados. Destreza combinada com vigor de Constituição.',
     primary: Attribute.dexterity,
     secondary: Attribute.constitution,
   ),
   rogue(
-    title: 'Ladino',
-    lore: 'Precisão cirúrgica e raciocínio afiado. Destreza rápida aliada a uma Inteligência estratégica.',
     primary: Attribute.dexterity,
     secondary: Attribute.intelligence,
   ),
   monk(
-    title: 'Monge',
-    lore: 'Harmonia absoluta entre reflexos corporais e quietude interior. Destreza e Sabedoria meditativa.',
     primary: Attribute.dexterity,
     secondary: Attribute.wisdom,
   ),
   bard(
-    title: 'Bardo',
-    lore: 'Agilidade de dedos e fascínio natural. Encanta multidões com Destreza artística e Carisma.',
     primary: Attribute.dexterity,
     secondary: Attribute.charisma,
   ),
   artificer(
-    title: 'Artífice',
-    lore: 'Engenho meticuloso e saúde de ferro para noites na forja. Constituição e Inteligência inventiva.',
     primary: Attribute.constitution,
     secondary: Attribute.intelligence,
   ),
   druid(
-    title: 'Druida',
-    lore: 'Conexão profunda com os ciclos da vida e vitalidade orgânica. Constituição e Sabedoria natural.',
     primary: Attribute.constitution,
     secondary: Attribute.wisdom,
   ),
   sorcerer(
-    title: 'Feiticeiro',
-    lore: 'Poder inato que pulsa no sangue e presença magnética. Constituição física sustentando Carisma primal.',
     primary: Attribute.constitution,
     secondary: Attribute.charisma,
   ),
   mage(
-    title: 'Mago',
-    lore: 'Erudição profunda e discernimento aguçado. Domínio da Inteligência técnica e Sabedoria ancestral.',
     primary: Attribute.intelligence,
     secondary: Attribute.wisdom,
   ),
   warlock(
-    title: 'Bruxo',
-    lore: 'Pactos de poder e intelecto ambicioso. A mente perspicaz da Inteligência com o magnetismo do Carisma.',
     primary: Attribute.intelligence,
     secondary: Attribute.charisma,
   ),
   cleric(
-    title: 'Clérigo',
-    lore: 'Voz da fé e guia de espíritos. Sabedoria espiritual expressa através de um Carisma pastoral.',
     primary: Attribute.wisdom,
     secondary: Attribute.charisma,
   );
 
   const CharacterClass({
-    required this.title,
-    required this.lore,
     required this.primary,
     required this.secondary,
   });
 
-  final String title;
-  final String lore;
   final Attribute? primary;
   final Attribute? secondary;
 }

@@ -49,3 +49,16 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
       meta cumprida (máx. +50%).
     - Toda recompensa aparece **com o motivo** na tela "Treino Concluído",
       linha por linha, para reforçar a sensação de conquista.
+23. **Configurações**: idioma (aparelho / pt / en) e estilo de fonte de
+    destaque (Pixel = Jersey 10 / Clássica = Cinzel). Texto corrido sempre Inter.
+    Idioma do aparelho não suportado → inglês.
+24. **Créditos**: tela em Configurações › Créditos, lista em
+    `lib/features/settings/domain/credits.dart`. Primeiro nome: Leonardo Heck
+    (Apoio e ideias).
+25. **Constituição = saúde**: além de cardio e sono, CON passa a incluir
+    hidratação (meta diária de água) e adesão à dieta (check-in diário).
+    Implementar junto do registro de atividades (item 4 do STATUS). Sem
+    alegações médicas; metas ajustáveis pelo usuário.
+26. **Catálogo de exercícios sincronizado** a cada inicialização a partir de
+    `exercise_seed.dart` (upsert), com taxonomia normalizada
+    (`MuscleGroup`, `Equipment`, `SetTracking`).

@@ -183,7 +183,7 @@ void main() {
 
       for (int i = 0; i < 3; i++) {
         expect(quests1[i].id, equals(quests2[i].id));
-        expect(quests1[i].title, equals(quests2[i].title));
+        expect(quests1[i].titleKey, equals(quests2[i].titleKey));
         expect(quests1[i].targetAttribute, equals(quests2[i].targetAttribute));
         expect(quests1[i].targetValue, equals(quests2[i].targetValue));
       }

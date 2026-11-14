@@ -423,28 +423,24 @@ class $ExercisesTable extends Exercises
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _muscleGroupMeta = const VerificationMeta(
-    'muscleGroup',
-  );
   @override
-  late final GeneratedColumn<String> muscleGroup = GeneratedColumn<String>(
-    'muscle_group',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _equipmentMeta = const VerificationMeta(
-    'equipment',
-  );
+  late final GeneratedColumnWithTypeConverter<MuscleGroup, String> muscleGroup =
+      GeneratedColumn<String>(
+        'muscle_group',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<MuscleGroup>($ExercisesTable.$convertermuscleGroup);
   @override
-  late final GeneratedColumn<String> equipment = GeneratedColumn<String>(
-    'equipment',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<Equipment, String> equipment =
+      GeneratedColumn<String>(
+        'equipment',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<Equipment>($ExercisesTable.$converterequipment);
   @override
   late final GeneratedColumnWithTypeConverter<Attribute, String> attribute =
       GeneratedColumn<String>(
@@ -454,6 +450,16 @@ class $ExercisesTable extends Exercises
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<Attribute>($ExercisesTable.$converterattribute);
+  @override
+  late final GeneratedColumnWithTypeConverter<SetTracking, String> tracking =
+      GeneratedColumn<String>(
+        'tracking',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(SetTracking.weightReps.name),
+      ).withConverter<SetTracking>($ExercisesTable.$convertertracking);
   static const VerificationMeta _isCustomMeta = const VerificationMeta(
     'isCustom',
   );
@@ -476,6 +482,7 @@ class $ExercisesTable extends Exercises
     muscleGroup,
     equipment,
     attribute,
+    tracking,
     isCustom,
   ];
   @override
@@ -503,25 +510,6 @@ class $ExercisesTable extends Exercises
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('muscle_group')) {
-      context.handle(
-        _muscleGroupMeta,
-        muscleGroup.isAcceptableOrUnknown(
-          data['muscle_group']!,
-          _muscleGroupMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_muscleGroupMeta);
-    }
-    if (data.containsKey('equipment')) {
-      context.handle(
-        _equipmentMeta,
-        equipment.isAcceptableOrUnknown(data['equipment']!, _equipmentMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_equipmentMeta);
-    }
     if (data.containsKey('is_custom')) {
       context.handle(
         _isCustomMeta,
@@ -545,18 +533,28 @@ class $ExercisesTable extends Exercises
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      muscleGroup: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}muscle_group'],
-      )!,
-      equipment: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}equipment'],
-      )!,
+      muscleGroup: $ExercisesTable.$convertermuscleGroup.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}muscle_group'],
+        )!,
+      ),
+      equipment: $ExercisesTable.$converterequipment.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}equipment'],
+        )!,
+      ),
       attribute: $ExercisesTable.$converterattribute.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}attribute'],
+        )!,
+      ),
+      tracking: $ExercisesTable.$convertertracking.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}tracking'],
         )!,
       ),
       isCustom: attachedDatabase.typeMapping.read(
@@ -571,16 +569,23 @@ class $ExercisesTable extends Exercises
     return $ExercisesTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<MuscleGroup, String, String> $convertermuscleGroup =
+      const EnumNameConverter<MuscleGroup>(MuscleGroup.values);
+  static JsonTypeConverter2<Equipment, String, String> $converterequipment =
+      const EnumNameConverter<Equipment>(Equipment.values);
   static JsonTypeConverter2<Attribute, String, String> $converterattribute =
       const EnumNameConverter<Attribute>(Attribute.values);
+  static JsonTypeConverter2<SetTracking, String, String> $convertertracking =
+      const EnumNameConverter<SetTracking>(SetTracking.values);
 }
 
 class Exercise extends DataClass implements Insertable<Exercise> {
   final String id;
   final String name;
-  final String muscleGroup;
-  final String equipment;
+  final MuscleGroup muscleGroup;
+  final Equipment equipment;
   final Attribute attribute;
+  final SetTracking tracking;
   final bool isCustom;
   const Exercise({
     required this.id,
@@ -588,6 +593,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     required this.muscleGroup,
     required this.equipment,
     required this.attribute,
+    required this.tracking,
     required this.isCustom,
   });
   @override
@@ -595,11 +601,24 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
-    map['muscle_group'] = Variable<String>(muscleGroup);
-    map['equipment'] = Variable<String>(equipment);
+    {
+      map['muscle_group'] = Variable<String>(
+        $ExercisesTable.$convertermuscleGroup.toSql(muscleGroup),
+      );
+    }
+    {
+      map['equipment'] = Variable<String>(
+        $ExercisesTable.$converterequipment.toSql(equipment),
+      );
+    }
     {
       map['attribute'] = Variable<String>(
         $ExercisesTable.$converterattribute.toSql(attribute),
+      );
+    }
+    {
+      map['tracking'] = Variable<String>(
+        $ExercisesTable.$convertertracking.toSql(tracking),
       );
     }
     map['is_custom'] = Variable<bool>(isCustom);
@@ -613,6 +632,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       muscleGroup: Value(muscleGroup),
       equipment: Value(equipment),
       attribute: Value(attribute),
+      tracking: Value(tracking),
       isCustom: Value(isCustom),
     );
   }
@@ -625,10 +645,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     return Exercise(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      muscleGroup: serializer.fromJson<String>(json['muscleGroup']),
-      equipment: serializer.fromJson<String>(json['equipment']),
+      muscleGroup: $ExercisesTable.$convertermuscleGroup.fromJson(
+        serializer.fromJson<String>(json['muscleGroup']),
+      ),
+      equipment: $ExercisesTable.$converterequipment.fromJson(
+        serializer.fromJson<String>(json['equipment']),
+      ),
       attribute: $ExercisesTable.$converterattribute.fromJson(
         serializer.fromJson<String>(json['attribute']),
+      ),
+      tracking: $ExercisesTable.$convertertracking.fromJson(
+        serializer.fromJson<String>(json['tracking']),
       ),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
     );
@@ -639,10 +666,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
-      'muscleGroup': serializer.toJson<String>(muscleGroup),
-      'equipment': serializer.toJson<String>(equipment),
+      'muscleGroup': serializer.toJson<String>(
+        $ExercisesTable.$convertermuscleGroup.toJson(muscleGroup),
+      ),
+      'equipment': serializer.toJson<String>(
+        $ExercisesTable.$converterequipment.toJson(equipment),
+      ),
       'attribute': serializer.toJson<String>(
         $ExercisesTable.$converterattribute.toJson(attribute),
+      ),
+      'tracking': serializer.toJson<String>(
+        $ExercisesTable.$convertertracking.toJson(tracking),
       ),
       'isCustom': serializer.toJson<bool>(isCustom),
     };
@@ -651,9 +685,10 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   Exercise copyWith({
     String? id,
     String? name,
-    String? muscleGroup,
-    String? equipment,
+    MuscleGroup? muscleGroup,
+    Equipment? equipment,
     Attribute? attribute,
+    SetTracking? tracking,
     bool? isCustom,
   }) => Exercise(
     id: id ?? this.id,
@@ -661,6 +696,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     muscleGroup: muscleGroup ?? this.muscleGroup,
     equipment: equipment ?? this.equipment,
     attribute: attribute ?? this.attribute,
+    tracking: tracking ?? this.tracking,
     isCustom: isCustom ?? this.isCustom,
   );
   Exercise copyWithCompanion(ExercisesCompanion data) {
@@ -672,6 +708,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           : this.muscleGroup,
       equipment: data.equipment.present ? data.equipment.value : this.equipment,
       attribute: data.attribute.present ? data.attribute.value : this.attribute,
+      tracking: data.tracking.present ? data.tracking.value : this.tracking,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
     );
   }
@@ -684,14 +721,22 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('muscleGroup: $muscleGroup, ')
           ..write('equipment: $equipment, ')
           ..write('attribute: $attribute, ')
+          ..write('tracking: $tracking, ')
           ..write('isCustom: $isCustom')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, muscleGroup, equipment, attribute, isCustom);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    muscleGroup,
+    equipment,
+    attribute,
+    tracking,
+    isCustom,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -701,15 +746,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.muscleGroup == this.muscleGroup &&
           other.equipment == this.equipment &&
           other.attribute == this.attribute &&
+          other.tracking == this.tracking &&
           other.isCustom == this.isCustom);
 }
 
 class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<String> id;
   final Value<String> name;
-  final Value<String> muscleGroup;
-  final Value<String> equipment;
+  final Value<MuscleGroup> muscleGroup;
+  final Value<Equipment> equipment;
   final Value<Attribute> attribute;
+  final Value<SetTracking> tracking;
   final Value<bool> isCustom;
   final Value<int> rowid;
   const ExercisesCompanion({
@@ -718,15 +765,17 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.muscleGroup = const Value.absent(),
     this.equipment = const Value.absent(),
     this.attribute = const Value.absent(),
+    this.tracking = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExercisesCompanion.insert({
     required String id,
     required String name,
-    required String muscleGroup,
-    required String equipment,
+    required MuscleGroup muscleGroup,
+    required Equipment equipment,
     required Attribute attribute,
+    this.tracking = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -740,6 +789,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<String>? muscleGroup,
     Expression<String>? equipment,
     Expression<String>? attribute,
+    Expression<String>? tracking,
     Expression<bool>? isCustom,
     Expression<int>? rowid,
   }) {
@@ -749,6 +799,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (muscleGroup != null) 'muscle_group': muscleGroup,
       if (equipment != null) 'equipment': equipment,
       if (attribute != null) 'attribute': attribute,
+      if (tracking != null) 'tracking': tracking,
       if (isCustom != null) 'is_custom': isCustom,
       if (rowid != null) 'rowid': rowid,
     });
@@ -757,9 +808,10 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   ExercisesCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
-    Value<String>? muscleGroup,
-    Value<String>? equipment,
+    Value<MuscleGroup>? muscleGroup,
+    Value<Equipment>? equipment,
     Value<Attribute>? attribute,
+    Value<SetTracking>? tracking,
     Value<bool>? isCustom,
     Value<int>? rowid,
   }) {
@@ -769,6 +821,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       muscleGroup: muscleGroup ?? this.muscleGroup,
       equipment: equipment ?? this.equipment,
       attribute: attribute ?? this.attribute,
+      tracking: tracking ?? this.tracking,
       isCustom: isCustom ?? this.isCustom,
       rowid: rowid ?? this.rowid,
     );
@@ -784,14 +837,23 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       map['name'] = Variable<String>(name.value);
     }
     if (muscleGroup.present) {
-      map['muscle_group'] = Variable<String>(muscleGroup.value);
+      map['muscle_group'] = Variable<String>(
+        $ExercisesTable.$convertermuscleGroup.toSql(muscleGroup.value),
+      );
     }
     if (equipment.present) {
-      map['equipment'] = Variable<String>(equipment.value);
+      map['equipment'] = Variable<String>(
+        $ExercisesTable.$converterequipment.toSql(equipment.value),
+      );
     }
     if (attribute.present) {
       map['attribute'] = Variable<String>(
         $ExercisesTable.$converterattribute.toSql(attribute.value),
+      );
+    }
+    if (tracking.present) {
+      map['tracking'] = Variable<String>(
+        $ExercisesTable.$convertertracking.toSql(tracking.value),
       );
     }
     if (isCustom.present) {
@@ -811,6 +873,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('muscleGroup: $muscleGroup, ')
           ..write('equipment: $equipment, ')
           ..write('attribute: $attribute, ')
+          ..write('tracking: $tracking, ')
           ..write('isCustom: $isCustom, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3991,18 +4054,20 @@ typedef $$HeroesTableProcessedTableManager =
 typedef $$ExercisesTableCreateCompanionBuilder = ExercisesCompanion Function({
   required String id,
   required String name,
-  required String muscleGroup,
-  required String equipment,
+  required MuscleGroup muscleGroup,
+  required Equipment equipment,
   required Attribute attribute,
+  Value<SetTracking> tracking,
   Value<bool> isCustom,
   Value<int> rowid,
 });
 typedef $$ExercisesTableUpdateCompanionBuilder = ExercisesCompanion Function({
   Value<String> id,
   Value<String> name,
-  Value<String> muscleGroup,
-  Value<String> equipment,
+  Value<MuscleGroup> muscleGroup,
+  Value<Equipment> equipment,
   Value<Attribute> attribute,
+  Value<SetTracking> tracking,
   Value<bool> isCustom,
   Value<int> rowid,
 });
@@ -4069,21 +4134,29 @@ class $$ExercisesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get muscleGroup => $composableBuilder(
+  ColumnWithTypeConverterFilters<MuscleGroup, MuscleGroup, String>
+  get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnFilters<String> get equipment => $composableBuilder(
-    column: $table.equipment,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<Equipment, Equipment, String> get equipment =>
+      $composableBuilder(
+        column: $table.equipment,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnWithTypeConverterFilters<Attribute, Attribute, String> get attribute =>
       $composableBuilder(
         column: $table.attribute,
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
+
+  ColumnWithTypeConverterFilters<SetTracking, SetTracking, String>
+  get tracking => $composableBuilder(
+    column: $table.tracking,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 
   ColumnFilters<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
@@ -4175,6 +4248,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tracking => $composableBuilder(
+    column: $table.tracking,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
     builder: (column) => ColumnOrderings(column),
@@ -4196,16 +4274,20 @@ class $$ExercisesTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get muscleGroup => $composableBuilder(
-    column: $table.muscleGroup,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<MuscleGroup, String> get muscleGroup =>
+      $composableBuilder(
+        column: $table.muscleGroup,
+        builder: (column) => column,
+      );
 
-  GeneratedColumn<String> get equipment =>
+  GeneratedColumnWithTypeConverter<Equipment, String> get equipment =>
       $composableBuilder(column: $table.equipment, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<Attribute, String> get attribute =>
       $composableBuilder(column: $table.attribute, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<SetTracking, String> get tracking =>
+      $composableBuilder(column: $table.tracking, builder: (column) => column);
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
@@ -4294,9 +4376,10 @@ class $$ExercisesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<String> muscleGroup = const Value.absent(),
-                Value<String> equipment = const Value.absent(),
+                Value<MuscleGroup> muscleGroup = const Value.absent(),
+                Value<Equipment> equipment = const Value.absent(),
                 Value<Attribute> attribute = const Value.absent(),
+                Value<SetTracking> tracking = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion(
@@ -4305,6 +4388,7 @@ class $$ExercisesTableTableManager
                 muscleGroup: muscleGroup,
                 equipment: equipment,
                 attribute: attribute,
+                tracking: tracking,
                 isCustom: isCustom,
                 rowid: rowid,
               ),
@@ -4312,9 +4396,10 @@ class $$ExercisesTableTableManager
               ({
                 required String id,
                 required String name,
-                required String muscleGroup,
-                required String equipment,
+                required MuscleGroup muscleGroup,
+                required Equipment equipment,
                 required Attribute attribute,
+                Value<SetTracking> tracking = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion.insert(
@@ -4323,6 +4408,7 @@ class $$ExercisesTableTableManager
                 muscleGroup: muscleGroup,
                 equipment: equipment,
                 attribute: attribute,
+                tracking: tracking,
                 isCustom: isCustom,
                 rowid: rowid,
               ),

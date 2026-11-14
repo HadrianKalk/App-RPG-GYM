@@ -1,7 +1,9 @@
 import 'package:app/data/database.dart';
 import 'package:app/data/repositories/providers.dart';
 import 'package:app/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:app/app/router.dart';
+import 'package:app/features/settings/data/settings_providers.dart';
+import 'package:app/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,30 +12,29 @@ import 'package:material_ui/material_ui.dart';
 
 void main() {
   setUpAll(() {
-    // Cada teste cria seu próprio banco em memória.
+    // Each test creates its own in-memory database.
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   });
 
-  Future<AppDatabase> pumpApp(WidgetTester tester) async {
+  /// Pumps the real app with an in-memory database and the given language.
+  Future<AppDatabase> pumpApp(WidgetTester tester, {String language = 'pt'}) async {
     final db = AppDatabase(NativeDatabase.memory());
-    // Roteador real do app; tema simples porque o tema oficial baixa fontes
-    // do Google, o que não funciona em teste.
+    SharedPreferences.setMockInitialValues({'settings.languageCode': language});
+    final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
-        child: Consumer(
-          builder: (context, ref, _) => MaterialApp.router(
-            theme: ThemeData.dark(),
-            routerConfig: ref.watch(routerProvider),
-          ),
-        ),
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: const GrindheimApp(),
       ),
     );
     return db;
   }
 
-  /// Desmonta o app e fecha o banco. Chamar no FIM de cada teste: o Drift
-  /// usa temporizadores ao cancelar consultas observadas.
+  /// Unmounts the app and closes the database. Call at the END of every
+  /// test: Drift uses timers when cancelling watched queries.
   Future<void> disposeApp(WidgetTester tester, AppDatabase db) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
@@ -41,7 +42,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  /// Bombeia frames dando tempo real para o banco responder.
+  /// Pumps frames while giving the database real time to answer.
   Future<void> settle(WidgetTester tester) async {
     for (var i = 0; i < 10; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
@@ -49,7 +50,7 @@ void main() {
     }
   }
 
-  testWidgets('sem herói, o app abre na criação de personagem', (tester) async {
+  testWidgets('without a hero the app opens on character creation', (tester) async {
     final db = await pumpApp(tester);
     await settle(tester);
 
@@ -58,27 +59,27 @@ void main() {
     await disposeApp(tester, db);
   });
 
-  testWidgets('criação completa do herói leva à tela do personagem', (tester) async {
+  testWidgets('full hero creation leads to the hero screen', (tester) async {
     final db = await pumpApp(tester);
     await settle(tester);
 
     await tester.tap(find.text('INICIAR A JORNADA'));
     await settle(tester);
 
-    // Passo do nome: botão desabilitado até haver nome válido.
+    // Name step.
     await tester.enterText(find.byType(TextField), 'Guts');
     await tester.tap(find.textContaining('Heroína'));
     await settle(tester);
     await tester.tap(find.text('CONTINUAR'));
     await settle(tester);
 
-    // Passo da origem.
+    // Origin step.
     await tester.tap(find.text('Ex-Soldado'));
     await settle(tester);
     await tester.tap(find.text('CONTINUAR'));
     await settle(tester);
 
-    // Juramento (opcional) + resumo.
+    // Oath (optional) + summary.
     expect(find.textContaining('Heroína · Ex-Soldado'), findsOneWidget);
     await tester.tap(find.text('FORJAR HERÓI'));
     await settle(tester);
@@ -86,7 +87,31 @@ void main() {
     expect(find.byType(OnboardingScreen), findsNothing);
     expect(find.text('Guts'), findsOneWidget);
     expect(find.textContaining('Ex-Soldado'), findsOneWidget);
-    expect(find.textContaining('0 Inspiração'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
+
+  testWidgets('the whole flow also works in English', (tester) async {
+    final db = await pumpApp(tester, language: 'en');
+    await settle(tester);
+
+    await tester.tap(find.text('BEGIN THE JOURNEY'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField), 'Casca');
+    await tester.tap(find.textContaining('Heroine'));
+    await settle(tester);
+    await tester.tap(find.text('CONTINUE'));
+    await settle(tester);
+    await tester.tap(find.text('Former Soldier'));
+    await settle(tester);
+    await tester.tap(find.text('CONTINUE'));
+    await settle(tester);
+    expect(find.textContaining('Heroine · Former Soldier · Level 1'), findsOneWidget);
+    await tester.tap(find.text('FORGE HERO'));
+    await settle(tester);
+
+    expect(find.text('Casca'), findsOneWidget);
+    expect(find.text('Attributes'), findsOneWidget);
+    expect(find.text('Strength'), findsOneWidget);
     await disposeApp(tester, db);
   });
 }

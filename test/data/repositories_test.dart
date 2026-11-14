@@ -26,7 +26,7 @@ void main() {
     workoutRepo = WorkoutRepository(db, charRepo, questRepo);
     activityRepo = ActivityRepository(db, charRepo, questRepo);
     heroRepo = HeroRepository(db);
-    await workoutRepo.ensureSeeded();
+    await workoutRepo.syncCatalog();
   });
 
   tearDown(() => db.close());
@@ -155,6 +155,16 @@ void main() {
       await activityRepo.logSleep(hoursSlept: 8);
       q = (await todayQuests()).single;
       expect(q.isCompleted, isTrue);
+    });
+
+    test('diminishing returns apply within the same day (regression)', () async {
+      // Bug: the "already logged today" query compared the attribute's
+      // Portuguese label with the stored enum name, so it always returned 0
+      // and diminishing returns never kicked in.
+      final first = await activityRepo.logPomodoroStudy(durationMinutes: 60);
+      final second = await activityRepo.logPomodoroStudy(durationMinutes: 60);
+      expect(first, 60);
+      expect(second, lessThan(first));
     });
 
     test('atividade de outro atributo não mexe na missão', () async {

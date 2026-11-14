@@ -1,0 +1,252 @@
+{
+  "@@locale": "pt",
+  "brandSubtitle": "A Forja dos Heróis",
+  "commonContinue": "Continuar",
+  "commonBack": "Voltar",
+  "commonCancel": "Cancelar",
+  "commonGreat": "Ótimo",
+  "commonGo": "Ir",
+  "commonSettings": "Configurações",
+  "xpGain": "+{xp} XP",
+  "@xpGain": {
+    "placeholders": {
+      "xp": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "plusMinutes": "+{minutes} min",
+  "@plusMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "loadError": "Erro ao carregar: {error}",
+  "@loadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "navHero": "Herói",
+  "navWorkout": "Treino",
+  "navActivities": "Atividades",
+  "navQuests": "Missões",
+  "characterExperience": "Experiência",
+  "characterXpProgress": "{current} / {next} XP",
+  "@characterXpProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "characterLevel": "Nível {level}",
+  "@characterLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "characterAttributes": "Atributos",
+  "characterNextPoint": "{percent}% para +1",
+  "@characterNextPoint": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "inspirationTooltip": "Inspiração: ganhe completando missões diárias",
+  "onbBegin": "Iniciar a Jornada",
+  "onbForge": "Forjar Herói",
+  "onbPrologue": "Nas terras cinzentas, heróis não nascem escolhidos pelos deuses. Eles se forjam — repetição após repetição, noite após noite, na dor e na disciplina.",
+  "onbLoreTraining": "Treinos reais forjam Força, Destreza e Constituição.",
+  "onbLoreMind": "Estudo afia a Inteligência; meditação, a Sabedoria.",
+  "onbLoreClass": "Sua classe não é escolhida: ela emerge dos seus hábitos.",
+  "onbNameTitle": "Quem é você?",
+  "onbNameSubtitle": "O nome que os bardos cantarão — ou que os corvos esquecerão.",
+  "onbNameLabel": "Nome do herói",
+  "onbFormQuestion": "Como o narrador deve se referir a você?",
+  "onbOriginTitle": "De onde você veio?",
+  "onbOriginSubtitle": "Sua origem é apenas história: ela não muda seus atributos. Quem decide seus números é o seu esforço.",
+  "onbOathTitle": "Seu juramento",
+  "onbOathSubtitle": "Por que você treina? O narrador lembrará disso nos momentos difíceis. (Opcional)",
+  "onbOathHint": "Ex.: Ficar forte o bastante para carregar meus filhos sem dor nas costas.",
+  "onbSummaryLine": "{title} · {origin} · Nível 1",
+  "@onbSummaryLine": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "origin": {
+        "type": "String"
+      }
+    }
+  },
+  "onbSummaryNote": "Todos os atributos começam em 10. A partir de agora, cada treino, cada página estudada e cada noite bem dormida conta.",
+  "onbForgeError": "Não foi possível forjar o herói: {error}",
+  "@onbForgeError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nameErrorEmpty": "Todo herói precisa de um nome.",
+  "nameErrorTooShort": "Nome muito curto.",
+  "nameErrorTooLong": "Máximo de {max} caracteres.",
+  "@nameErrorTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutTitle": "Treino",
+  "workoutForgeTitle": "Forjar o Corpo",
+  "workoutForgeBody": "Cada série alimenta Força, Destreza e Constituição. Recordes Pessoais dão XP bônus na hora.",
+  "workoutStartEmpty": "Iniciar treino vazio",
+  "workoutDefaultTitle": "Treino Livre",
+  "routinesTitle": "Rotinas Populares",
+  "routinePushTitle": "Push · Peito, Ombro e Tríceps",
+  "routinePushSubtitle": "Supino, Militar, Elevação Lateral, Paralelas",
+  "routinePullTitle": "Pull · Costas e Bíceps",
+  "routinePullSubtitle": "Barra Fixa, Remada, Face Pull, Rosca",
+  "routineLegsTitle": "Legs · Pernas e Glúteos",
+  "routineLegsSubtitle": "Agachamento, Stiff, Leg Press, Panturrilha",
+  "routineCardioTitle": "Cardio & Mobilidade",
+  "routineCardioSubtitle": "Corrida, Corda, Prancha, Alongamento",
+  "activeEmpty": "Nenhum exercício adicionado ainda.",
+  "addExercise": "Adicionar exercício",
+  "exerciseShort": "Exercício",
+  "finishWorkout": "Finalizar",
+  "restLabel": "Descanso",
+  "restSkip": "Pular",
+  "colSet": "SÉRIE",
+  "colKg": "KG",
+  "colReps": "REPS",
+  "addSet": "Adicionar série",
+  "workoutDoneTitle": "Treino Concluído!",
+  "workoutDuration": "Duração: {duration}",
+  "@workoutDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutDoneFlavor": "O ferro cede, e você não.",
+  "workoutDoneButton": "Retornar à Forja",
+  "pickerSearchHint": "Buscar exercício...",
+  "pickerAll": "Todos",
+  "pickerEmpty": "Nenhum exercício encontrado.",
+  "activitiesTitle": "Atividades",
+  "pomodoroTitle": "Foco Pomodoro",
+  "pomodoroSubjectHint": "O que você está estudando?",
+  "pomodoroDefaultSubject": "Estudo focado",
+  "timerStart": "Iniciar",
+  "timerPause": "Pausar",
+  "timerFinishNow": "Concluir agora",
+  "healthSection": "Descanso & Saúde",
+  "sleepTitle": "Sono Reparador",
+  "hoursValue": "{hours} h",
+  "@hoursValue": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepLog": "Registrar sono de ontem",
+  "wisdomSection": "Sabedoria & Presença",
+  "meditationTitle": "Meditação & Diário",
+  "meditationSubtitle": "Quietude mental e presença",
+  "rewardIntTitle": "Mente Forjada!",
+  "rewardIntMessage": "{minutes} minutos de foco registrados.",
+  "@rewardIntMessage": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardConTitle": "Corpo Recuperado!",
+  "rewardConMessage": "{hours} horas de descanso registradas.",
+  "@rewardConMessage": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardWisTitle": "Quietude Interior",
+  "rewardWisMessage": "{minutes} minutos de presença e reflexão.",
+  "@rewardWisMessage": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "questsTitle": "Missões Diárias",
+  "questsBanner": "Missões fortalecem seus pontos fracos e avançam sozinhas com o que você registra. Cada missão cumprida vale ✦ Inspiração.",
+  "questsToday": "Objetivos de Hoje",
+  "questProgress": "{current} / {target} {unit}",
+  "@questProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "questHintStrength": "Avança ao finalizar um treino.",
+  "questHintDexterity": "Avança com exercícios de mobilidade no treino.",
+  "questHintConstitution": "Avança com cardio no treino ou 8h+ de sono.",
+  "questHintIntelligence": "Avança com sessões de Pomodoro.",
+  "questHintWisdom": "Avança registrando meditação.",
+  "questHintCharisma": "Registro de Carisma chega em breve.",
+  "settingsLanguage": "Idioma",
+  "languageSystem": "Padrão do aparelho",
+  "settingsFont": "Estilo da fonte",
+  "fontPixel": "Pixel",
+  "fontClassic": "Clássica",
+  "fontPreview": "Nível 7 · Força 14",
+  "settingsAbout": "Sobre",
+  "creditsTitle": "Créditos",
+  "creditsSubtitle": "Quem ajuda a forjar este mundo",
+  "creditsIntro": "Este jogo existe graças a quem acreditou nele desde a primeira faísca.",
+  "creditsPeople": "Companheiros de Forja",
+  "creditRoleSupport": "Apoio e ideias",
+  "creditsFonts": "Fontes",
+  "creditsFontsBody": "Jersey 10, Inter e Cinzel — SIL Open Font License.",
+  "appVersion": "Versão {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -36,7 +36,7 @@ Formato da entrada do DEVLOG:
 **Grindheim** (franquia **RPGym**): registro de treinos de musculação no nível
 do Hevy + RPG de mesa inspirado em D&D 5e. Ações reais (treino, estudo, sono,
 meditação) alimentam os atributos do herói. Estética Dark Fantasy (Berserk /
-Dark Souls). Idioma da UI: **pt-BR**.
+Dark Souls), visual **pixel art**. Idiomas: **pt-BR e inglês**.
 
 Paleta: Obsidiana `#0F0F12`, Ferro Fundido `#181A20`, Brasa Dourada `#E0A96D`,
 Sangue Carmesim `#9E2A2B`.
@@ -72,20 +72,40 @@ Sangue Carmesim `#9E2A2B`.
 ## 3. Estrutura
 
 ```
-lib/app/        brand, theme, router (GoRouter, 4 abas)
-lib/core/game/  motor de jogo (Dart puro)
-lib/data/       Drift (SQLite), seed de exercícios, repositories, providers Riverpod
-lib/features/   telas: character, workout, activities, quests
-test/           testes do motor + smoke test de widget
-docs/           STATUS, DEVLOG, DECISIONS, design
+lib/app/            brand, theme (+ DisplayFont), router (GoRouter)
+lib/app/ui/         kit pixel: PixelFrame, PixelButton, SegmentedBar, PixelTag,
+                    PixelIcon(s), PixelSprite, PixelNavBar, GameAppBar
+lib/core/game/      motor de jogo (Dart puro, só ids — sem textos)
+lib/data/           Drift (SQLite), seed/catálogo de exercícios, repositories, providers
+lib/features/<x>/   telas e lógica de cada feature (character, workout,
+                    activities, quests, onboarding, settings)
+lib/l10n/arb/       textos de interface (app_pt.arb = modelo, app_en.arb)
+lib/l10n/content/   conteúdo de jogo traduzido (mapas por idioma, chaves estáveis)
+lib/l10n/generated/ gerado pelo `flutter gen-l10n` (commitado)
+assets/fonts/       Jersey 10, Inter, Cinzel (+ licenças OFL)
+test/               motor, repositórios (SQLite em memória), widgets, l10n
+docs/               STATUS, DEVLOG, DECISIONS, design/
 ```
 
-Stack: Flutter 3.50 / Dart 3.14, Riverpod, go_router, Drift, google_fonts.
+Stack: Flutter 3.50 / Dart 3.14, `material_ui` (no lugar do Material
+embutido), Riverpod, go_router, Drift, shared_preferences.
+
+### Como adicionar textos
+- **Texto de interface:** adicionar a chave em `lib/l10n/arb/app_pt.arb` **e**
+  `app_en.arb`, rodar `flutter gen-l10n`, usar `context.l10n.<chave>`.
+- **Conteúdo de jogo** (exercício, classe, missão…): adicionar a chave em
+  `lib/l10n/content/game_content_pt.dart` **e** `_en.dart`; usar
+  `context.game.<método>`. O teste `test/l10n/game_content_test.dart` falha se
+  faltar tradução.
+- Delegates de localização: usar `appLocalizationsDelegates` (de
+  `lib/l10n/l10n.dart`), **nunca** `AppLocalizations.localizationsDelegates`
+  (quebra campos de texto em pt por causa do `material_ui`).
 
 ## 4. Comandos
 
 ```bash
 flutter pub get
+flutter gen-l10n                                          # após editar arquivos .arb
 flutter analyze
 flutter test
 dart run build_runner build --delete-conflicting-outputs   # após mudar o schema do Drift

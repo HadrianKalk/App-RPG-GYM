@@ -1,4 +1,4 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database.dart';
 import 'character_repository.dart';
 import 'workout_repository.dart';
@@ -22,7 +22,7 @@ final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final charRepo = ref.watch(characterRepositoryProvider);
   final repo = WorkoutRepository(db, charRepo, ref.watch(questRepositoryProvider));
-  repo.ensureSeeded();
+  repo.syncCatalog();
   return repo;
 });
 
