@@ -1,0 +1,11 @@
+# Normaliza finais de linha (Windows CRLF x Linux LF) para evitar diffs falsos
+# entre agentes rodando em sistemas diferentes.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary
+*.otf binary
