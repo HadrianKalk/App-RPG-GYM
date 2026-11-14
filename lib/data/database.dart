@@ -113,6 +113,17 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'grindheim_db');
+    return driftDatabase(
+      name: 'grindheim_db',
+      // Na web o Drift roda SQLite via WebAssembly. Os dois arquivos abaixo
+      // ficam em `web/` e DEVEM ter versões compatíveis com o pubspec.lock:
+      //   sqlite3.wasm    -> release do pacote `sqlite3` (atual: 3.9.1)
+      //   drift_worker.js -> release do pacote `drift`   (atual: 2.35.4)
+      // Ao atualizar drift/sqlite3, baixe novamente os dois arquivos.
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    );
   }
 }
