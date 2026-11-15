@@ -5,15 +5,20 @@ import '../../../app/brand.dart';
 import '../../../app/theme.dart';
 import '../../../app/ui/game_app_bar.dart';
 import '../../../app/ui/pixel_frame.dart';
+import '../../../app/ui/pixel_icon.dart';
 import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
 import '../../../core/game/attributes.dart';
+import '../../../core/game/combat.dart';
 import '../../../core/game/hero_profile.dart';
 import '../../../core/game/progression.dart';
 import '../../../data/repositories/character_repository.dart';
+import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
+import '../../arena/presentation/arena_screen.dart';
+import 'hero_customization_sheet.dart';
 import 'streak_card.dart';
 
 /// Hero sheet: identity, level/XP and the six attributes.
@@ -24,11 +29,12 @@ class CharacterScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final characterAsync = ref.watch(characterStreamProvider);
     final hero = ref.watch(heroStreamProvider).valueOrNull;
+    final arena = ref.watch(arenaStateStreamProvider).valueOrNull;
 
     return Scaffold(
       appBar: const GameAppBar(title: AppBrand.fullTitle),
       body: characterAsync.when(
-        data: (char) => _HeroSheet(char: char, hero: hero),
+        data: (char) => _HeroSheet(char: char, hero: hero, arena: arena),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text(context.l10n.loadError('$err'))),
       ),
@@ -37,10 +43,15 @@ class CharacterScreen extends ConsumerWidget {
 }
 
 class _HeroSheet extends StatelessWidget {
-  const _HeroSheet({required this.char, required this.hero});
+  const _HeroSheet({
+    required this.char,
+    required this.hero,
+    required this.arena,
+  });
 
   final CharacterState char;
   final HeroProfile? hero;
+  final ArenaState? arena;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +59,8 @@ class _HeroSheet extends StatelessWidget {
     final game = context.game;
     final display = DisplayFont.from(context);
     final level = char.levelInfo;
+    final equippedTitle = hero?.equippedTitleId;
+    final equippedCosmetic = hero?.equippedCosmeticId;
 
     return ListView(
       padding: const EdgeInsets.all(12),
@@ -76,6 +89,13 @@ class _HeroSheet extends StatelessWidget {
                       children: [
                         if (hero != null)
                           Text(hero!.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: display.style(34, height: 1)),
+                        if (equippedTitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            '« ${game.combatTitle(equippedTitle)} »',
+                            style: display.style(18, color: AppTheme.emberGold, height: 1.1),
+                          ),
+                        ],
                         const SizedBox(height: 2),
                         Text(
                           [
@@ -85,7 +105,37 @@ class _HeroSheet extends StatelessWidget {
                           style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
                         ),
                         const SizedBox(height: 6),
-                        Text(l10n.characterLevel(level.level), style: display.style(28, color: AppTheme.emberGold, height: 1)),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(l10n.characterLevel(level.level), style: display.style(28, color: AppTheme.emberGold, height: 1)),
+                            if (equippedCosmetic != null)
+                              PixelTag(
+                                text: game.combatCosmetic(equippedCosmetic),
+                                color: AppTheme.attributeColor(Attribute.charisma),
+                              ),
+                            InkWell(
+                              key: const Key('hero_customize_btn'),
+                              onTap: () => showHeroCustomizationSheet(context),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const PixelIcon(PixelIcons.trophy, size: 14, color: AppTheme.emberGold),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      l10n.heroCustomizeButton,
+                                      style: display.style(16, color: AppTheme.emberGold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 6),
                         Text(
                           game.classLore(char.characterClass),
@@ -134,6 +184,57 @@ class _HeroSheet extends StatelessWidget {
               ],
             );
           },
+        ),
+        const SizedBox(height: 12),
+        // --- Forge Arena Banner ------------------------------------------
+        PixelFrame(
+          key: const Key('open_arena_card'),
+          color: AppTheme.darkBlood,
+          onTap: () => Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(builder: (_) => const ArenaScreen()),
+          ),
+          child: Row(
+            children: [
+              const PixelIcon(PixelIcons.swords, size: 28, color: AppTheme.emberGold),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.arenaBannerTitle, style: display.style(22, color: AppTheme.emberGold)),
+                    Text(
+                      l10n.arenaBannerSubtitle,
+                      style: const TextStyle(color: AppTheme.ashWhite, fontSize: 11),
+                    ),
+                    if (arena != null) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          PixelTag(
+                            text: l10n.arenaTokensBadge(
+                              arena!.entriesRemainingToday,
+                              arena!.totalEntriesToday,
+                            ),
+                            color: AppTheme.emberGold,
+                          ),
+                          PixelTag(
+                            text: l10n.arenaChampionsBadge(
+                              arena!.defeatedChampionsCount,
+                              ArenaCatalog.opponents.length,
+                            ),
+                            color: AppTheme.dullSilver,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppTheme.emberGold, size: 28),
+            ],
+          ),
         ),
       ],
     );

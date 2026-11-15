@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 5A: Motor de Combate em Turnos, Habilidades D&D 5e e Catálogo da Arena
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 5B: Persistência + Tela da Arena 1v1 + Títulos e Cosméticos no Herói
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
@@ -14,18 +14,22 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   missões diárias determinísticas, Inspiração e **motor de combate tático em
   turnos (`combat.dart`)** com 16 habilidades de classe inspiradas no D&D 5e e
   6 NPCs da Arena (recompensas: títulos e cosméticos, zero XP).
-- Persistência Drift/SQLite: exercícios (seed 64 pt-BR + en com guia passo a
-  passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária (água,
-  dieta, sono), livro-razão de XP, missões.
-- Telas: Herói, Treino (estilo Hevy, timer de descanso, botão "?" de execução),
-  Atividades (Pomodoro, hidratação, nutrição, sono, catálogo CAR/DES/SAB/INT/CON
-  e atividade personalizada), Missões.
+- Persistência Drift/SQLite (schema v7): exercícios (seed 64 pt-BR + en com guia
+  passo a passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária
+  (água, dieta, sono), progresso da Arena (`arena_progress`), fichas diárias
+  da Arena (`daily_arena_logs`), título/cosmético equipados no herói, livro-razão
+  de XP (incluindo `inspirationSpend`), missões.
+- Telas: Herói (com título/cosmético equipados, seletor `HeroCustomizationSheet`
+  e acesso à **Arena da Forja**), Arena 1v1 (`ArenaScreen`), Treino (estilo
+  Hevy, timer de descanso, botão "?" de execução), Atividades (Pomodoro,
+  hidratação, nutrição, sono, catálogo CAR/DES/SAB/INT/CON e atividade
+  personalizada), Missões.
 - Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
 - Visual pixel art, pt-BR + inglês, configurações e créditos.
 - Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
   por tempo, recordes calculados ao finalizar.
 - Histórico, calendário, recordes, sequência semanal e tela de recompensas.
-- 104 testes passando; `flutter analyze` limpo.
+- 107 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
@@ -47,9 +51,10 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       16 habilidades de classe inspiradas no D&D 5e (`ClassSkillCatalog`),
       catálogo de 6 NPCs da Arena (`ArenaCatalog`), títulos e cosméticos
       traduzidos (pt-BR/en) e regras de fichas diárias (`ArenaTokenRules`).
-- [ ] **Etapa 5B:** persistência de títulos/cosméticos desbloqueados e fichas
-      usadas no dia + Tela da Arena 1v1 + seletor de título/cosmético na ficha
-      do herói.
+- [x] **Etapa 5B:** persistência de títulos/cosméticos desbloqueados e fichas
+      usadas no dia (schema v7) + `CombatRepository` + Tela da Arena 1v1
+      (`ArenaScreen`) + seletor de título/cosmético na ficha do herói
+      (`HeroCustomizationSheet`).
 - [ ] **Etapa 5C (futuro):** Torneios (sequência de oponentes com escalonamento)
       e Dungeon (exploração por salas com testes dos 6 atributos).
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.

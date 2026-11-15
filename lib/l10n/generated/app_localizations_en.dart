@@ -896,4 +896,196 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dailyCurveNote =>
       'Daily Stamina: part of today\'s effort entered this attribute\'s recovery curve. Your records, quests and bonuses still count 100%!';
+
+  @override
+  String get arenaBannerTitle => 'Forge Arena';
+
+  @override
+  String get arenaBannerSubtitle =>
+      'Challenge NPC champions to unlock titles and cosmetics (no XP granted)';
+
+  @override
+  String arenaTokensBadge(int remaining, int total) {
+    return 'Tokens today: $remaining/$total';
+  }
+
+  @override
+  String arenaChampionsBadge(int defeated, int total) {
+    return 'Champions: $defeated/$total';
+  }
+
+  @override
+  String get heroCustomizeButton => 'Titles & Cosmetics';
+
+  @override
+  String get heroTitlesSection => 'Combat Titles';
+
+  @override
+  String get heroCosmeticsSection => 'Hero Cosmetics';
+
+  @override
+  String get heroUnequip => 'None (unequip)';
+
+  @override
+  String heroLockedHint(String npc) {
+    return 'Defeat $npc in the Arena to unlock';
+  }
+
+  @override
+  String get arenaScreenTitle => 'Forge Arena';
+
+  @override
+  String get arenaTokensExplain =>
+      '2 free entries/day + 1 per workout + 1 per daily quest + 1 per health habit.';
+
+  @override
+  String get arenaNoTokens =>
+      'No Arena tokens left today. Complete a workout, quest, or health habit to earn more!';
+
+  @override
+  String arenaRecommendedLevel(int level) {
+    return 'Rec. Lv. $level';
+  }
+
+  @override
+  String get arenaChallengeButton => 'Challenge (1 token)';
+
+  @override
+  String arenaVictoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count victories',
+      one: '1 victory',
+      zero: 'Not defeated yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String arenaRewardLabel(String title, String cosmetic) {
+    return 'Reward: $title · $cosmetic';
+  }
+
+  @override
+  String combatTurnLabel(int turn) {
+    return 'Turn $turn';
+  }
+
+  @override
+  String get combatHpLabel => 'HP';
+
+  @override
+  String get combatFocusLabel => 'FOCUS';
+
+  @override
+  String get combatIntentStrike => 'Intent: Direct Strike';
+
+  @override
+  String get combatIntentHeavy => 'Intent: Heavy Blow (defend or stun!)';
+
+  @override
+  String get combatIntentGuard => 'Intent: Defensive Guard';
+
+  @override
+  String get combatActionBasic => 'Basic Strike (+3 Focus)';
+
+  @override
+  String combatActionSkill(String name, int cost) {
+    return '$name ($cost Focus)';
+  }
+
+  @override
+  String combatActionSkillCooldown(String name, int turns) {
+    return '$name (${turns}t)';
+  }
+
+  @override
+  String get combatActionDefend => 'Defend (-50% dmg, +Focus/+HP)';
+
+  @override
+  String combatActionInspiration(int count) {
+    return 'Heroic Inspiration (Crit · $count)';
+  }
+
+  @override
+  String get combatLogTitle => 'Battle Log';
+
+  @override
+  String combatLogHeroBasic(int turn, int dmg, String crit) {
+    return 'T$turn: Your strike dealt $dmg damage$crit.';
+  }
+
+  @override
+  String combatLogHeroSkill(int turn, String skill, int dmg, String crit) {
+    return 'T$turn: $skill dealt $dmg damage$crit!';
+  }
+
+  @override
+  String combatLogHeroSkillHeal(int turn, String skill, int dmg, int heal) {
+    return 'T$turn: $skill dealt $dmg damage and healed $heal HP!';
+  }
+
+  @override
+  String combatLogHeroDefend(int turn, int heal) {
+    return 'T$turn: Defensive stance (+$heal HP, +Focus).';
+  }
+
+  @override
+  String combatLogHeroInspiration(int turn, int dmg) {
+    return 'T$turn: Heroic Inspiration! Devastating critical for $dmg damage!';
+  }
+
+  @override
+  String combatLogEnemyStrike(int turn, int dmg) {
+    return 'T$turn: Opponent struck for $dmg damage.';
+  }
+
+  @override
+  String combatLogEnemyHeavy(int turn, int dmg) {
+    return 'T$turn: Opponent\'s Heavy Blow dealt $dmg damage!';
+  }
+
+  @override
+  String combatLogEnemyGuard(int turn, int heal) {
+    return 'T$turn: Opponent guarded and recovered $heal HP.';
+  }
+
+  @override
+  String combatLogEnemyStunned(int turn) {
+    return 'T$turn: Opponent is stunned and lost their turn!';
+  }
+
+  @override
+  String combatLogEnemyDodged(int turn) {
+    return 'T$turn: Opponent dodged your attack!';
+  }
+
+  @override
+  String combatLogHeroDodged(int turn) {
+    return 'T$turn: You dodged the enemy attack!';
+  }
+
+  @override
+  String get combatVictoryTitle => 'Arena Victory!';
+
+  @override
+  String get combatDefeatTitle => 'Arena Defeat';
+
+  @override
+  String get combatDefeatBody =>
+      'The opponent prevailed this time. Strengthen your attributes with real-world workouts and habits and return stronger!';
+
+  @override
+  String get combatUnlockedReward => 'Rewards Unlocked!';
+
+  @override
+  String get combatAlreadyUnlocked =>
+      'This champion\'s rewards are already in your collection.';
+
+  @override
+  String get combatEquipNow => 'Equip now';
+
+  @override
+  String get combatBackToArena => 'Back to Arena';
 }

@@ -77,6 +77,16 @@ class HeroRepository {
     return row?.waterGoalCups ?? XpRules.waterGoalDefaultCups;
   }
 
+  /// Equips (or unequips with `null`) an unlocked combat title.
+  Future<void> setEquippedTitle(String? titleId) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(equippedTitleId: Value(titleId)));
+
+  /// Equips (or unequips with `null`) an unlocked combat cosmetic.
+  Future<void> setEquippedCosmetic(String? cosmeticId) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(equippedCosmeticId: Value(cosmeticId)));
+
   HeroProfile _toProfile(HeroRow row) => HeroProfile(
         name: row.name,
         form: row.form,
@@ -87,5 +97,7 @@ class HeroRepository {
         customOriginStory: row.customOriginStory,
         weeklyGoal: row.weeklyGoal,
         waterGoalCups: row.waterGoalCups,
+        equippedTitleId: row.equippedTitleId,
+        equippedCosmeticId: row.equippedCosmeticId,
       );
 }

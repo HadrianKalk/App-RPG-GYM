@@ -1520,6 +1520,28 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     requiredDuringInsert: false,
     defaultValue: const Constant(8),
   );
+  static const VerificationMeta _equippedTitleIdMeta = const VerificationMeta(
+    'equippedTitleId',
+  );
+  @override
+  late final GeneratedColumn<String> equippedTitleId = GeneratedColumn<String>(
+    'equipped_title_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _equippedCosmeticIdMeta =
+      const VerificationMeta('equippedCosmeticId');
+  @override
+  late final GeneratedColumn<String> equippedCosmeticId =
+      GeneratedColumn<String>(
+        'equipped_cosmetic_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1532,6 +1554,8 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     customOriginStory,
     weeklyGoal,
     waterGoalCups,
+    equippedTitleId,
+    equippedCosmeticId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1603,6 +1627,24 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         ),
       );
     }
+    if (data.containsKey('equipped_title_id')) {
+      context.handle(
+        _equippedTitleIdMeta,
+        equippedTitleId.isAcceptableOrUnknown(
+          data['equipped_title_id']!,
+          _equippedTitleIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('equipped_cosmetic_id')) {
+      context.handle(
+        _equippedCosmeticIdMeta,
+        equippedCosmeticId.isAcceptableOrUnknown(
+          data['equipped_cosmetic_id']!,
+          _equippedCosmeticIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1656,6 +1698,14 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         DriftSqlType.int,
         data['${effectivePrefix}water_goal_cups'],
       )!,
+      equippedTitleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}equipped_title_id'],
+      ),
+      equippedCosmeticId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}equipped_cosmetic_id'],
+      ),
     );
   }
 
@@ -1687,6 +1737,10 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
 
   /// Daily hydration goal in 250 ml cups (schema v6).
   final int waterGoalCups;
+
+  /// Currently equipped combat title id and cosmetic id (schema v7).
+  final String? equippedTitleId;
+  final String? equippedCosmeticId;
   const HeroRow({
     required this.id,
     required this.name,
@@ -1698,6 +1752,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     this.customOriginStory,
     required this.weeklyGoal,
     required this.waterGoalCups,
+    this.equippedTitleId,
+    this.equippedCosmeticId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1724,6 +1780,12 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     }
     map['weekly_goal'] = Variable<int>(weeklyGoal);
     map['water_goal_cups'] = Variable<int>(waterGoalCups);
+    if (!nullToAbsent || equippedTitleId != null) {
+      map['equipped_title_id'] = Variable<String>(equippedTitleId);
+    }
+    if (!nullToAbsent || equippedCosmeticId != null) {
+      map['equipped_cosmetic_id'] = Variable<String>(equippedCosmeticId);
+    }
     return map;
   }
 
@@ -1743,6 +1805,12 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           : Value(customOriginStory),
       weeklyGoal: Value(weeklyGoal),
       waterGoalCups: Value(waterGoalCups),
+      equippedTitleId: equippedTitleId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(equippedTitleId),
+      equippedCosmeticId: equippedCosmeticId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(equippedCosmeticId),
     );
   }
 
@@ -1768,6 +1836,10 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       ),
       weeklyGoal: serializer.fromJson<int>(json['weeklyGoal']),
       waterGoalCups: serializer.fromJson<int>(json['waterGoalCups']),
+      equippedTitleId: serializer.fromJson<String?>(json['equippedTitleId']),
+      equippedCosmeticId: serializer.fromJson<String?>(
+        json['equippedCosmeticId'],
+      ),
     );
   }
   @override
@@ -1788,6 +1860,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       'customOriginStory': serializer.toJson<String?>(customOriginStory),
       'weeklyGoal': serializer.toJson<int>(weeklyGoal),
       'waterGoalCups': serializer.toJson<int>(waterGoalCups),
+      'equippedTitleId': serializer.toJson<String?>(equippedTitleId),
+      'equippedCosmeticId': serializer.toJson<String?>(equippedCosmeticId),
     };
   }
 
@@ -1802,6 +1876,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     Value<String?> customOriginStory = const Value.absent(),
     int? weeklyGoal,
     int? waterGoalCups,
+    Value<String?> equippedTitleId = const Value.absent(),
+    Value<String?> equippedCosmeticId = const Value.absent(),
   }) => HeroRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1817,6 +1893,12 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
         : this.customOriginStory,
     weeklyGoal: weeklyGoal ?? this.weeklyGoal,
     waterGoalCups: waterGoalCups ?? this.waterGoalCups,
+    equippedTitleId: equippedTitleId.present
+        ? equippedTitleId.value
+        : this.equippedTitleId,
+    equippedCosmeticId: equippedCosmeticId.present
+        ? equippedCosmeticId.value
+        : this.equippedCosmeticId,
   );
   HeroRow copyWithCompanion(HeroesCompanion data) {
     return HeroRow(
@@ -1838,6 +1920,12 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       waterGoalCups: data.waterGoalCups.present
           ? data.waterGoalCups.value
           : this.waterGoalCups,
+      equippedTitleId: data.equippedTitleId.present
+          ? data.equippedTitleId.value
+          : this.equippedTitleId,
+      equippedCosmeticId: data.equippedCosmeticId.present
+          ? data.equippedCosmeticId.value
+          : this.equippedCosmeticId,
     );
   }
 
@@ -1853,7 +1941,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ..write('customOriginName: $customOriginName, ')
           ..write('customOriginStory: $customOriginStory, ')
           ..write('weeklyGoal: $weeklyGoal, ')
-          ..write('waterGoalCups: $waterGoalCups')
+          ..write('waterGoalCups: $waterGoalCups, ')
+          ..write('equippedTitleId: $equippedTitleId, ')
+          ..write('equippedCosmeticId: $equippedCosmeticId')
           ..write(')'))
         .toString();
   }
@@ -1870,6 +1960,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     customOriginStory,
     weeklyGoal,
     waterGoalCups,
+    equippedTitleId,
+    equippedCosmeticId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1884,7 +1976,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           other.customOriginName == this.customOriginName &&
           other.customOriginStory == this.customOriginStory &&
           other.weeklyGoal == this.weeklyGoal &&
-          other.waterGoalCups == this.waterGoalCups);
+          other.waterGoalCups == this.waterGoalCups &&
+          other.equippedTitleId == this.equippedTitleId &&
+          other.equippedCosmeticId == this.equippedCosmeticId);
 }
 
 class HeroesCompanion extends UpdateCompanion<HeroRow> {
@@ -1898,6 +1992,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
   final Value<String?> customOriginStory;
   final Value<int> weeklyGoal;
   final Value<int> waterGoalCups;
+  final Value<String?> equippedTitleId;
+  final Value<String?> equippedCosmeticId;
   const HeroesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1909,6 +2005,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.customOriginStory = const Value.absent(),
     this.weeklyGoal = const Value.absent(),
     this.waterGoalCups = const Value.absent(),
+    this.equippedTitleId = const Value.absent(),
+    this.equippedCosmeticId = const Value.absent(),
   });
   HeroesCompanion.insert({
     this.id = const Value.absent(),
@@ -1921,6 +2019,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.customOriginStory = const Value.absent(),
     this.weeklyGoal = const Value.absent(),
     this.waterGoalCups = const Value.absent(),
+    this.equippedTitleId = const Value.absent(),
+    this.equippedCosmeticId = const Value.absent(),
   }) : name = Value(name),
        form = Value(form),
        origin = Value(origin),
@@ -1936,6 +2036,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Expression<String>? customOriginStory,
     Expression<int>? weeklyGoal,
     Expression<int>? waterGoalCups,
+    Expression<String>? equippedTitleId,
+    Expression<String>? equippedCosmeticId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1948,6 +2050,9 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       if (customOriginStory != null) 'custom_origin_story': customOriginStory,
       if (weeklyGoal != null) 'weekly_goal': weeklyGoal,
       if (waterGoalCups != null) 'water_goal_cups': waterGoalCups,
+      if (equippedTitleId != null) 'equipped_title_id': equippedTitleId,
+      if (equippedCosmeticId != null)
+        'equipped_cosmetic_id': equippedCosmeticId,
     });
   }
 
@@ -1962,6 +2067,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Value<String?>? customOriginStory,
     Value<int>? weeklyGoal,
     Value<int>? waterGoalCups,
+    Value<String?>? equippedTitleId,
+    Value<String?>? equippedCosmeticId,
   }) {
     return HeroesCompanion(
       id: id ?? this.id,
@@ -1974,6 +2081,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       customOriginStory: customOriginStory ?? this.customOriginStory,
       weeklyGoal: weeklyGoal ?? this.weeklyGoal,
       waterGoalCups: waterGoalCups ?? this.waterGoalCups,
+      equippedTitleId: equippedTitleId ?? this.equippedTitleId,
+      equippedCosmeticId: equippedCosmeticId ?? this.equippedCosmeticId,
     );
   }
 
@@ -2014,6 +2123,12 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     if (waterGoalCups.present) {
       map['water_goal_cups'] = Variable<int>(waterGoalCups.value);
     }
+    if (equippedTitleId.present) {
+      map['equipped_title_id'] = Variable<String>(equippedTitleId.value);
+    }
+    if (equippedCosmeticId.present) {
+      map['equipped_cosmetic_id'] = Variable<String>(equippedCosmeticId.value);
+    }
     return map;
   }
 
@@ -2029,7 +2144,9 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
           ..write('customOriginName: $customOriginName, ')
           ..write('customOriginStory: $customOriginStory, ')
           ..write('weeklyGoal: $weeklyGoal, ')
-          ..write('waterGoalCups: $waterGoalCups')
+          ..write('waterGoalCups: $waterGoalCups, ')
+          ..write('equippedTitleId: $equippedTitleId, ')
+          ..write('equippedCosmeticId: $equippedCosmeticId')
           ..write(')'))
         .toString();
   }
@@ -2492,6 +2609,504 @@ class DailyHealthLogsCompanion extends UpdateCompanion<DailyHealthRow> {
           ..write('waterGoalBonusClaimed: $waterGoalBonusClaimed, ')
           ..write('dietAdherence: $dietAdherence, ')
           ..write('lastSleepHours: $lastSleepHours, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ArenaProgressTable extends ArenaProgress
+    with TableInfo<$ArenaProgressTable, ArenaProgressRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArenaProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _opponentIdMeta = const VerificationMeta(
+    'opponentId',
+  );
+  @override
+  late final GeneratedColumn<String> opponentId = GeneratedColumn<String>(
+    'opponent_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _victoriesMeta = const VerificationMeta(
+    'victories',
+  );
+  @override
+  late final GeneratedColumn<int> victories = GeneratedColumn<int>(
+    'victories',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastDefeatedAtMeta = const VerificationMeta(
+    'lastDefeatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastDefeatedAt =
+      GeneratedColumn<DateTime>(
+        'last_defeated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [opponentId, victories, lastDefeatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'arena_progress';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArenaProgressRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('opponent_id')) {
+      context.handle(
+        _opponentIdMeta,
+        opponentId.isAcceptableOrUnknown(data['opponent_id']!, _opponentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_opponentIdMeta);
+    }
+    if (data.containsKey('victories')) {
+      context.handle(
+        _victoriesMeta,
+        victories.isAcceptableOrUnknown(data['victories']!, _victoriesMeta),
+      );
+    }
+    if (data.containsKey('last_defeated_at')) {
+      context.handle(
+        _lastDefeatedAtMeta,
+        lastDefeatedAt.isAcceptableOrUnknown(
+          data['last_defeated_at']!,
+          _lastDefeatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastDefeatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {opponentId};
+  @override
+  ArenaProgressRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArenaProgressRow(
+      opponentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}opponent_id'],
+      )!,
+      victories: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}victories'],
+      )!,
+      lastDefeatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_defeated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ArenaProgressTable createAlias(String alias) {
+    return $ArenaProgressTable(attachedDatabase, alias);
+  }
+}
+
+class ArenaProgressRow extends DataClass
+    implements Insertable<ArenaProgressRow> {
+  final String opponentId;
+  final int victories;
+  final DateTime lastDefeatedAt;
+  const ArenaProgressRow({
+    required this.opponentId,
+    required this.victories,
+    required this.lastDefeatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['opponent_id'] = Variable<String>(opponentId);
+    map['victories'] = Variable<int>(victories);
+    map['last_defeated_at'] = Variable<DateTime>(lastDefeatedAt);
+    return map;
+  }
+
+  ArenaProgressCompanion toCompanion(bool nullToAbsent) {
+    return ArenaProgressCompanion(
+      opponentId: Value(opponentId),
+      victories: Value(victories),
+      lastDefeatedAt: Value(lastDefeatedAt),
+    );
+  }
+
+  factory ArenaProgressRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArenaProgressRow(
+      opponentId: serializer.fromJson<String>(json['opponentId']),
+      victories: serializer.fromJson<int>(json['victories']),
+      lastDefeatedAt: serializer.fromJson<DateTime>(json['lastDefeatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'opponentId': serializer.toJson<String>(opponentId),
+      'victories': serializer.toJson<int>(victories),
+      'lastDefeatedAt': serializer.toJson<DateTime>(lastDefeatedAt),
+    };
+  }
+
+  ArenaProgressRow copyWith({
+    String? opponentId,
+    int? victories,
+    DateTime? lastDefeatedAt,
+  }) => ArenaProgressRow(
+    opponentId: opponentId ?? this.opponentId,
+    victories: victories ?? this.victories,
+    lastDefeatedAt: lastDefeatedAt ?? this.lastDefeatedAt,
+  );
+  ArenaProgressRow copyWithCompanion(ArenaProgressCompanion data) {
+    return ArenaProgressRow(
+      opponentId: data.opponentId.present
+          ? data.opponentId.value
+          : this.opponentId,
+      victories: data.victories.present ? data.victories.value : this.victories,
+      lastDefeatedAt: data.lastDefeatedAt.present
+          ? data.lastDefeatedAt.value
+          : this.lastDefeatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArenaProgressRow(')
+          ..write('opponentId: $opponentId, ')
+          ..write('victories: $victories, ')
+          ..write('lastDefeatedAt: $lastDefeatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(opponentId, victories, lastDefeatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArenaProgressRow &&
+          other.opponentId == this.opponentId &&
+          other.victories == this.victories &&
+          other.lastDefeatedAt == this.lastDefeatedAt);
+}
+
+class ArenaProgressCompanion extends UpdateCompanion<ArenaProgressRow> {
+  final Value<String> opponentId;
+  final Value<int> victories;
+  final Value<DateTime> lastDefeatedAt;
+  final Value<int> rowid;
+  const ArenaProgressCompanion({
+    this.opponentId = const Value.absent(),
+    this.victories = const Value.absent(),
+    this.lastDefeatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArenaProgressCompanion.insert({
+    required String opponentId,
+    this.victories = const Value.absent(),
+    required DateTime lastDefeatedAt,
+    this.rowid = const Value.absent(),
+  }) : opponentId = Value(opponentId),
+       lastDefeatedAt = Value(lastDefeatedAt);
+  static Insertable<ArenaProgressRow> custom({
+    Expression<String>? opponentId,
+    Expression<int>? victories,
+    Expression<DateTime>? lastDefeatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (opponentId != null) 'opponent_id': opponentId,
+      if (victories != null) 'victories': victories,
+      if (lastDefeatedAt != null) 'last_defeated_at': lastDefeatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArenaProgressCompanion copyWith({
+    Value<String>? opponentId,
+    Value<int>? victories,
+    Value<DateTime>? lastDefeatedAt,
+    Value<int>? rowid,
+  }) {
+    return ArenaProgressCompanion(
+      opponentId: opponentId ?? this.opponentId,
+      victories: victories ?? this.victories,
+      lastDefeatedAt: lastDefeatedAt ?? this.lastDefeatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (opponentId.present) {
+      map['opponent_id'] = Variable<String>(opponentId.value);
+    }
+    if (victories.present) {
+      map['victories'] = Variable<int>(victories.value);
+    }
+    if (lastDefeatedAt.present) {
+      map['last_defeated_at'] = Variable<DateTime>(lastDefeatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArenaProgressCompanion(')
+          ..write('opponentId: $opponentId, ')
+          ..write('victories: $victories, ')
+          ..write('lastDefeatedAt: $lastDefeatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyArenaLogsTable extends DailyArenaLogs
+    with TableInfo<$DailyArenaLogsTable, DailyArenaLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyArenaLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateStrMeta = const VerificationMeta(
+    'dateStr',
+  );
+  @override
+  late final GeneratedColumn<String> dateStr = GeneratedColumn<String>(
+    'date_str',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entriesUsedMeta = const VerificationMeta(
+    'entriesUsed',
+  );
+  @override
+  late final GeneratedColumn<int> entriesUsed = GeneratedColumn<int>(
+    'entries_used',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [dateStr, entriesUsed];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_arena_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyArenaLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date_str')) {
+      context.handle(
+        _dateStrMeta,
+        dateStr.isAcceptableOrUnknown(data['date_str']!, _dateStrMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateStrMeta);
+    }
+    if (data.containsKey('entries_used')) {
+      context.handle(
+        _entriesUsedMeta,
+        entriesUsed.isAcceptableOrUnknown(
+          data['entries_used']!,
+          _entriesUsedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dateStr};
+  @override
+  DailyArenaLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyArenaLogRow(
+      dateStr: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date_str'],
+      )!,
+      entriesUsed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}entries_used'],
+      )!,
+    );
+  }
+
+  @override
+  $DailyArenaLogsTable createAlias(String alias) {
+    return $DailyArenaLogsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyArenaLogRow extends DataClass
+    implements Insertable<DailyArenaLogRow> {
+  final String dateStr;
+  final int entriesUsed;
+  const DailyArenaLogRow({required this.dateStr, required this.entriesUsed});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date_str'] = Variable<String>(dateStr);
+    map['entries_used'] = Variable<int>(entriesUsed);
+    return map;
+  }
+
+  DailyArenaLogsCompanion toCompanion(bool nullToAbsent) {
+    return DailyArenaLogsCompanion(
+      dateStr: Value(dateStr),
+      entriesUsed: Value(entriesUsed),
+    );
+  }
+
+  factory DailyArenaLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyArenaLogRow(
+      dateStr: serializer.fromJson<String>(json['dateStr']),
+      entriesUsed: serializer.fromJson<int>(json['entriesUsed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dateStr': serializer.toJson<String>(dateStr),
+      'entriesUsed': serializer.toJson<int>(entriesUsed),
+    };
+  }
+
+  DailyArenaLogRow copyWith({String? dateStr, int? entriesUsed}) =>
+      DailyArenaLogRow(
+        dateStr: dateStr ?? this.dateStr,
+        entriesUsed: entriesUsed ?? this.entriesUsed,
+      );
+  DailyArenaLogRow copyWithCompanion(DailyArenaLogsCompanion data) {
+    return DailyArenaLogRow(
+      dateStr: data.dateStr.present ? data.dateStr.value : this.dateStr,
+      entriesUsed: data.entriesUsed.present
+          ? data.entriesUsed.value
+          : this.entriesUsed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyArenaLogRow(')
+          ..write('dateStr: $dateStr, ')
+          ..write('entriesUsed: $entriesUsed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(dateStr, entriesUsed);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyArenaLogRow &&
+          other.dateStr == this.dateStr &&
+          other.entriesUsed == this.entriesUsed);
+}
+
+class DailyArenaLogsCompanion extends UpdateCompanion<DailyArenaLogRow> {
+  final Value<String> dateStr;
+  final Value<int> entriesUsed;
+  final Value<int> rowid;
+  const DailyArenaLogsCompanion({
+    this.dateStr = const Value.absent(),
+    this.entriesUsed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyArenaLogsCompanion.insert({
+    required String dateStr,
+    this.entriesUsed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : dateStr = Value(dateStr);
+  static Insertable<DailyArenaLogRow> custom({
+    Expression<String>? dateStr,
+    Expression<int>? entriesUsed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (dateStr != null) 'date_str': dateStr,
+      if (entriesUsed != null) 'entries_used': entriesUsed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyArenaLogsCompanion copyWith({
+    Value<String>? dateStr,
+    Value<int>? entriesUsed,
+    Value<int>? rowid,
+  }) {
+    return DailyArenaLogsCompanion(
+      dateStr: dateStr ?? this.dateStr,
+      entriesUsed: entriesUsed ?? this.entriesUsed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dateStr.present) {
+      map['date_str'] = Variable<String>(dateStr.value);
+    }
+    if (entriesUsed.present) {
+      map['entries_used'] = Variable<int>(entriesUsed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyArenaLogsCompanion(')
+          ..write('dateStr: $dateStr, ')
+          ..write('entriesUsed: $entriesUsed, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5535,6 +6150,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyHealthLogsTable dailyHealthLogs = $DailyHealthLogsTable(
     this,
   );
+  late final $ArenaProgressTable arenaProgress = $ArenaProgressTable(this);
+  late final $DailyArenaLogsTable dailyArenaLogs = $DailyArenaLogsTable(this);
   late final $WorkoutSessionsTable workoutSessions = $WorkoutSessionsTable(
     this,
   );
@@ -5557,6 +6174,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     routineExercises,
     heroes,
     dailyHealthLogs,
+    arenaProgress,
+    dailyArenaLogs,
     workoutSessions,
     workoutSets,
     personalRecords,
@@ -6918,6 +7537,8 @@ typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
   Value<String?> customOriginStory,
   Value<int> weeklyGoal,
   Value<int> waterGoalCups,
+  Value<String?> equippedTitleId,
+  Value<String?> equippedCosmeticId,
 });
 typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> id,
@@ -6930,6 +7551,8 @@ typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<String?> customOriginStory,
   Value<int> weeklyGoal,
   Value<int> waterGoalCups,
+  Value<String?> equippedTitleId,
+  Value<String?> equippedCosmeticId,
 });
 
 class $$HeroesTableFilterComposer
@@ -6992,6 +7615,16 @@ class $$HeroesTableFilterComposer
     column: $table.waterGoalCups,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get equippedTitleId => $composableBuilder(
+    column: $table.equippedTitleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get equippedCosmeticId => $composableBuilder(
+    column: $table.equippedCosmeticId,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$HeroesTableOrderingComposer
@@ -7052,6 +7685,16 @@ class $$HeroesTableOrderingComposer
     column: $table.waterGoalCups,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get equippedTitleId => $composableBuilder(
+    column: $table.equippedTitleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get equippedCosmeticId => $composableBuilder(
+    column: $table.equippedCosmeticId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HeroesTableAnnotationComposer
@@ -7100,6 +7743,16 @@ class $$HeroesTableAnnotationComposer
     column: $table.waterGoalCups,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get equippedTitleId => $composableBuilder(
+    column: $table.equippedTitleId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get equippedCosmeticId => $composableBuilder(
+    column: $table.equippedCosmeticId,
+    builder: (column) => column,
+  );
 }
 
 class $$HeroesTableTableManager
@@ -7140,6 +7793,8 @@ class $$HeroesTableTableManager
                 Value<String?> customOriginStory = const Value.absent(),
                 Value<int> weeklyGoal = const Value.absent(),
                 Value<int> waterGoalCups = const Value.absent(),
+                Value<String?> equippedTitleId = const Value.absent(),
+                Value<String?> equippedCosmeticId = const Value.absent(),
               }) => HeroesCompanion(
                 id: id,
                 name: name,
@@ -7151,6 +7806,8 @@ class $$HeroesTableTableManager
                 customOriginStory: customOriginStory,
                 weeklyGoal: weeklyGoal,
                 waterGoalCups: waterGoalCups,
+                equippedTitleId: equippedTitleId,
+                equippedCosmeticId: equippedCosmeticId,
               ),
           createCompanionCallback:
               ({
@@ -7164,6 +7821,8 @@ class $$HeroesTableTableManager
                 Value<String?> customOriginStory = const Value.absent(),
                 Value<int> weeklyGoal = const Value.absent(),
                 Value<int> waterGoalCups = const Value.absent(),
+                Value<String?> equippedTitleId = const Value.absent(),
+                Value<String?> equippedCosmeticId = const Value.absent(),
               }) => HeroesCompanion.insert(
                 id: id,
                 name: name,
@@ -7175,6 +7834,8 @@ class $$HeroesTableTableManager
                 customOriginStory: customOriginStory,
                 weeklyGoal: weeklyGoal,
                 waterGoalCups: waterGoalCups,
+                equippedTitleId: equippedTitleId,
+                equippedCosmeticId: equippedCosmeticId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -7449,6 +8110,345 @@ typedef $$DailyHealthLogsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $DailyHealthLogsTable, DailyHealthRow>,
       ),
       DailyHealthRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ArenaProgressTableCreateCompanionBuilder =
+    ArenaProgressCompanion Function({
+      required String opponentId,
+      Value<int> victories,
+      required DateTime lastDefeatedAt,
+      Value<int> rowid,
+    });
+typedef $$ArenaProgressTableUpdateCompanionBuilder =
+    ArenaProgressCompanion Function({
+      Value<String> opponentId,
+      Value<int> victories,
+      Value<DateTime> lastDefeatedAt,
+      Value<int> rowid,
+    });
+
+class $$ArenaProgressTableFilterComposer
+    extends Composer<_$AppDatabase, $ArenaProgressTable> {
+  $$ArenaProgressTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get opponentId => $composableBuilder(
+    column: $table.opponentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get victories => $composableBuilder(
+    column: $table.victories,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ArenaProgressTableOrderingComposer
+    extends Composer<_$AppDatabase, $ArenaProgressTable> {
+  $$ArenaProgressTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get opponentId => $composableBuilder(
+    column: $table.opponentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get victories => $composableBuilder(
+    column: $table.victories,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ArenaProgressTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ArenaProgressTable> {
+  $$ArenaProgressTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get opponentId => $composableBuilder(
+    column: $table.opponentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get victories =>
+      $composableBuilder(column: $table.victories, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$ArenaProgressTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ArenaProgressTable,
+          ArenaProgressRow,
+          $$ArenaProgressTableFilterComposer,
+          $$ArenaProgressTableOrderingComposer,
+          $$ArenaProgressTableAnnotationComposer,
+          $$ArenaProgressTableCreateCompanionBuilder,
+          $$ArenaProgressTableUpdateCompanionBuilder,
+          (
+            ArenaProgressRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ArenaProgressTable,
+              ArenaProgressRow
+            >,
+          ),
+          ArenaProgressRow,
+          PrefetchHooks Function()
+        > {
+  $$ArenaProgressTableTableManager(_$AppDatabase db, $ArenaProgressTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ArenaProgressTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArenaProgressTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArenaProgressTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> opponentId = const Value.absent(),
+                Value<int> victories = const Value.absent(),
+                Value<DateTime> lastDefeatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArenaProgressCompanion(
+                opponentId: opponentId,
+                victories: victories,
+                lastDefeatedAt: lastDefeatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String opponentId,
+                Value<int> victories = const Value.absent(),
+                required DateTime lastDefeatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ArenaProgressCompanion.insert(
+                opponentId: opponentId,
+                victories: victories,
+                lastDefeatedAt: lastDefeatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ArenaProgressTable, ArenaProgressRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ArenaProgressTable,
+                    ArenaProgressRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ArenaProgressTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ArenaProgressTable,
+      ArenaProgressRow,
+      $$ArenaProgressTableFilterComposer,
+      $$ArenaProgressTableOrderingComposer,
+      $$ArenaProgressTableAnnotationComposer,
+      $$ArenaProgressTableCreateCompanionBuilder,
+      $$ArenaProgressTableUpdateCompanionBuilder,
+      (
+        ArenaProgressRow,
+        BaseReferences<_$AppDatabase, $ArenaProgressTable, ArenaProgressRow>,
+      ),
+      ArenaProgressRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DailyArenaLogsTableCreateCompanionBuilder =
+    DailyArenaLogsCompanion Function({
+      required String dateStr,
+      Value<int> entriesUsed,
+      Value<int> rowid,
+    });
+typedef $$DailyArenaLogsTableUpdateCompanionBuilder =
+    DailyArenaLogsCompanion Function({
+      Value<String> dateStr,
+      Value<int> entriesUsed,
+      Value<int> rowid,
+    });
+
+class $$DailyArenaLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyArenaLogsTable> {
+  $$DailyArenaLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get dateStr => $composableBuilder(
+    column: $table.dateStr,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get entriesUsed => $composableBuilder(
+    column: $table.entriesUsed,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyArenaLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyArenaLogsTable> {
+  $$DailyArenaLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get dateStr => $composableBuilder(
+    column: $table.dateStr,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get entriesUsed => $composableBuilder(
+    column: $table.entriesUsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyArenaLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyArenaLogsTable> {
+  $$DailyArenaLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get dateStr =>
+      $composableBuilder(column: $table.dateStr, builder: (column) => column);
+
+  GeneratedColumn<int> get entriesUsed => $composableBuilder(
+    column: $table.entriesUsed,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyArenaLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyArenaLogsTable,
+          DailyArenaLogRow,
+          $$DailyArenaLogsTableFilterComposer,
+          $$DailyArenaLogsTableOrderingComposer,
+          $$DailyArenaLogsTableAnnotationComposer,
+          $$DailyArenaLogsTableCreateCompanionBuilder,
+          $$DailyArenaLogsTableUpdateCompanionBuilder,
+          (
+            DailyArenaLogRow,
+            BaseReferences<
+              _$AppDatabase,
+              $DailyArenaLogsTable,
+              DailyArenaLogRow
+            >,
+          ),
+          DailyArenaLogRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyArenaLogsTableTableManager(
+    _$AppDatabase db,
+    $DailyArenaLogsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyArenaLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyArenaLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyArenaLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> dateStr = const Value.absent(),
+                Value<int> entriesUsed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyArenaLogsCompanion(
+                dateStr: dateStr,
+                entriesUsed: entriesUsed,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String dateStr,
+                Value<int> entriesUsed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyArenaLogsCompanion.insert(
+                dateStr: dateStr,
+                entriesUsed: entriesUsed,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DailyArenaLogsTable, DailyArenaLogRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DailyArenaLogsTable,
+                    DailyArenaLogRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyArenaLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyArenaLogsTable,
+      DailyArenaLogRow,
+      $$DailyArenaLogsTableFilterComposer,
+      $$DailyArenaLogsTableOrderingComposer,
+      $$DailyArenaLogsTableAnnotationComposer,
+      $$DailyArenaLogsTableCreateCompanionBuilder,
+      $$DailyArenaLogsTableUpdateCompanionBuilder,
+      (
+        DailyArenaLogRow,
+        BaseReferences<_$AppDatabase, $DailyArenaLogsTable, DailyArenaLogRow>,
+      ),
+      DailyArenaLogRow,
       PrefetchHooks Function()
     >;
 typedef $$WorkoutSessionsTableCreateCompanionBuilder =
@@ -9447,6 +10447,10 @@ class $AppDatabaseManager {
       $$HeroesTableTableManager(_db, _db.heroes);
   $$DailyHealthLogsTableTableManager get dailyHealthLogs =>
       $$DailyHealthLogsTableTableManager(_db, _db.dailyHealthLogs);
+  $$ArenaProgressTableTableManager get arenaProgress =>
+      $$ArenaProgressTableTableManager(_db, _db.arenaProgress);
+  $$DailyArenaLogsTableTableManager get dailyArenaLogs =>
+      $$DailyArenaLogsTableTableManager(_db, _db.dailyArenaLogs);
   $$WorkoutSessionsTableTableManager get workoutSessions =>
       $$WorkoutSessionsTableTableManager(_db, _db.workoutSessions);
   $$WorkoutSetsTableTableManager get workoutSets =>

@@ -17,7 +17,10 @@ enum XpSource {
   hydration,
 
   /// Daily nutrition / diet adherence check-in.
-  nutrition;
+  nutrition,
+
+  /// Append-only entry recording 1 spent Heroic Inspiration (0 XP).
+  inspirationSpend;
 
   /// True for daily effort sources that count toward and are subject to the
   /// per-attribute daily diminishing-returns curve.
@@ -35,7 +38,8 @@ enum XpSource {
         XpSource.personalRecord ||
         XpSource.dailyQuest ||
         XpSource.weeklyBonus ||
-        XpSource.penaltyAtrophy =>
+        XpSource.penaltyAtrophy ||
+        XpSource.inspirationSpend =>
           false,
       };
 }

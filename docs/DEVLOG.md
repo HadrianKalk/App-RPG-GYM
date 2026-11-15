@@ -3,6 +3,34 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 5B: Persistência + Tela da Arena 1v1 + Títulos e Cosméticos no Herói
+- **Banco (Schema v7, `database.dart`, `database.g.dart`):**
+  - Colunas `heroes.equipped_title_id` e `heroes.equipped_cosmetic_id`.
+  - Tabelas `arena_progress` (vitórias por NPC da Arena, desbloqueando título e
+    cosmético) e `daily_arena_logs` (fichas de entrada consumidas no dia).
+  - Novo `XpSource.inspirationSpend` (0 XP, append-only no `xp_ledger`) para
+    deduzir Inspiração Heroica gasta em batalha sem violar a imutabilidade do
+    livro-razão.
+- **Repositório (`combat_repository.dart`, `providers.dart`, `hero_repository.dart`):**
+  `ArenaState` reativo combinando vitórias, títulos/cosméticos desbloqueados e
+  fichas ganhas hoje (2 grátis + treinos + missões + hábito de saúde); métodos
+  `consumeDailyEntry` e `finishMatch` (zero XP garantido).
+- **UI (`arena_screen.dart`, `character_screen.dart`, `hero_customization_sheet.dart`):**
+  - Card da **Arena da Forja** na ficha do Herói com contadores ao vivo de
+    fichas e campeões derrotados.
+  - Exibição do **Título** (`« ... »`) e **Cosmético** equipados no card do
+    Herói + modal `HeroCustomizationSheet` para equipar/desequipar.
+  - **Tela da Arena 1v1 (`ArenaScreen`)**: lista dos 6 desafiantes NPC + combate
+    em turnos com barras segmentadas de PV e Foco, intenção telegrafada do
+    inimigo, 4 ações táticas, log de batalha e card de vitória com botão
+    "Equipar agora".
+- **Localização (`app_pt.arb`, `app_en.arb`):** todas as chaves da Arena e de
+  customização geradas em pt-BR e en via `flutter gen-l10n`.
+- **Testes:** 107 testes passando (`repositories_test.dart`,
+  `arena_screen_test.dart`), `flutter analyze` limpo.
+- **Próximo:** Etapa 5C (Torneios e/ou Dungeon) ou Seleção de Classe
+  Desbloqueada (Decisão #41).
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 5A: Motor de Combate em Turnos, Habilidades D&D 5e e Arena
 - **Motor (`lib/core/game/combat.dart`, `xp_rules.dart`):**
   - `CombatStats.fromHero`: deriva HP máximo, Foco máximo, Defesa, Iniciativa,

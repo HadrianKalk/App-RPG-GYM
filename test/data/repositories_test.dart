@@ -1,10 +1,13 @@
 import 'package:app/core/game/activity_catalog.dart';
 import 'package:app/core/game/attributes.dart';
+import 'package:app/core/game/combat.dart';
 import 'package:app/core/game/hero_profile.dart';
 import 'package:app/core/game/quest_progress.dart';
+import 'package:app/core/game/xp_rules.dart';
 import 'package:app/data/database.dart';
 import 'package:app/data/repositories/activity_repository.dart';
 import 'package:app/data/repositories/character_repository.dart';
+import 'package:app/data/repositories/combat_repository.dart';
 import 'package:app/data/repositories/hero_repository.dart';
 import 'package:app/data/repositories/history_repository.dart';
 import 'package:app/data/repositories/quest_repository.dart';
@@ -26,6 +29,7 @@ void main() {
   late ActivityRepository activityRepo;
   late HeroRepository heroRepo;
   late RoutineRepository routineRepo;
+  late CombatRepository combatRepo;
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
@@ -35,6 +39,7 @@ void main() {
     activityRepo = ActivityRepository(db, charRepo, questRepo);
     heroRepo = HeroRepository(db);
     routineRepo = RoutineRepository(db);
+    combatRepo = CombatRepository(db, charRepo);
     await workoutRepo.syncCatalog();
   });
 
@@ -508,6 +513,71 @@ void main() {
       // Intelligence is a different attribute -> still gets 100% efficiency today!
       final intXp = await activityRepo.logPomodoroStudy(durationMinutes: 50);
       expect(intXp, 50);
+    });
+  });
+
+  group('Arena & CombatRepository (step 5B)', () {
+    test('daily tokens scale with workouts and health habits and can be consumed', () async {
+      final initial = await combatRepo.getArenaState();
+      expect(initial.totalEntriesToday, XpRules.arenaFreeDailyEntries);
+      expect(initial.entriesRemainingToday, XpRules.arenaFreeDailyEntries);
+
+      // Complete a diet check-in today -> +1 token
+      await activityRepo.completeDietCheckIn(adherence: DietAdherence.onTrack);
+      final afterDiet = await combatRepo.getArenaState();
+      expect(afterDiet.totalEntriesToday, XpRules.arenaFreeDailyEntries + 1);
+
+      // Consume 1 token
+      expect(await combatRepo.consumeDailyEntry(), isTrue);
+      final afterConsume = await combatRepo.getArenaState();
+      expect(afterConsume.entriesUsedToday, 1);
+      expect(afterConsume.entriesRemainingToday, XpRules.arenaFreeDailyEntries);
+    });
+
+    test('finishMatch unlocks title and cosmetic, grants zero XP, and deducts Inspiration when spent', () async {
+      await heroRepo.createHero(
+        name: 'Kael',
+        form: HeroForm.masculine,
+        origin: HeroOrigin.soldier,
+      );
+
+      // Grant 1 Inspiration via a dailyQuest XP event
+      await charRepo.addXp(
+        XpEvent(
+          id: 'quest_insp_1',
+          attribute: Attribute.strength,
+          amount: 40,
+          source: XpSource.dailyQuest,
+          timestamp: DateTime.now(),
+        ),
+      );
+      final beforeCombat = await charRepo.watchCharacter().first;
+      expect(beforeCombat.inspirationCount, 1);
+      expect(beforeCombat.levelInfo.totalXp, 40);
+
+      final recruit = ArenaCatalog.opponents.first;
+      final firstUnlock = await combatRepo.finishMatch(
+        opponent: recruit,
+        victory: true,
+        spentInspiration: true,
+      );
+      expect(firstUnlock, isTrue);
+
+      final afterCombat = await charRepo.watchCharacter().first;
+      expect(afterCombat.levelInfo.totalXp, 40, reason: 'Combat must never grant XP');
+      expect(afterCombat.inspirationCount, 0, reason: 'Spent inspiration is deducted via append-only ledger');
+
+      final arenaState = await combatRepo.getArenaState();
+      expect(arenaState.isDefeated(recruit.id), isTrue);
+      expect(arenaState.unlockedTitleIds.contains(recruit.reward.titleId), isTrue);
+      expect(arenaState.unlockedCosmeticIds.contains(recruit.reward.cosmeticId), isTrue);
+
+      // Equip the unlocked title and cosmetic on the hero
+      await heroRepo.setEquippedTitle(recruit.reward.titleId);
+      await heroRepo.setEquippedCosmetic(recruit.reward.cosmeticId);
+      final profile = await heroRepo.watchHero().first;
+      expect(profile!.equippedTitleId, recruit.reward.titleId);
+      expect(profile.equippedCosmeticId, recruit.reward.cosmeticId);
     });
   });
 }

@@ -62,10 +62,13 @@ class CharacterRepository {
       for (final event in events) {
         xpMap[event.attribute] = (xpMap[event.attribute] ?? 0.0) + event.amount;
         totalXp += event.amount;
-        // Toda missão diária cumprida concede 1 Inspiração.
-        // (O gasto de Inspiração chega na Fase 2.)
-        if (event.source == XpSource.dailyQuest) inspiration++;
+        if (event.source == XpSource.dailyQuest) {
+          inspiration++;
+        } else if (event.source == XpSource.inspirationSpend) {
+          inspiration--;
+        }
       }
+      if (inspiration < 0) inspiration = 0;
 
       final progressions = {
         for (final a in Attribute.values)

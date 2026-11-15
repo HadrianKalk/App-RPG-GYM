@@ -657,5 +657,252 @@
   "exerciseGuideTitle": "Guia de Execução",
   "exerciseGuideStepsTitle": "Passo a passo & Postura",
   "exerciseGuideSpriteNote": "Ilustração em pixel art do movimento em breve.",
-  "dailyCurveNote": "Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!"
+  "dailyCurveNote": "Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!",
+  "arenaBannerTitle": "Arena da Forja",
+  "arenaBannerSubtitle": "Desafie campeões NPC para conquistar títulos e cosméticos (sem ganho de XP)",
+  "arenaTokensBadge": "Fichas hoje: {remaining}/{total}",
+  "@arenaTokensBadge": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaChampionsBadge": "Campeões: {defeated}/{total}",
+  "@arenaChampionsBadge": {
+    "placeholders": {
+      "defeated": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "heroCustomizeButton": "Títulos & Cosméticos",
+  "heroTitlesSection": "Títulos de Combate",
+  "heroCosmeticsSection": "Cosméticos de Herói",
+  "heroUnequip": "Nenhum (desequipar)",
+  "heroLockedHint": "Derrote {npc} na Arena para desbloquear",
+  "@heroLockedHint": {
+    "placeholders": {
+      "npc": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaScreenTitle": "Arena da Forja",
+  "arenaTokensExplain": "2 entradas grátis/dia + 1 por treino + 1 por missão diária + 1 por hábito de saúde.",
+  "arenaNoTokens": "Sem fichas de Arena disponíveis hoje. Conclua um treino, missão ou meta de saúde para ganhar mais!",
+  "arenaRecommendedLevel": "Nv. rec. {level}",
+  "@arenaRecommendedLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaChallengeButton": "Desafiar (1 ficha)",
+  "arenaVictoriesCount": "{count, plural, =0{Ainda não derrotado} =1{1 vitória} other{{count} vitórias}}",
+  "@arenaVictoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaRewardLabel": "Recompensa: {title} · {cosmetic}",
+  "@arenaRewardLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "cosmetic": {
+        "type": "String"
+      }
+    }
+  },
+  "combatTurnLabel": "Turno {turn}",
+  "@combatTurnLabel": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      }
+    }
+  },
+  "combatHpLabel": "PV",
+  "combatFocusLabel": "FOCO",
+  "combatIntentStrike": "Intenção: Ataque Direto",
+  "combatIntentHeavy": "Intenção: Golpe Pesado (defenda ou atordoe!)",
+  "combatIntentGuard": "Intenção: Postura Defensiva",
+  "combatActionBasic": "Golpe Básico (+3 Foco)",
+  "combatActionSkill": "{name} ({cost} Foco)",
+  "@combatActionSkill": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "combatActionSkillCooldown": "{name} ({turns}t)",
+  "@combatActionSkillCooldown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "turns": {
+        "type": "int"
+      }
+    }
+  },
+  "combatActionDefend": "Defender (-50% dano, +Foco/+PV)",
+  "combatActionInspiration": "Inspiração Heroica (Crítico · {count})",
+  "@combatActionInspiration": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogTitle": "Registro de Batalha",
+  "combatLogHeroBasic": "T{turn}: Seu golpe causou {dmg} de dano{crit}.",
+  "@combatLogHeroBasic": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "dmg": {
+        "type": "int"
+      },
+      "crit": {
+        "type": "String"
+      }
+    }
+  },
+  "combatLogHeroSkill": "T{turn}: {skill} causou {dmg} de dano{crit}!",
+  "@combatLogHeroSkill": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      },
+      "dmg": {
+        "type": "int"
+      },
+      "crit": {
+        "type": "String"
+      }
+    }
+  },
+  "combatLogHeroSkillHeal": "T{turn}: {skill} causou {dmg} de dano e curou {heal} PV!",
+  "@combatLogHeroSkillHeal": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      },
+      "dmg": {
+        "type": "int"
+      },
+      "heal": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogHeroDefend": "T{turn}: Postura defensiva (+{heal} PV, +Foco).",
+  "@combatLogHeroDefend": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "heal": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogHeroInspiration": "T{turn}: Inspiração Heroica! Crítico devastador de {dmg} de dano!",
+  "@combatLogHeroInspiration": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogEnemyStrike": "T{turn}: O oponente atacou causando {dmg} de dano.",
+  "@combatLogEnemyStrike": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogEnemyHeavy": "T{turn}: Golpe Pesado do oponente causou {dmg} de dano!",
+  "@combatLogEnemyHeavy": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogEnemyGuard": "T{turn}: O oponente ergueu guarda e recuperou {heal} PV.",
+  "@combatLogEnemyGuard": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "heal": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogEnemyStunned": "T{turn}: O oponente está atordoado e perdeu o turno!",
+  "@combatLogEnemyStunned": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogEnemyDodged": "T{turn}: O oponente esquivou do seu ataque!",
+  "@combatLogEnemyDodged": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogHeroDodged": "T{turn}: Você esquivou do ataque inimigo!",
+  "@combatLogHeroDodged": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      }
+    }
+  },
+  "combatVictoryTitle": "Vitória na Arena!",
+  "combatDefeatTitle": "Derrota na Arena",
+  "combatDefeatBody": "O oponente prevaleceu desta vez. Fortaleça seus atributos com treinos e hábitos reais e volte mais forte!",
+  "combatUnlockedReward": "Recompensas Desbloqueadas!",
+  "combatAlreadyUnlocked": "Recompensas deste campeão já estão na sua coleção.",
+  "combatEquipNow": "Equipar agora",
+  "combatBackToArena": "Voltar à Arena"
 }

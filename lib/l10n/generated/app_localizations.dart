@@ -1525,6 +1525,282 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!'**
   String get dailyCurveNote;
+
+  /// No description provided for @arenaBannerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arena da Forja'**
+  String get arenaBannerTitle;
+
+  /// No description provided for @arenaBannerSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desafie campeões NPC para conquistar títulos e cosméticos (sem ganho de XP)'**
+  String get arenaBannerSubtitle;
+
+  /// No description provided for @arenaTokensBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fichas hoje: {remaining}/{total}'**
+  String arenaTokensBadge(int remaining, int total);
+
+  /// No description provided for @arenaChampionsBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Campeões: {defeated}/{total}'**
+  String arenaChampionsBadge(int defeated, int total);
+
+  /// No description provided for @heroCustomizeButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Títulos & Cosméticos'**
+  String get heroCustomizeButton;
+
+  /// No description provided for @heroTitlesSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Títulos de Combate'**
+  String get heroTitlesSection;
+
+  /// No description provided for @heroCosmeticsSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cosméticos de Herói'**
+  String get heroCosmeticsSection;
+
+  /// No description provided for @heroUnequip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum (desequipar)'**
+  String get heroUnequip;
+
+  /// No description provided for @heroLockedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Derrote {npc} na Arena para desbloquear'**
+  String heroLockedHint(String npc);
+
+  /// No description provided for @arenaScreenTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arena da Forja'**
+  String get arenaScreenTitle;
+
+  /// No description provided for @arenaTokensExplain.
+  ///
+  /// In pt, this message translates to:
+  /// **'2 entradas grátis/dia + 1 por treino + 1 por missão diária + 1 por hábito de saúde.'**
+  String get arenaTokensExplain;
+
+  /// No description provided for @arenaNoTokens.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem fichas de Arena disponíveis hoje. Conclua um treino, missão ou meta de saúde para ganhar mais!'**
+  String get arenaNoTokens;
+
+  /// No description provided for @arenaRecommendedLevel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nv. rec. {level}'**
+  String arenaRecommendedLevel(int level);
+
+  /// No description provided for @arenaChallengeButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desafiar (1 ficha)'**
+  String get arenaChallengeButton;
+
+  /// No description provided for @arenaVictoriesCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Ainda não derrotado} =1{1 vitória} other{{count} vitórias}}'**
+  String arenaVictoriesCount(int count);
+
+  /// No description provided for @arenaRewardLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recompensa: {title} · {cosmetic}'**
+  String arenaRewardLabel(String title, String cosmetic);
+
+  /// No description provided for @combatTurnLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Turno {turn}'**
+  String combatTurnLabel(int turn);
+
+  /// No description provided for @combatHpLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'PV'**
+  String get combatHpLabel;
+
+  /// No description provided for @combatFocusLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'FOCO'**
+  String get combatFocusLabel;
+
+  /// No description provided for @combatIntentStrike.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intenção: Ataque Direto'**
+  String get combatIntentStrike;
+
+  /// No description provided for @combatIntentHeavy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intenção: Golpe Pesado (defenda ou atordoe!)'**
+  String get combatIntentHeavy;
+
+  /// No description provided for @combatIntentGuard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intenção: Postura Defensiva'**
+  String get combatIntentGuard;
+
+  /// No description provided for @combatActionBasic.
+  ///
+  /// In pt, this message translates to:
+  /// **'Golpe Básico (+3 Foco)'**
+  String get combatActionBasic;
+
+  /// No description provided for @combatActionSkill.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} ({cost} Foco)'**
+  String combatActionSkill(String name, int cost);
+
+  /// No description provided for @combatActionSkillCooldown.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} ({turns}t)'**
+  String combatActionSkillCooldown(String name, int turns);
+
+  /// No description provided for @combatActionDefend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Defender (-50% dano, +Foco/+PV)'**
+  String get combatActionDefend;
+
+  /// No description provided for @combatActionInspiration.
+  ///
+  /// In pt, this message translates to:
+  /// **'Inspiração Heroica (Crítico · {count})'**
+  String combatActionInspiration(int count);
+
+  /// No description provided for @combatLogTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registro de Batalha'**
+  String get combatLogTitle;
+
+  /// No description provided for @combatLogHeroBasic.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Seu golpe causou {dmg} de dano{crit}.'**
+  String combatLogHeroBasic(int turn, int dmg, String crit);
+
+  /// No description provided for @combatLogHeroSkill.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: {skill} causou {dmg} de dano{crit}!'**
+  String combatLogHeroSkill(int turn, String skill, int dmg, String crit);
+
+  /// No description provided for @combatLogHeroSkillHeal.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: {skill} causou {dmg} de dano e curou {heal} PV!'**
+  String combatLogHeroSkillHeal(int turn, String skill, int dmg, int heal);
+
+  /// No description provided for @combatLogHeroDefend.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Postura defensiva (+{heal} PV, +Foco).'**
+  String combatLogHeroDefend(int turn, int heal);
+
+  /// No description provided for @combatLogHeroInspiration.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Inspiração Heroica! Crítico devastador de {dmg} de dano!'**
+  String combatLogHeroInspiration(int turn, int dmg);
+
+  /// No description provided for @combatLogEnemyStrike.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: O oponente atacou causando {dmg} de dano.'**
+  String combatLogEnemyStrike(int turn, int dmg);
+
+  /// No description provided for @combatLogEnemyHeavy.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Golpe Pesado do oponente causou {dmg} de dano!'**
+  String combatLogEnemyHeavy(int turn, int dmg);
+
+  /// No description provided for @combatLogEnemyGuard.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: O oponente ergueu guarda e recuperou {heal} PV.'**
+  String combatLogEnemyGuard(int turn, int heal);
+
+  /// No description provided for @combatLogEnemyStunned.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: O oponente está atordoado e perdeu o turno!'**
+  String combatLogEnemyStunned(int turn);
+
+  /// No description provided for @combatLogEnemyDodged.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: O oponente esquivou do seu ataque!'**
+  String combatLogEnemyDodged(int turn);
+
+  /// No description provided for @combatLogHeroDodged.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Você esquivou do ataque inimigo!'**
+  String combatLogHeroDodged(int turn);
+
+  /// No description provided for @combatVictoryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vitória na Arena!'**
+  String get combatVictoryTitle;
+
+  /// No description provided for @combatDefeatTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Derrota na Arena'**
+  String get combatDefeatTitle;
+
+  /// No description provided for @combatDefeatBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'O oponente prevaleceu desta vez. Fortaleça seus atributos com treinos e hábitos reais e volte mais forte!'**
+  String get combatDefeatBody;
+
+  /// No description provided for @combatUnlockedReward.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recompensas Desbloqueadas!'**
+  String get combatUnlockedReward;
+
+  /// No description provided for @combatAlreadyUnlocked.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recompensas deste campeão já estão na sua coleção.'**
+  String get combatAlreadyUnlocked;
+
+  /// No description provided for @combatEquipNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Equipar agora'**
+  String get combatEquipNow;
+
+  /// No description provided for @combatBackToArena.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar à Arena'**
+  String get combatBackToArena;
 }
 
 class _AppLocalizationsDelegate

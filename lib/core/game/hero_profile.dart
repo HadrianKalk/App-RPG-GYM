@@ -45,6 +45,8 @@ final class HeroProfile {
     this.customOriginStory,
     this.weeklyGoal = 3,
     this.waterGoalCups = 8,
+    this.equippedTitleId,
+    this.equippedCosmeticId,
   });
 
   /// Maximum hero name length.
@@ -81,6 +83,12 @@ final class HeroProfile {
 
   /// Daily hydration goal in 250 ml cups (Constitution health).
   final int waterGoalCups;
+
+  /// Currently equipped combat title id (`combatTitle.<id>`), if any.
+  final String? equippedTitleId;
+
+  /// Currently equipped combat cosmetic id (`combatCosmetic.<id>`), if any.
+  final String? equippedCosmeticId;
 
   /// Validates a raw hero name. Returns `null` when valid, or the reason.
   static HeroNameError? validateName(String raw) =>

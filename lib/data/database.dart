@@ -128,8 +128,33 @@ class Heroes extends Table {
   /// Daily hydration goal in 250 ml cups (schema v6).
   IntColumn get waterGoalCups => integer().withDefault(const Constant(8))();
 
+  /// Currently equipped combat title id and cosmetic id (schema v7).
+  TextColumn get equippedTitleId => text().nullable()();
+  TextColumn get equippedCosmeticId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Defeated Arena NPCs and victory counts (unlocks title + cosmetic).
+@DataClassName('ArenaProgressRow')
+class ArenaProgress extends Table {
+  TextColumn get opponentId => text()();
+  IntColumn get victories => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastDefeatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {opponentId};
+}
+
+/// Daily Arena entry tokens consumed per calendar day (`YYYY-MM-DD`).
+@DataClassName('DailyArenaLogRow')
+class DailyArenaLogs extends Table {
+  TextColumn get dateStr => text()();
+  IntColumn get entriesUsed => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {dateStr};
 }
 
 /// Daily health state for Constitution habits (hydration, diet, sleep).
@@ -179,6 +204,8 @@ class RoutineExercises extends Table {
   RoutineExercises,
   Heroes,
   DailyHealthLogs,
+  ArenaProgress,
+  DailyArenaLogs,
   Exercises,
   WorkoutSessions,
   WorkoutSets,
@@ -191,7 +218,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -245,6 +272,13 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) {
             await m.addColumn(heroes, heroes.waterGoalCups);
             await m.createTable(dailyHealthLogs);
+          }
+          // v7: Arena progression, daily tokens, and equipped title/cosmetic.
+          if (from < 7) {
+            await m.addColumn(heroes, heroes.equippedTitleId);
+            await m.addColumn(heroes, heroes.equippedCosmeticId);
+            await m.createTable(arenaProgress);
+            await m.createTable(dailyArenaLogs);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).

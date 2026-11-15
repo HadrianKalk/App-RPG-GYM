@@ -7,6 +7,7 @@ import 'quest_repository.dart';
 import 'hero_repository.dart';
 import 'routine_repository.dart';
 import 'history_repository.dart';
+import 'combat_repository.dart';
 import '../../core/game/routine.dart';
 import '../../core/game/hero_profile.dart';
 
@@ -97,4 +98,15 @@ final recordsProvider = StreamProvider<List<(PersonalRecord, Exercise)>>((ref) {
 /// Today's Constitution health state (water cups, diet check-in, sleep).
 final todayHealthStreamProvider = StreamProvider<DailyHealthRow?>((ref) {
   return ref.watch(activityRepositoryProvider).watchTodayHealth();
+});
+
+final combatRepositoryProvider = Provider<CombatRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  final charRepo = ref.watch(characterRepositoryProvider);
+  return CombatRepository(db, charRepo);
+});
+
+/// Live Arena progression, unlocked titles/cosmetics, and today's entry tokens.
+final arenaStateStreamProvider = StreamProvider<ArenaState>((ref) {
+  return ref.watch(combatRepositoryProvider).watchArenaState();
 });

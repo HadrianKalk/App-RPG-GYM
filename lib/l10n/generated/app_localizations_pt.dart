@@ -899,4 +899,197 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get dailyCurveNote =>
       'Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!';
+
+  @override
+  String get arenaBannerTitle => 'Arena da Forja';
+
+  @override
+  String get arenaBannerSubtitle =>
+      'Desafie campeões NPC para conquistar títulos e cosméticos (sem ganho de XP)';
+
+  @override
+  String arenaTokensBadge(int remaining, int total) {
+    return 'Fichas hoje: $remaining/$total';
+  }
+
+  @override
+  String arenaChampionsBadge(int defeated, int total) {
+    return 'Campeões: $defeated/$total';
+  }
+
+  @override
+  String get heroCustomizeButton => 'Títulos & Cosméticos';
+
+  @override
+  String get heroTitlesSection => 'Títulos de Combate';
+
+  @override
+  String get heroCosmeticsSection => 'Cosméticos de Herói';
+
+  @override
+  String get heroUnequip => 'Nenhum (desequipar)';
+
+  @override
+  String heroLockedHint(String npc) {
+    return 'Derrote $npc na Arena para desbloquear';
+  }
+
+  @override
+  String get arenaScreenTitle => 'Arena da Forja';
+
+  @override
+  String get arenaTokensExplain =>
+      '2 entradas grátis/dia + 1 por treino + 1 por missão diária + 1 por hábito de saúde.';
+
+  @override
+  String get arenaNoTokens =>
+      'Sem fichas de Arena disponíveis hoje. Conclua um treino, missão ou meta de saúde para ganhar mais!';
+
+  @override
+  String arenaRecommendedLevel(int level) {
+    return 'Nv. rec. $level';
+  }
+
+  @override
+  String get arenaChallengeButton => 'Desafiar (1 ficha)';
+
+  @override
+  String arenaVictoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vitórias',
+      one: '1 vitória',
+      zero: 'Ainda não derrotado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String arenaRewardLabel(String title, String cosmetic) {
+    return 'Recompensa: $title · $cosmetic';
+  }
+
+  @override
+  String combatTurnLabel(int turn) {
+    return 'Turno $turn';
+  }
+
+  @override
+  String get combatHpLabel => 'PV';
+
+  @override
+  String get combatFocusLabel => 'FOCO';
+
+  @override
+  String get combatIntentStrike => 'Intenção: Ataque Direto';
+
+  @override
+  String get combatIntentHeavy =>
+      'Intenção: Golpe Pesado (defenda ou atordoe!)';
+
+  @override
+  String get combatIntentGuard => 'Intenção: Postura Defensiva';
+
+  @override
+  String get combatActionBasic => 'Golpe Básico (+3 Foco)';
+
+  @override
+  String combatActionSkill(String name, int cost) {
+    return '$name ($cost Foco)';
+  }
+
+  @override
+  String combatActionSkillCooldown(String name, int turns) {
+    return '$name (${turns}t)';
+  }
+
+  @override
+  String get combatActionDefend => 'Defender (-50% dano, +Foco/+PV)';
+
+  @override
+  String combatActionInspiration(int count) {
+    return 'Inspiração Heroica (Crítico · $count)';
+  }
+
+  @override
+  String get combatLogTitle => 'Registro de Batalha';
+
+  @override
+  String combatLogHeroBasic(int turn, int dmg, String crit) {
+    return 'T$turn: Seu golpe causou $dmg de dano$crit.';
+  }
+
+  @override
+  String combatLogHeroSkill(int turn, String skill, int dmg, String crit) {
+    return 'T$turn: $skill causou $dmg de dano$crit!';
+  }
+
+  @override
+  String combatLogHeroSkillHeal(int turn, String skill, int dmg, int heal) {
+    return 'T$turn: $skill causou $dmg de dano e curou $heal PV!';
+  }
+
+  @override
+  String combatLogHeroDefend(int turn, int heal) {
+    return 'T$turn: Postura defensiva (+$heal PV, +Foco).';
+  }
+
+  @override
+  String combatLogHeroInspiration(int turn, int dmg) {
+    return 'T$turn: Inspiração Heroica! Crítico devastador de $dmg de dano!';
+  }
+
+  @override
+  String combatLogEnemyStrike(int turn, int dmg) {
+    return 'T$turn: O oponente atacou causando $dmg de dano.';
+  }
+
+  @override
+  String combatLogEnemyHeavy(int turn, int dmg) {
+    return 'T$turn: Golpe Pesado do oponente causou $dmg de dano!';
+  }
+
+  @override
+  String combatLogEnemyGuard(int turn, int heal) {
+    return 'T$turn: O oponente ergueu guarda e recuperou $heal PV.';
+  }
+
+  @override
+  String combatLogEnemyStunned(int turn) {
+    return 'T$turn: O oponente está atordoado e perdeu o turno!';
+  }
+
+  @override
+  String combatLogEnemyDodged(int turn) {
+    return 'T$turn: O oponente esquivou do seu ataque!';
+  }
+
+  @override
+  String combatLogHeroDodged(int turn) {
+    return 'T$turn: Você esquivou do ataque inimigo!';
+  }
+
+  @override
+  String get combatVictoryTitle => 'Vitória na Arena!';
+
+  @override
+  String get combatDefeatTitle => 'Derrota na Arena';
+
+  @override
+  String get combatDefeatBody =>
+      'O oponente prevaleceu desta vez. Fortaleça seus atributos com treinos e hábitos reais e volte mais forte!';
+
+  @override
+  String get combatUnlockedReward => 'Recompensas Desbloqueadas!';
+
+  @override
+  String get combatAlreadyUnlocked =>
+      'Recompensas deste campeão já estão na sua coleção.';
+
+  @override
+  String get combatEquipNow => 'Equipar agora';
+
+  @override
+  String get combatBackToArena => 'Voltar à Arena';
 }

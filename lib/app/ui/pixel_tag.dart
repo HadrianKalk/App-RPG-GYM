@@ -28,7 +28,14 @@ class PixelTag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (leading != null) ...[leading!, const SizedBox(width: 4)],
-          Text(text, style: DisplayFont.from(context).style(fontSize, color: color)),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: DisplayFont.from(context).style(fontSize, color: color),
+            ),
+          ),
         ],
       ),
     );
