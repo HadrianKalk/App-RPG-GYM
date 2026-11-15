@@ -78,7 +78,7 @@ class _HeroSheet extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           [
-                            if (hero != null) '${hero!.origin.icon} ${game.originName(hero!.origin)}',
+                            if (hero != null) '${hero!.origin.icon} ${game.heroOriginName(hero!)}',
                             game.className(char.characterClass),
                           ].join(' · '),
                           style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),

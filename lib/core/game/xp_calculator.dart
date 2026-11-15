@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'xp_rules.dart';
 
 abstract final class XpCalculator {
@@ -57,13 +57,25 @@ abstract final class XpCalculator {
     return earnedXp + flatBonusXp;
   }
 
-  /// Calcula o XP de uma série de musculação.
-  /// Cada série vale [XpRules.xpPerWorkoutSet] * intensidade (RPE) + bônus de Recorde Pessoal se houver.
+  /// XP of one strength set: [XpRules.xpPerWorkoutSet] x intensity (RPE),
+  /// plus the Personal Record bonus when applicable.
   static double calculateWorkoutSetXp({
     double intensity = XpRules.intensityModerate,
     bool isPersonalRecord = false,
   }) {
     final base = XpRules.xpPerWorkoutSet * intensity;
     return isPersonalRecord ? base + XpRules.bonusXpPerPersonalRecord : base;
+  }
+
+  /// XP of one timed set (plank, run, mobility flow): 1 XP per minute
+  /// ([XpRules.xpPerFocusedMinute]), never less than a regular set, times
+  /// intensity. A 25-minute run is worth 25 XP; a 45 s plank is worth 4 XP.
+  static double calculateDurationSetXp({
+    required int durationSeconds,
+    double intensity = XpRules.intensityModerate,
+  }) {
+    if (durationSeconds <= 0) return 0.0;
+    final byMinutes = durationSeconds / 60.0 * XpRules.xpPerFocusedMinute;
+    return math.max(XpRules.xpPerWorkoutSet, byMinutes) * intensity;
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,88 +9,83 @@ import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
 import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
-import '../../../l10n/l10n.dart';
+import '../../../core/game/exercise_taxonomy.dart';
+import '../../../core/game/routine.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
+import '../../../data/repositories/workout_repository.dart';
+import '../../../l10n/l10n.dart';
+import '../application/active_workout_controller.dart';
 import 'exercise_picker_sheet.dart';
+import 'workout_format.dart';
 
-class LocalExerciseGroup {
-  LocalExerciseGroup({required this.exercise, required this.sets});
-  final Exercise exercise;
-  final List<LocalSetItem> sets;
-}
-
-class LocalSetItem {
-  LocalSetItem({
-    required this.setOrder,
-    this.weightKg = 0.0,
-    this.reps = 0,
-    this.rpe = 8.0,
-    this.isCompleted = false,
-    this.isPr = false,
-  });
-
-  final int setOrder;
-  double weightKg;
-  int reps;
-  double rpe;
-  bool isCompleted;
-  bool isPr;
-}
-
+/// Workout in progress (Hevy-style table of sets).
+///
+/// Opened with an already-created [session]; when [routine] is given its
+/// exercises are pre-loaded with targets and last-workout values.
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
-  const ActiveWorkoutScreen({required this.session, super.key});
+  const ActiveWorkoutScreen({required this.session, this.routine, super.key});
 
   final WorkoutSession session;
+  final Routine? routine;
 
   @override
   ConsumerState<ActiveWorkoutScreen> createState() => _ActiveWorkoutScreenState();
 }
 
 class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
-  final List<LocalExerciseGroup> _exercises = [];
-  Timer? _stopwatchTimer;
-  int _secondsElapsed = 0;
-
-  // Timer de Descanso entre séries
+  late final ActiveWorkoutController _controller;
+  Timer? _clock;
   Timer? _restTimer;
-  int _restSecondsRemaining = 0;
-  int _restTotalSeconds = 90;
+  int _restRemaining = 0;
+  int _restTotal = 1;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _stopwatchTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _secondsElapsed++);
+    _controller = ActiveWorkoutController(repository: ref.read(workoutRepositoryProvider), session: widget.session);
+    // Elapsed time is derived from startedAt, so it survives rebuilds.
+    _clock = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
     });
+    if (widget.routine != null) {
+      _loading = true;
+      _controller.loadRoutine(widget.routine!).whenComplete(() {
+        if (mounted) setState(() => _loading = false);
+      });
+    }
   }
 
   @override
   void dispose() {
-    _stopwatchTimer?.cancel();
+    _clock?.cancel();
     _restTimer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
-  void _startRestTimer(int seconds) {
+  int get _elapsedSeconds => DateTime.now().difference(widget.session.startedAt).inSeconds;
+
+  void _startRest(int seconds) {
     _restTimer?.cancel();
+    if (seconds <= 0) {
+      setState(() => _restRemaining = 0);
+      return;
+    }
     setState(() {
-      _restSecondsRemaining = seconds;
-      _restTotalSeconds = seconds;
+      _restRemaining = seconds;
+      _restTotal = seconds;
     });
-    _restTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_restSecondsRemaining > 0) {
-        if (mounted) setState(() => _restSecondsRemaining--);
+    _restTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      if (_restRemaining <= 1) {
+        t.cancel();
+        setState(() => _restRemaining = 0);
       } else {
-        timer.cancel();
+        setState(() => _restRemaining--);
       }
     });
-  }
-
-  String _formatDuration(int totalSeconds) {
-    final m = totalSeconds ~/ 60;
-    final s = totalSeconds % 60;
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   Future<void> _addExercise() async {
@@ -99,55 +95,66 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => const ExercisePickerSheet(),
     );
-
-    if (selected != null) {
-      setState(() {
-        _exercises.add(
-          LocalExerciseGroup(
-            exercise: selected,
-            sets: [LocalSetItem(setOrder: 1, weightKg: 20.0, reps: 10)],
-          ),
-        );
-      });
-    }
+    if (selected != null) await _controller.addExercise(selected);
   }
 
-  Future<void> _toggleSetCompleted(LocalExerciseGroup group, LocalSetItem setItem) async {
-    final newStatus = !setItem.isCompleted;
-    final workoutRepo = ref.read(workoutRepositoryProvider);
-
-    final isPr = await workoutRepo.saveWorkoutSet(
-      id: 'set_${widget.session.id}_${group.exercise.id}_${setItem.setOrder}',
-      sessionId: widget.session.id,
-      exerciseId: group.exercise.id,
-      setOrder: setItem.setOrder,
-      weightKg: setItem.weightKg,
-      reps: setItem.reps,
-      rpe: setItem.rpe,
-      isCompleted: newStatus,
-    );
-
-    setState(() {
-      setItem.isCompleted = newStatus;
-      setItem.isPr = isPr;
-    });
-
-    if (newStatus) {
-      _startRestTimer(90); // default rest: 90 seconds
-    }
+  Future<void> _toggle(WorkoutExerciseDraft group, WorkoutSetDraft set) async {
+    final rest = await _controller.toggleSet(group, set);
+    _startRest(rest);
   }
 
-  Future<void> _finishWorkout() async {
-    final workoutRepo = ref.read(workoutRepositoryProvider);
-    final earnedXp = await workoutRepo.completeWorkoutSession(widget.session.id);
-
-    if (!mounted) return;
+  /// Asks before throwing the workout away. Returns true when discarded.
+  Future<bool> _confirmDiscard() async {
     final l10n = context.l10n;
-    final display = DisplayFont.from(context);
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.workoutDiscardTitle),
+        content: Text(l10n.workoutDiscardBody),
+        actions: [
+          PixelButton(
+            label: l10n.workoutKeepGoing,
+            expand: false,
+            variant: PixelButtonVariant.secondary,
+            onPressed: () => Navigator.of(ctx).pop(false),
+          ),
+          PixelButton(
+            label: l10n.workoutDiscard,
+            expand: false,
+            variant: PixelButtonVariant.danger,
+            onPressed: () => Navigator.of(ctx).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (discard == true) {
+      await _controller.discard();
+      if (mounted) Navigator.of(context).pop();
+      return true;
+    }
+    return false;
+  }
 
-    // Temporary summary; replaced by the full "Workout Complete" rewards
-    // screen (with every bonus and its reason) in the history/bonus step.
-    await showDialog(
+  Future<void> _finish() async {
+    final l10n = context.l10n;
+    if (!_controller.hasCompletedSets) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.workoutNeedOneSet)));
+      return;
+    }
+    final summary = await _controller.finish();
+    if (!mounted) return;
+    await _showSummary(summary);
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  /// Temporary summary; step 3 replaces it with the full rewards screen.
+  Future<void> _showSummary(WorkoutSummary summary) {
+    final l10n = context.l10n;
+    final game = context.game;
+    final display = DisplayFont.from(context);
+    final names = {for (final g in _controller.exercises) g.exercise.id: game.exerciseName(g.exercise.id, g.exercise.name)};
+
+    return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
@@ -156,22 +163,37 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.workoutDuration(_formatDuration(_secondsElapsed))),
+            Text(l10n.workoutDuration(WorkoutFormat.duration(summary.duration.inSeconds))),
+            Text(l10n.workoutSetsDone(summary.completedSets)),
             const SizedBox(height: 8),
-            Text(l10n.xpGain(earnedXp.toStringAsFixed(1)), style: display.style(30, color: AppTheme.emberGold)),
-            const SizedBox(height: 8),
+            Text(l10n.xpGain(summary.totalXp.toStringAsFixed(0)), style: display.style(34, color: AppTheme.emberGold)),
+            if (summary.records.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(l10n.workoutRecordsTitle, style: display.style(20)),
+              for (final r in summary.records)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      const PixelIcon(PixelIcons.trophy, size: 14, color: AppTheme.emberGold),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${l10n.workoutRecordLine(names[r.exerciseId] ?? r.exerciseId, WorkoutFormat.weight(r.weightKg), r.reps)}'
+                          '${r.bonusXp > 0 ? '  ${l10n.xpGain(r.bonusXp.toStringAsFixed(0))}' : '  (${l10n.workoutBaseline})'}',
+                          style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+            const SizedBox(height: 10),
             Text(l10n.workoutDoneFlavor, style: const TextStyle(color: AppTheme.ashWhite)),
           ],
         ),
         actions: [
-          PixelButton(
-            label: l10n.workoutDoneButton,
-            expand: false,
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
-            },
-          ),
+          PixelButton(label: l10n.workoutDoneButton, expand: false, onPressed: () => Navigator.of(ctx).pop()),
         ],
       ),
     );
@@ -181,118 +203,144 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final display = DisplayFont.from(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.session.title),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmDiscard();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.session.title),
+          actions: [
+            Center(
               child: PixelTag(
-                text: _formatDuration(_secondsElapsed),
+                text: WorkoutFormat.duration(_elapsedSeconds),
                 color: AppTheme.ashWhite,
                 background: AppTheme.darkBlood,
                 fontSize: 20,
               ),
             ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (_restSecondsRemaining > 0)
-            PixelFrame(
-              margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(l10n.restLabel, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13)),
-                      const Spacer(),
-                      Text(_formatDuration(_restSecondsRemaining), style: display.style(30, color: AppTheme.emberGold, height: 1)),
-                      TextButton(
-                        onPressed: () => setState(() => _restSecondsRemaining = 0),
-                        child: Text(l10n.restSkip),
-                      ),
-                    ],
-                  ),
-                  SegmentedBar(
-                    value: _restSecondsRemaining / _restTotalSeconds,
-                    segments: 30,
-                    color: AppTheme.bloodCrimson,
-                  ),
-                ],
-              ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: AppTheme.dullSilver),
+              onSelected: (_) => _confirmDiscard(),
+              itemBuilder: (_) => [PopupMenuItem(value: 'discard', child: Text(l10n.workoutDiscard))],
             ),
-          Expanded(
-            child: _exercises.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+          ],
+        ),
+        body: ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) => Column(
+            children: [
+              if (_restRemaining > 0)
+                PixelFrame(
+                  margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          const PixelIcon(PixelIcons.dumbbell, size: 64, color: AppTheme.ironBorder),
-                          const SizedBox(height: 12),
-                          Text(l10n.activeEmpty),
-                          const SizedBox(height: 16),
-                          PixelButton(
-                            label: l10n.addExercise,
-                            expand: false,
-                            icon: const Icon(Icons.add),
-                            onPressed: _addExercise,
-                          ),
+                          Text(l10n.restLabel, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 13)),
+                          const Spacer(),
+                          Text(WorkoutFormat.duration(_restRemaining), style: display.style(30, color: AppTheme.emberGold, height: 1)),
+                          TextButton(onPressed: () => _startRest(0), child: Text(l10n.restSkip)),
                         ],
                       ),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _exercises.length,
-                    itemBuilder: (context, index) => _buildExerciseCard(_exercises[index]),
+                      SegmentedBar(value: _restRemaining / _restTotal, segments: 30, color: AppTheme.bloodCrimson),
+                    ],
                   ),
+                ),
+              Expanded(child: _buildBody(l10n)),
+              _buildBottomBar(l10n),
+            ],
           ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: AppTheme.castIron,
-              border: Border(top: BorderSide(color: AppTheme.forgedSteel, width: 3)),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PixelButton(
-                      label: l10n.exerciseShort,
-                      variant: PixelButtonVariant.secondary,
-                      icon: const Icon(Icons.add),
-                      onPressed: _addExercise,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: PixelButton(
-                      label: l10n.finishWorkout,
-                      icon: const Icon(Icons.check),
-                      onPressed: _exercises.isNotEmpty ? _finishWorkout : null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildExerciseCard(LocalExerciseGroup group) {
+  Widget _buildBody(AppLocalizations l10n) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_controller.exercises.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const PixelIcon(PixelIcons.dumbbell, size: 64, color: AppTheme.ironBorder),
+              const SizedBox(height: 12),
+              Text(l10n.activeEmpty),
+              const SizedBox(height: 16),
+              PixelButton(label: l10n.addExercise, expand: false, icon: const Icon(Icons.add), onPressed: _addExercise),
+            ],
+          ),
+        ),
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [for (final g in _controller.exercises) _ExerciseCard(group: g, controller: _controller, onToggle: _toggle)],
+    );
+  }
+
+  Widget _buildBottomBar(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: const BoxDecoration(
+        color: AppTheme.castIron,
+        border: Border(top: BorderSide(color: AppTheme.forgedSteel, width: 3)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Expanded(
+              child: PixelButton(
+                label: l10n.exerciseShort,
+                variant: PixelButtonVariant.secondary,
+                icon: const Icon(Icons.add),
+                onPressed: _addExercise,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: PixelButton(
+                label: l10n.finishWorkout,
+                icon: const Icon(Icons.check),
+                loading: _controller.isBusy,
+                onPressed: _controller.exercises.isNotEmpty ? _finish : null,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One exercise block: header, target, set table and "add set".
+class _ExerciseCard extends StatelessWidget {
+  const _ExerciseCard({required this.group, required this.controller, required this.onToggle});
+
+  final WorkoutExerciseDraft group;
+  final ActiveWorkoutController controller;
+  final Future<void> Function(WorkoutExerciseDraft, WorkoutSetDraft) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final game = context.game;
     final display = DisplayFont.from(context);
     final ex = group.exercise;
     final head = display.style(15, color: AppTheme.darkAsh);
+    final target = group.target;
+
+    // Column layout depends on how the exercise is tracked.
+    final valueHeaders = switch (group.tracking) {
+      SetTracking.weightReps => [l10n.colKg, l10n.colReps],
+      SetTracking.reps => [l10n.colReps],
+      SetTracking.duration => [l10n.colTime],
+    };
 
     return PixelFrame(
       margin: const EdgeInsets.only(bottom: 12),
@@ -303,62 +351,43 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             children: [
               Expanded(child: Text(game.exerciseName(ex.id, ex.name), style: display.style(22))),
               PixelTag(text: game.attributeCode(ex.attribute), color: AppTheme.attributeColor(ex.attribute), fontSize: 15),
+              PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.more_vert, size: 20, color: AppTheme.darkAsh),
+                onSelected: (_) => controller.removeExercise(group),
+                itemBuilder: (_) => [PopupMenuItem(value: 'remove', child: Text(l10n.exerciseRemove))],
+              ),
             ],
           ),
           Text(
-            '${game.muscle(ex.muscleGroup)} · ${game.equipment(ex.equipment)}',
+            [
+              '${game.muscle(ex.muscleGroup)} · ${game.equipment(ex.equipment)}',
+              if (target != null) WorkoutFormat.target(l10n, target, group.tracking),
+              if (target != null && target.restSeconds > 0) l10n.targetRest(WorkoutFormat.duration(target.restSeconds)),
+            ].join('  ·  '),
             style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              SizedBox(width: 44, child: Text(l10n.colSet, style: head)),
-              Expanded(child: Center(child: Text(l10n.colKg, style: head))),
-              Expanded(child: Center(child: Text(l10n.colReps, style: head))),
-              const SizedBox(width: 44),
+              SizedBox(width: 36, child: Text(l10n.colSet, style: head)),
+              Expanded(flex: 3, child: Text(l10n.colPrevious, style: head)),
+              for (final h in valueHeaders) Expanded(flex: 2, child: Center(child: Text(h, style: head))),
+              const SizedBox(width: 40),
             ],
           ),
-          for (final s in group.sets)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              color: s.isCompleted ? AppTheme.doneGreen : null,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 44,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('${s.setOrder}', style: display.style(20)),
-                        if (s.isPr) ...[
-                          const SizedBox(width: 2),
-                          const PixelIcon(PixelIcons.trophy, size: 12, color: AppTheme.emberGold),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Expanded(child: _numberCell(s.weightKg.toStringAsFixed(1), true, (v) => s.weightKg = double.tryParse(v.replaceAll(',', '.')) ?? s.weightKg)),
-                  const SizedBox(width: 6),
-                  Expanded(child: _numberCell('${s.reps}', false, (v) => s.reps = int.tryParse(v) ?? s.reps)),
-                  SizedBox(
-                    width: 44,
-                    child: IconButton(
-                      icon: s.isCompleted
-                          ? const PixelIcon(PixelIcons.check, size: 22, color: AppTheme.emberGold)
-                          : Container(width: 20, height: 20, decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2))),
-                      onPressed: () => _toggleSetCompleted(group, s),
-                    ),
-                  ),
-                ],
-              ),
+          for (var i = 0; i < group.sets.length; i++)
+            _SetRow(
+              key: ValueKey(group.sets[i].id),
+              index: i,
+              group: group,
+              set: group.sets[i],
+              controller: controller,
+              onToggle: onToggle,
             ),
           const SizedBox(height: 6),
           InkWell(
-            onTap: () => setState(() {
-              final last = group.sets.last;
-              group.sets.add(LocalSetItem(setOrder: group.sets.length + 1, weightKg: last.weightKg, reps: last.reps));
-            }),
+            onTap: () => controller.addSet(group),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 6),
@@ -370,16 +399,158 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       ),
     );
   }
+}
 
-  /// Numeric input cell styled as a dark pixel box.
-  Widget _numberCell(String initial, bool decimal, ValueChanged<String> onChanged) {
+/// One set row; swipe left to delete.
+class _SetRow extends StatelessWidget {
+  const _SetRow({
+    super.key,
+    required this.index,
+    required this.group,
+    required this.set,
+    required this.controller,
+    required this.onToggle,
+  });
+
+  final int index;
+  final WorkoutExerciseDraft group;
+  final WorkoutSetDraft set;
+  final ActiveWorkoutController controller;
+  final Future<void> Function(WorkoutExerciseDraft, WorkoutSetDraft) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final display = DisplayFont.from(context);
+    final previous = index < group.previous.length ? group.previous[index] : null;
+
+    final cells = switch (group.tracking) {
+      SetTracking.weightReps => [
+          _NumberCell(
+            initial: WorkoutFormat.weight(set.weightKg),
+            decimal: true,
+            onChanged: (v) {
+              final kg = double.tryParse(v.replaceAll(',', '.'));
+              if (kg != null) controller.updateSet(group, set, weightKg: kg);
+            },
+          ),
+          _NumberCell(
+            initial: '${set.reps}',
+            onChanged: (v) {
+              final r = int.tryParse(v);
+              if (r != null) controller.updateSet(group, set, reps: r);
+            },
+          ),
+        ],
+      SetTracking.reps => [
+          _NumberCell(
+            initial: '${set.reps}',
+            onChanged: (v) {
+              final r = int.tryParse(v);
+              if (r != null) controller.updateSet(group, set, reps: r);
+            },
+          ),
+        ],
+      SetTracking.duration => [
+          _NumberCell(
+            initial: WorkoutFormat.duration(set.durationSeconds),
+            keyboard: TextInputType.datetime,
+            hint: context.l10n.timeHint,
+            onChanged: (v) {
+              final s = WorkoutFormat.parseDuration(v);
+              if (s != null) controller.updateSet(group, set, durationSeconds: s);
+            },
+          ),
+        ],
+    };
+
+    return Dismissible(
+      key: ValueKey('dismiss_${set.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: AppTheme.darkBlood,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        child: const Icon(Icons.delete_outline, color: AppTheme.ashWhite),
+      ),
+      onDismissed: (_) => controller.removeSet(group, set),
+      child: Container(
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        color: set.completed ? AppTheme.doneGreen : null,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              child: Row(
+                children: [
+                  Text('${index + 1}', style: display.style(20)),
+                  if (set.previewRecord) ...[
+                    const SizedBox(width: 2),
+                    const PixelIcon(PixelIcons.trophy, size: 12, color: AppTheme.emberGold),
+                  ],
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                WorkoutFormat.previous(previous, group.tracking),
+                style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12),
+              ),
+            ),
+            for (final c in cells)
+              Expanded(flex: 2, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 3), child: c)),
+            SizedBox(
+              width: 40,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                tooltip: context.l10n.setComplete,
+                icon: set.completed
+                    ? const PixelIcon(PixelIcons.check, size: 22, color: AppTheme.emberGold)
+                    : Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2)),
+                      ),
+                onPressed: () => onToggle(group, set),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Dark pixel input box for set values.
+class _NumberCell extends StatelessWidget {
+  const _NumberCell({
+    required this.initial,
+    required this.onChanged,
+    this.decimal = false,
+    this.keyboard,
+    this.hint,
+  });
+
+  final String initial;
+  final ValueChanged<String> onChanged;
+  final bool decimal;
+  final TextInputType? keyboard;
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
     return TextFormField(
       initialValue: initial,
-      keyboardType: TextInputType.numberWithOptions(decimal: decimal),
+      keyboardType: keyboard ?? TextInputType.numberWithOptions(decimal: decimal),
       textAlign: TextAlign.center,
       style: DisplayFont.from(context).style(20),
       onChanged: onChanged,
-      decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 6)),
+      decoration: InputDecoration(
+        isDense: true,
+        hintText: hint,
+        contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+      ),
     );
   }
 }

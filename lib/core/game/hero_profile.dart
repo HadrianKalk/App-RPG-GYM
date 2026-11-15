@@ -18,7 +18,10 @@ enum HeroOrigin {
   wanderer(icon: '🥾'),
   acolyte(icon: '🕯️'),
   smith(icon: '🔨'),
-  fallenHeir(icon: '👑');
+  fallenHeir(icon: '👑'),
+
+  /// The player writes their own origin name and story.
+  custom(icon: '✒️');
 
   const HeroOrigin({required this.icon});
 
@@ -26,8 +29,8 @@ enum HeroOrigin {
   final String icon;
 }
 
-/// Reasons a hero name can be rejected. The UI maps each one to a
-/// localized message.
+/// Reasons a hero name (or custom origin name) can be rejected. The UI maps
+/// each one to a localized message.
 enum HeroNameError { empty, tooShort, tooLong }
 
 /// Immutable hero profile.
@@ -38,6 +41,8 @@ final class HeroProfile {
     required this.origin,
     required this.createdAt,
     this.oath,
+    this.customOriginName,
+    this.customOriginStory,
   });
 
   /// Maximum hero name length.
@@ -49,6 +54,12 @@ final class HeroProfile {
   /// Maximum oath length.
   static const int maxOathLength = 140;
 
+  /// Maximum length of a custom origin name.
+  static const int maxOriginNameLength = 32;
+
+  /// Maximum length of a custom origin story.
+  static const int maxOriginStoryLength = 240;
+
   final String name;
   final HeroForm form;
   final HeroOrigin origin;
@@ -57,12 +68,25 @@ final class HeroProfile {
   /// "Why do you train?" — personal motivation, used by the narrator.
   final String? oath;
 
-  /// Validates a raw name. Returns `null` when valid, or the error reason.
-  static HeroNameError? validateName(String raw) {
-    final name = raw.trim();
-    if (name.isEmpty) return HeroNameError.empty;
-    if (name.length < minNameLength) return HeroNameError.tooShort;
-    if (name.length > maxNameLength) return HeroNameError.tooLong;
+  /// Origin name typed by the player (only when [origin] is custom).
+  final String? customOriginName;
+
+  /// Optional origin story typed by the player (only when [origin] is custom).
+  final String? customOriginStory;
+
+  /// Validates a raw hero name. Returns `null` when valid, or the reason.
+  static HeroNameError? validateName(String raw) =>
+      _validate(raw, minNameLength, maxNameLength);
+
+  /// Validates a custom origin name (same rules, different max length).
+  static HeroNameError? validateOriginName(String raw) =>
+      _validate(raw, minNameLength, maxOriginNameLength);
+
+  static HeroNameError? _validate(String raw, int min, int max) {
+    final text = raw.trim();
+    if (text.isEmpty) return HeroNameError.empty;
+    if (text.length < min) return HeroNameError.tooShort;
+    if (text.length > max) return HeroNameError.tooLong;
     return null;
   }
 }

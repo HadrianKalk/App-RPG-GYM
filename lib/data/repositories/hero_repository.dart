@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import '../../core/game/hero_profile.dart';
 import '../database.dart';
 
-/// Persistência do perfil do herói (linha única).
+/// Persists the hero profile (single row).
 class HeroRepository {
   HeroRepository(this._db);
 
@@ -11,21 +11,28 @@ class HeroRepository {
 
   static const int _heroId = 1;
 
-  /// Observa o herói. Emite `null` enquanto ele não foi criado (onboarding).
+  /// Watches the hero; emits `null` until onboarding creates it.
   Stream<HeroProfile?> watchHero() {
     final query = _db.select(_db.heroes)..where((t) => t.id.equals(_heroId));
     return query.watchSingleOrNull().map((row) => row == null ? null : _toProfile(row));
   }
 
-  /// Cria (ou recria) o herói.
+  /// Creates (or recreates) the hero. Custom origins require a valid name.
   Future<void> createHero({
     required String name,
     required HeroForm form,
     required HeroOrigin origin,
     String? oath,
+    String? customOriginName,
+    String? customOriginStory,
   }) async {
     final error = HeroProfile.validateName(name);
     if (error != null) throw ArgumentError(error);
+    final isCustom = origin == HeroOrigin.custom;
+    if (isCustom && HeroProfile.validateOriginName(customOriginName ?? '') != null) {
+      throw ArgumentError('custom origin needs a valid name');
+    }
+    String? clean(String? v) => (v == null || v.trim().isEmpty) ? null : v.trim();
 
     final trimmedOath = oath?.trim();
     await _db.into(_db.heroes).insertOnConflictUpdate(
@@ -38,6 +45,8 @@ class HeroRepository {
               trimmedOath == null || trimmedOath.isEmpty ? null : trimmedOath,
             ),
             createdAt: DateTime.now(),
+            customOriginName: Value(isCustom ? clean(customOriginName) : null),
+            customOriginStory: Value(isCustom ? clean(customOriginStory) : null),
           ),
         );
   }
@@ -48,5 +57,7 @@ class HeroRepository {
         origin: row.origin,
         oath: row.oath,
         createdAt: row.createdAt,
+        customOriginName: row.customOriginName,
+        customOriginStory: row.customOriginStory,
       );
 }

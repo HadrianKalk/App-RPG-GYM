@@ -62,3 +62,18 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
 26. **Catálogo de exercícios sincronizado** a cada inicialização a partir de
     `exercise_seed.dart` (upsert), com taxonomia normalizada
     (`MuscleGroup`, `Equipment`, `SetTracking`).
+27. **Rotinas**: modelos fixos são dados em `lib/data/seed/routine_seed.dart`
+    (nomes traduzidos via `routine.<id>.*`); rotinas personalizadas ficam no
+    banco (`routines` + `routine_exercises`). A UI só vê `Routine`.
+    Modelos podem ser **copiados** para "Minhas Rotinas" e editados.
+28. **Séries por tipo** (`SetTracking`): peso×reps, só reps ou tempo.
+    XP de série por tempo = 1 XP/min, mínimo de uma série comum (4 XP).
+29. **Recorde Pessoal**: a primeira marca de um exercício é só *baseline*
+    (sem bônus). Bônus de PR só ao bater marca existente, no máximo **1 por
+    exercício por treino**. Todo XP (séries e PRs) é concedido **ao finalizar**
+    o treino — desmarcar séries ou descartar o treino nunca deixa XP órfão.
+30. **Pré-preenchimento**: ao iniciar rotina/adicionar exercício, cada série
+    copia a série correspondente do último treino finalizado com aquele
+    exercício; sem histórico, usa a meta da rotina.
+31. **Origem personalizada** do herói: opção "Origem própria" com nome
+    (obrigatório, até 32) e história (opcional, até 240). Só narrativa.

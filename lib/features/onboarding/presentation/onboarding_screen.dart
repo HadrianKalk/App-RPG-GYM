@@ -31,6 +31,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _step = 0;
   HeroForm _form = HeroForm.masculine;
   HeroOrigin? _origin;
+  final _originNameController = TextEditingController();
+  final _originStoryController = TextEditingController();
   bool _saving = false;
   HeroNameError? _nameError;
 
@@ -39,12 +41,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     _pageController.dispose();
     _nameController.dispose();
     _oathController.dispose();
+    _originNameController.dispose();
+    _originStoryController.dispose();
     super.dispose();
   }
 
   bool get _canAdvance => switch (_step) {
         1 => HeroProfile.validateName(_nameController.text) == null,
-        2 => _origin != null,
+        2 => _origin != null &&
+            (_origin != HeroOrigin.custom ||
+                HeroProfile.validateOriginName(_originNameController.text) == null),
         _ => true,
       };
 
@@ -80,6 +86,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             name: _nameController.text,
             form: _form,
             origin: _origin!,
+            customOriginName: _originNameController.text,
+            customOriginStory: _originStoryController.text,
             oath: _oathController.text,
           );
       // The router watches the hero and redirects by itself.
@@ -116,12 +124,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   _OriginStep(
                     selected: _origin,
                     onSelected: (o) => setState(() => _origin = o),
+                    nameController: _originNameController,
+                    storyController: _originStoryController,
+                    onTextChanged: () => setState(() {}),
                   ),
                   _OathStep(
                     controller: _oathController,
                     name: _nameController.text.trim(),
                     form: _form,
                     origin: _origin,
+                    customOriginName: _originNameController.text.trim(),
                   ),
                 ],
               ),
@@ -349,10 +361,19 @@ class _NameStep extends StatelessWidget {
 }
 
 class _OriginStep extends StatelessWidget {
-  const _OriginStep({required this.selected, required this.onSelected});
+  const _OriginStep({
+    required this.selected,
+    required this.onSelected,
+    required this.nameController,
+    required this.storyController,
+    required this.onTextChanged,
+  });
 
   final HeroOrigin? selected;
   final ValueChanged<HeroOrigin> onSelected;
+  final TextEditingController nameController;
+  final TextEditingController storyController;
+  final VoidCallback onTextChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -369,6 +390,32 @@ class _OriginStep extends StatelessWidget {
               onTap: () => onSelected(origin),
             ),
           ),
+        // Custom origin: the player writes the name and (optionally) the story.
+        if (selected == HeroOrigin.custom) ...[
+          TextField(
+            controller: nameController,
+            maxLength: HeroProfile.maxOriginNameLength,
+            textCapitalization: TextCapitalization.words,
+            onChanged: (_) => onTextChanged(),
+            style: const TextStyle(color: AppTheme.ashWhite, fontSize: 16),
+            decoration: InputDecoration(
+              labelText: context.l10n.onbCustomOriginName,
+              hintText: context.l10n.onbCustomOriginNameHint,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: storyController,
+            maxLength: HeroProfile.maxOriginStoryLength,
+            maxLines: 4,
+            style: const TextStyle(color: AppTheme.ashWhite, fontSize: 14),
+            decoration: InputDecoration(
+              labelText: context.l10n.onbCustomOriginStory,
+              hintText: context.l10n.onbCustomOriginStoryHint,
+              alignLabelWithHint: true,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -420,12 +467,21 @@ class _OathStep extends StatelessWidget {
     required this.name,
     required this.form,
     required this.origin,
+    this.customOriginName = '',
   });
 
   final TextEditingController controller;
   final String name;
   final HeroForm form;
   final HeroOrigin? origin;
+  final String customOriginName;
+
+  /// Origin label for the summary (typed name for custom origins).
+  String _originLabel(BuildContext context) {
+    if (origin == null) return '—';
+    if (origin == HeroOrigin.custom && customOriginName.isNotEmpty) return customOriginName;
+    return context.game.originName(origin!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -465,7 +521,7 @@ class _OathStep extends StatelessWidget {
               Text(name.isEmpty ? '—' : name, style: textTheme.titleLarge?.copyWith(color: AppTheme.emberGold)),
               const SizedBox(height: 4),
               Text(
-                context.l10n.onbSummaryLine(context.game.heroFormTitle(form), origin == null ? '—' : context.game.originName(origin!)),
+                context.l10n.onbSummaryLine(context.game.heroFormTitle(form), _originLabel(context)),
                 style: textTheme.bodyMedium,
               ),
               const SizedBox(height: 10),

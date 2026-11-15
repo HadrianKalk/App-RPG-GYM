@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-14 (Claude Code) — Etapa 1 concluída
+**Última atualização:** 2026-11-15 (Claude Code) — Etapa 2 concluída
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
@@ -17,15 +17,17 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   sono, meditação), Missões.
 - Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
 - Visual pixel art, pt-BR + inglês, configurações e créditos.
-- 43 testes passando; `flutter analyze` limpo.
+- Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
+  por tempo, recordes calculados ao finalizar.
+- 64 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
 - [x] Missões avançam sozinhas com treinos/atividades; Inspiração real.
 - [x] **Etapa 1:** pt-BR + inglês, visual pixel (Jersey 10 + Inter),
       configurações (idioma, fonte), créditos.
-- [ ] **Etapa 2:** rotinas — 4 modelos fixos (Push/Pull/Legs/Cardio &
-      Mobilidade) + rotinas personalizadas; séries por tempo e só-reps.
+- [x] **Etapa 2:** rotinas — 4 modelos fixos + rotinas personalizadas;
+      séries por tempo e só-reps; origem própria do herói.
 - [ ] **Etapa 3:** histórico de treinos, PRs, evolução de carga, sequência
       semanal (meta padrão 3) + calendário do mês, bônus (Meta Cumprida, Além
       do Dever, Chama da Constância) e tela "Treino Concluído".
@@ -47,8 +49,10 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
 ## Avisos / dívidas conhecidas
 - `README.md` ainda é o template padrão do Flutter.
-- Telas de Treino ativo e Atividades ganharam o visual novo, mas serão
-  refeitas nas etapas 2–4 (rotinas, séries por tempo, recompensas).
+- Resumo pós-treino ainda é um diálogo simples (vira tela de recompensas na
+  Etapa 3). Tela de Atividades será refeita na Etapa 4.
+- Dependências com versão maior disponível (Riverpod 3, go_router 18,
+  etc.): upgrade planejado em tarefa separada.
 - Comentários antigos em pt-BR ainda existem em arquivos não tocados
   (motor: progression, xp_calculator, class_resolver; repositórios).
 - Documentos de design originais (`game_design.md`, `implementation_plan.md`,

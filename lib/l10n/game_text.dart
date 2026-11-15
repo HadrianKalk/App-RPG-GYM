@@ -2,6 +2,7 @@ import '../core/game/attributes.dart';
 import '../core/game/class_resolver.dart';
 import '../core/game/exercise_taxonomy.dart';
 import '../core/game/hero_profile.dart';
+import '../core/game/routine.dart';
 import 'content/game_content_en.dart';
 import 'content/game_content_pt.dart';
 
@@ -53,6 +54,17 @@ class GameText {
   String heroFormTitle(HeroForm f) => t('heroForm.${f.name}.title');
   String originName(HeroOrigin o) => t('origin.${o.name}.name');
   String originDescription(HeroOrigin o) => t('origin.${o.name}.description');
+
+  /// Origin label of a concrete hero: the typed name for custom origins.
+  String heroOriginName(HeroProfile hero) =>
+      hero.origin == HeroOrigin.custom && (hero.customOriginName?.isNotEmpty ?? false)
+          ? hero.customOriginName!
+          : originName(hero.origin);
+
+  // --- Routines -----------------------------------------------------------
+  /// Template routines are translated; custom ones show the typed name.
+  String routineName(Routine r) => r.isTemplate ? t('routine.${r.id}.name') : (r.customName ?? '');
+  String routineDescription(Routine r) => r.isTemplate ? t('routine.${r.id}.description') : '';
 
   // --- Exercises ------------------------------------------------------------
   /// Catalog exercises are translated by id; custom ones keep [storedName].

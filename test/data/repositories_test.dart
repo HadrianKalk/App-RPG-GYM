@@ -6,6 +6,9 @@ import 'package:app/data/repositories/activity_repository.dart';
 import 'package:app/data/repositories/character_repository.dart';
 import 'package:app/data/repositories/hero_repository.dart';
 import 'package:app/data/repositories/quest_repository.dart';
+import 'package:app/data/repositories/routine_repository.dart';
+import 'package:app/core/game/routine.dart';
+import 'package:app/core/game/xp_event.dart';
 import 'package:app/data/repositories/workout_repository.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
@@ -18,6 +21,7 @@ void main() {
   late WorkoutRepository workoutRepo;
   late ActivityRepository activityRepo;
   late HeroRepository heroRepo;
+  late RoutineRepository routineRepo;
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
@@ -26,6 +30,7 @@ void main() {
     workoutRepo = WorkoutRepository(db, charRepo, questRepo);
     activityRepo = ActivityRepository(db, charRepo, questRepo);
     heroRepo = HeroRepository(db);
+    routineRepo = RoutineRepository(db);
     await workoutRepo.syncCatalog();
   });
 
@@ -98,7 +103,7 @@ void main() {
 
     test('finalizar treino de Força avança a missão de séries sozinho', () async {
       // Sem XP, Força está empatada como atributo mais fraco → missão "Superação".
-      final session = await workoutRepo.startWorkoutSession();
+      final session = await workoutRepo.startWorkoutSession(title: 'T');
       final benchId = await exerciseIdFor(Attribute.strength);
       for (var i = 0; i < 6; i++) {
         await workoutRepo.saveWorkoutSet(
@@ -180,6 +185,134 @@ void main() {
         questRepo.ensureTodayQuestsGenerated(character),
       ]);
       expect(await todayQuests(), hasLength(3));
+    });
+  });
+
+  /// Logs a finished workout with the given (weight, reps) sets of [exerciseId].
+  Future<String> logWorkout(String exerciseId, List<(double, int)> sets) async {
+    final session = await workoutRepo.startWorkoutSession(title: 'W');
+    for (var i = 0; i < sets.length; i++) {
+      await workoutRepo.saveWorkoutSet(
+        id: '${session.id}_$i',
+        sessionId: session.id,
+        exerciseId: exerciseId,
+        setOrder: i + 1,
+        weightKg: sets[i].$1,
+        reps: sets[i].$2,
+        isCompleted: true,
+      );
+    }
+    await workoutRepo.completeWorkoutSession(session.id);
+    return session.id;
+  }
+
+  Future<List<XpLedgerData>> ledger(XpSource source) =>
+      (db.select(db.xpLedger)..where((t) => t.source.equalsValue(source))).get();
+
+  group('Personal records & workouts (step 2)', () {
+    const bench = 'ex_supino_reto_barra';
+
+    test('first ever set is a baseline: record saved, no bonus XP', () async {
+      await logWorkout(bench, [(60, 8)]);
+      expect(await ledger(XpSource.personalRecord), isEmpty);
+      final pr = await (db.select(db.personalRecords)..where((t) => t.exerciseId.equals(bench))).getSingle();
+      expect(pr.maxWeightKg, 60);
+    });
+
+    test('beating the mark later grants ONE bonus per exercise per workout', () async {
+      await logWorkout(bench, [(60, 8)]);
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+      await logWorkout(bench, [(62.5, 8), (65, 6)]); // two improving sets
+      final bonuses = await ledger(XpSource.personalRecord);
+      expect(bonuses, hasLength(1));
+      expect(bonuses.single.amount, 25);
+    });
+
+    test('discarding a workout leaves no sets, session or XP', () async {
+      final session = await workoutRepo.startWorkoutSession(title: 'D');
+      await workoutRepo.saveWorkoutSet(
+        id: 'd1', sessionId: session.id, exerciseId: bench, setOrder: 1, weightKg: 100, reps: 5, isCompleted: true,
+      );
+      await workoutRepo.discardWorkoutSession(session.id);
+      expect(await db.select(db.workoutSets).get(), isEmpty);
+      expect(await db.select(db.workoutSessions).get(), isEmpty);
+      expect(await db.select(db.xpLedger).get(), isEmpty);
+    });
+
+    test('timed sets earn 1 XP per minute (min. one set)', () async {
+      final session = await workoutRepo.startWorkoutSession(title: 'C');
+      await workoutRepo.saveWorkoutSet(
+        id: 'run', sessionId: session.id, exerciseId: 'ex_corrida_esteira_rua', setOrder: 1,
+        weightKg: 0, reps: 0, durationSeconds: 25 * 60, isCompleted: true,
+      );
+      final summary = await workoutRepo.completeWorkoutSession(session.id);
+      expect(summary.setXp, 25);
+    });
+
+    test('previous sets come from the last finished workout, in order', () async {
+      await logWorkout(bench, [(50, 10), (55, 8)]);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await logWorkout(bench, [(60, 8), (62.5, 6), (60, 7)]);
+      final prev = await workoutRepo.getPreviousSets(bench);
+      expect(prev.map((p) => p.weightKg), [60, 62.5, 60]);
+      expect(prev.map((p) => p.reps), [8, 6, 7]);
+    });
+  });
+
+  group('Routines', () {
+    test('save, edit and delete a custom routine', () async {
+      final id = await routineRepo.saveCustomRoutine(
+        name: ' Upper A ',
+        exercises: const [
+          RoutineExercise(exerciseId: 'ex_supino_reto_barra', sets: 4, repsMin: 6, repsMax: 8),
+          RoutineExercise(exerciseId: 'ex_prancha_isometrica', sets: 3, durationSeconds: 45),
+        ],
+      );
+      var list = await routineRepo.watchCustomRoutines().first;
+      expect(list.single.customName, 'Upper A');
+      expect(list.single.exercises.map((e) => e.exerciseId), ['ex_supino_reto_barra', 'ex_prancha_isometrica']);
+      expect(list.single.exercises.last.durationSeconds, 45);
+
+      await routineRepo.saveCustomRoutine(
+        id: id,
+        name: 'Upper B',
+        exercises: const [RoutineExercise(exerciseId: 'ex_prancha_isometrica', sets: 2, durationSeconds: 60)],
+      );
+      list = await routineRepo.watchCustomRoutines().first;
+      expect(list.single.customName, 'Upper B');
+      expect(list.single.exercises, hasLength(1));
+
+      await routineRepo.deleteCustomRoutine(id);
+      expect(await routineRepo.watchCustomRoutines().first, isEmpty);
+      expect(await db.select(db.routineExercises).get(), isEmpty, reason: 'cascade delete');
+    });
+
+    test('every template exercise exists in the catalog', () async {
+      final ids = routineRepo.templates.expand((r) => r.exercises.map((e) => e.exerciseId)).toSet().toList();
+      final found = await workoutRepo.getExercises(ids);
+      expect(found.map((e) => e.id).toSet(), ids.toSet());
+    });
+  });
+
+  group('Custom hero origin', () {
+    test('stores typed origin name and story', () async {
+      await heroRepo.createHero(
+        name: 'Guts',
+        form: HeroForm.masculine,
+        origin: HeroOrigin.custom,
+        customOriginName: ' Mercenário Negro ',
+        customOriginStory: 'Nasceu do cadáver de uma enforcada.',
+      );
+      final hero = await heroRepo.watchHero().first;
+      expect(hero!.customOriginName, 'Mercenário Negro');
+      expect(hero.customOriginStory, startsWith('Nasceu'));
+    });
+
+    test('custom origin without a name is rejected', () async {
+      expect(
+        () => heroRepo.createHero(name: 'Guts', form: HeroForm.masculine, origin: HeroOrigin.custom, customOriginName: ' '),
+        throwsArgumentError,
+      );
     });
   });
 }

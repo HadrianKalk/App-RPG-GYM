@@ -123,15 +123,6 @@
   "workoutForgeBody": "Cada série alimenta Força, Destreza e Constituição. Recordes Pessoais dão XP bônus na hora.",
   "workoutStartEmpty": "Iniciar treino vazio",
   "workoutDefaultTitle": "Treino Livre",
-  "routinesTitle": "Rotinas Populares",
-  "routinePushTitle": "Push · Peito, Ombro e Tríceps",
-  "routinePushSubtitle": "Supino, Militar, Elevação Lateral, Paralelas",
-  "routinePullTitle": "Pull · Costas e Bíceps",
-  "routinePullSubtitle": "Barra Fixa, Remada, Face Pull, Rosca",
-  "routineLegsTitle": "Legs · Pernas e Glúteos",
-  "routineLegsSubtitle": "Agachamento, Stiff, Leg Press, Panturrilha",
-  "routineCardioTitle": "Cardio & Mobilidade",
-  "routineCardioSubtitle": "Corrida, Corda, Prancha, Alongamento",
   "activeEmpty": "Nenhum exercício adicionado ainda.",
   "addExercise": "Adicionar exercício",
   "exerciseShort": "Exercício",
@@ -248,5 +239,150 @@
         "type": "String"
       }
     }
-  }
+  },
+  "routinesTemplates": "Modelos para começar",
+  "routinesMine": "Minhas Rotinas",
+  "routinesNew": "Nova rotina",
+  "routinesEmpty": "Você ainda não criou rotinas. Monte a sua com os exercícios do app, ou copie um modelo.",
+  "routineExerciseCount": "{count, plural, =1{1 exercício} other{{count} exercícios}}",
+  "@routineExerciseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routineStart": "Iniciar treino",
+  "routineEdit": "Editar",
+  "routineDuplicate": "Copiar para minhas rotinas",
+  "routineCopyName": "{name} (cópia)",
+  "@routineCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commonDelete": "Excluir",
+  "routineDeleteConfirm": "Excluir a rotina \"{name}\"?",
+  "@routineDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editorTitleNew": "Nova Rotina",
+  "editorTitleEdit": "Editar Rotina",
+  "editorNameLabel": "Nome da rotina",
+  "editorNameRequired": "Dê um nome à rotina.",
+  "editorNoExercises": "Adicione pelo menos um exercício.",
+  "editorSave": "Salvar rotina",
+  "editorSets": "Séries",
+  "editorRepsMin": "Reps mín.",
+  "editorRepsMax": "Reps máx.",
+  "editorDuration": "Tempo",
+  "editorRest": "Descanso",
+  "editorToFailure": "Até a falha",
+  "editorRemove": "Remover",
+  "editorReorderHint": "Segure e arraste para reordenar.",
+  "targetReps": "{sets} × {min}–{max} reps",
+  "@targetReps": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "targetRepsFixed": "{sets} × {reps} reps",
+  "@targetRepsFixed": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "targetFailure": "{sets} × até a falha",
+  "@targetFailure": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "targetDuration": "{sets} × {time}",
+  "@targetDuration": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "targetSetsOnly": "{sets, plural, =1{1 série} other{{sets} séries}}",
+  "@targetSetsOnly": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "targetRest": "descanso {time}",
+  "@targetRest": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "colPrevious": "ANTERIOR",
+  "colTime": "TEMPO",
+  "timeHint": "m:ss",
+  "workoutDiscard": "Descartar treino",
+  "workoutDiscardTitle": "Descartar este treino?",
+  "workoutDiscardBody": "As séries não serão salvas e nenhum XP será concedido.",
+  "workoutKeepGoing": "Continuar treinando",
+  "workoutNeedOneSet": "Marque pelo menos uma série como concluída para finalizar.",
+  "workoutRecordsTitle": "Recordes Pessoais",
+  "workoutRecordLine": "{name}: {weight} kg × {reps}",
+  "@workoutRecordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutBaseline": "primeira marca",
+  "workoutSetsDone": "{count, plural, =1{1 série concluída} other{{count} séries concluídas}}",
+  "@workoutSetsDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseRemove": "Remover exercício",
+  "setRemove": "Remover série",
+  "onbCustomOriginName": "Nome da sua origem",
+  "onbCustomOriginNameHint": "Ex.: Caçador das Montanhas",
+  "onbCustomOriginStory": "Sua história (opcional)",
+  "onbCustomOriginStoryHint": "De onde você veio? O que te trouxe até a forja?",
+  "setComplete": "Concluir série"
 }

@@ -5,6 +5,8 @@ import 'workout_repository.dart';
 import 'activity_repository.dart';
 import 'quest_repository.dart';
 import 'hero_repository.dart';
+import 'routine_repository.dart';
+import '../../core/game/routine.dart';
 import '../../core/game/hero_profile.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -55,4 +57,13 @@ final heroRepositoryProvider = Provider<HeroRepository>((ref) {
 /// Perfil do herói; `null` enquanto o onboarding não foi concluído.
 final heroStreamProvider = StreamProvider<HeroProfile?>((ref) {
   return ref.watch(heroRepositoryProvider).watchHero();
+});
+
+final routineRepositoryProvider = Provider<RoutineRepository>((ref) {
+  return RoutineRepository(ref.watch(databaseProvider));
+});
+
+/// User-created routines (templates come from `RoutineRepository.templates`).
+final customRoutinesProvider = StreamProvider<List<Routine>>((ref) {
+  return ref.watch(routineRepositoryProvider).watchCustomRoutines();
 });

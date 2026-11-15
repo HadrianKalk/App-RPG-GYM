@@ -380,60 +380,6 @@ abstract class AppLocalizations {
   /// **'Treino Livre'**
   String get workoutDefaultTitle;
 
-  /// No description provided for @routinesTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Rotinas Populares'**
-  String get routinesTitle;
-
-  /// No description provided for @routinePushTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Push · Peito, Ombro e Tríceps'**
-  String get routinePushTitle;
-
-  /// No description provided for @routinePushSubtitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Supino, Militar, Elevação Lateral, Paralelas'**
-  String get routinePushSubtitle;
-
-  /// No description provided for @routinePullTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Pull · Costas e Bíceps'**
-  String get routinePullTitle;
-
-  /// No description provided for @routinePullSubtitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Barra Fixa, Remada, Face Pull, Rosca'**
-  String get routinePullSubtitle;
-
-  /// No description provided for @routineLegsTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Legs · Pernas e Glúteos'**
-  String get routineLegsTitle;
-
-  /// No description provided for @routineLegsSubtitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Agachamento, Stiff, Leg Press, Panturrilha'**
-  String get routineLegsSubtitle;
-
-  /// No description provided for @routineCardioTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Cardio & Mobilidade'**
-  String get routineCardioTitle;
-
-  /// No description provided for @routineCardioSubtitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Corrida, Corda, Prancha, Alongamento'**
-  String get routineCardioSubtitle;
-
   /// No description provided for @activeEmpty.
   ///
   /// In pt, this message translates to:
@@ -805,6 +751,306 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Versão {version}'**
   String appVersion(String version);
+
+  /// No description provided for @routinesTemplates.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modelos para começar'**
+  String get routinesTemplates;
+
+  /// No description provided for @routinesMine.
+  ///
+  /// In pt, this message translates to:
+  /// **'Minhas Rotinas'**
+  String get routinesMine;
+
+  /// No description provided for @routinesNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova rotina'**
+  String get routinesNew;
+
+  /// No description provided for @routinesEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você ainda não criou rotinas. Monte a sua com os exercícios do app, ou copie um modelo.'**
+  String get routinesEmpty;
+
+  /// No description provided for @routineExerciseCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 exercício} other{{count} exercícios}}'**
+  String routineExerciseCount(int count);
+
+  /// No description provided for @routineStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Iniciar treino'**
+  String get routineStart;
+
+  /// No description provided for @routineEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar'**
+  String get routineEdit;
+
+  /// No description provided for @routineDuplicate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Copiar para minhas rotinas'**
+  String get routineDuplicate;
+
+  /// No description provided for @routineCopyName.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} (cópia)'**
+  String routineCopyName(String name);
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir'**
+  String get commonDelete;
+
+  /// No description provided for @routineDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir a rotina \"{name}\"?'**
+  String routineDeleteConfirm(String name);
+
+  /// No description provided for @editorTitleNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova Rotina'**
+  String get editorTitleNew;
+
+  /// No description provided for @editorTitleEdit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar Rotina'**
+  String get editorTitleEdit;
+
+  /// No description provided for @editorNameLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome da rotina'**
+  String get editorNameLabel;
+
+  /// No description provided for @editorNameRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dê um nome à rotina.'**
+  String get editorNameRequired;
+
+  /// No description provided for @editorNoExercises.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicione pelo menos um exercício.'**
+  String get editorNoExercises;
+
+  /// No description provided for @editorSave.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar rotina'**
+  String get editorSave;
+
+  /// No description provided for @editorSets.
+  ///
+  /// In pt, this message translates to:
+  /// **'Séries'**
+  String get editorSets;
+
+  /// No description provided for @editorRepsMin.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reps mín.'**
+  String get editorRepsMin;
+
+  /// No description provided for @editorRepsMax.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reps máx.'**
+  String get editorRepsMax;
+
+  /// No description provided for @editorDuration.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tempo'**
+  String get editorDuration;
+
+  /// No description provided for @editorRest.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descanso'**
+  String get editorRest;
+
+  /// No description provided for @editorToFailure.
+  ///
+  /// In pt, this message translates to:
+  /// **'Até a falha'**
+  String get editorToFailure;
+
+  /// No description provided for @editorRemove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover'**
+  String get editorRemove;
+
+  /// No description provided for @editorReorderHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Segure e arraste para reordenar.'**
+  String get editorReorderHint;
+
+  /// No description provided for @targetReps.
+  ///
+  /// In pt, this message translates to:
+  /// **'{sets} × {min}–{max} reps'**
+  String targetReps(int sets, int min, int max);
+
+  /// No description provided for @targetRepsFixed.
+  ///
+  /// In pt, this message translates to:
+  /// **'{sets} × {reps} reps'**
+  String targetRepsFixed(int sets, int reps);
+
+  /// No description provided for @targetFailure.
+  ///
+  /// In pt, this message translates to:
+  /// **'{sets} × até a falha'**
+  String targetFailure(int sets);
+
+  /// No description provided for @targetDuration.
+  ///
+  /// In pt, this message translates to:
+  /// **'{sets} × {time}'**
+  String targetDuration(int sets, String time);
+
+  /// No description provided for @targetSetsOnly.
+  ///
+  /// In pt, this message translates to:
+  /// **'{sets, plural, =1{1 série} other{{sets} séries}}'**
+  String targetSetsOnly(int sets);
+
+  /// No description provided for @targetRest.
+  ///
+  /// In pt, this message translates to:
+  /// **'descanso {time}'**
+  String targetRest(String time);
+
+  /// No description provided for @colPrevious.
+  ///
+  /// In pt, this message translates to:
+  /// **'ANTERIOR'**
+  String get colPrevious;
+
+  /// No description provided for @colTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'TEMPO'**
+  String get colTime;
+
+  /// No description provided for @timeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'m:ss'**
+  String get timeHint;
+
+  /// No description provided for @workoutDiscard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descartar treino'**
+  String get workoutDiscard;
+
+  /// No description provided for @workoutDiscardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descartar este treino?'**
+  String get workoutDiscardTitle;
+
+  /// No description provided for @workoutDiscardBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'As séries não serão salvas e nenhum XP será concedido.'**
+  String get workoutDiscardBody;
+
+  /// No description provided for @workoutKeepGoing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Continuar treinando'**
+  String get workoutKeepGoing;
+
+  /// No description provided for @workoutNeedOneSet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Marque pelo menos uma série como concluída para finalizar.'**
+  String get workoutNeedOneSet;
+
+  /// No description provided for @workoutRecordsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recordes Pessoais'**
+  String get workoutRecordsTitle;
+
+  /// No description provided for @workoutRecordLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name}: {weight} kg × {reps}'**
+  String workoutRecordLine(String name, String weight, int reps);
+
+  /// No description provided for @workoutBaseline.
+  ///
+  /// In pt, this message translates to:
+  /// **'primeira marca'**
+  String get workoutBaseline;
+
+  /// No description provided for @workoutSetsDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 série concluída} other{{count} séries concluídas}}'**
+  String workoutSetsDone(int count);
+
+  /// No description provided for @exerciseRemove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover exercício'**
+  String get exerciseRemove;
+
+  /// No description provided for @setRemove.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover série'**
+  String get setRemove;
+
+  /// No description provided for @onbCustomOriginName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome da sua origem'**
+  String get onbCustomOriginName;
+
+  /// No description provided for @onbCustomOriginNameHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ex.: Caçador das Montanhas'**
+  String get onbCustomOriginNameHint;
+
+  /// No description provided for @onbCustomOriginStory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua história (opcional)'**
+  String get onbCustomOriginStory;
+
+  /// No description provided for @onbCustomOriginStoryHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'De onde você veio? O que te trouxe até a forja?'**
+  String get onbCustomOriginStoryHint;
+
+  /// No description provided for @setComplete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Concluir série'**
+  String get setComplete;
 }
 
 class _AppLocalizationsDelegate

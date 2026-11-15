@@ -3,6 +3,34 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Claude Code — Etapa 2: rotinas, séries por tempo, origem própria
+- **Rotinas:** 4 modelos fixos (Push, Pull, Legs, Cardio & Mobilidade) em
+  `data/seed/routine_seed.dart` + rotinas personalizadas (criar, editar,
+  reordenar, excluir, copiar modelo). `RoutineRepository`,
+  `features/workout/presentation/routine_editor_screen.dart`.
+- **Treino ativo reescrito** sobre `ActiveWorkoutController`
+  (`features/workout/application/`): pré-carrega rotina com metas e valores
+  do último treino, coluna "Anterior", colunas por tipo de série (kg×reps,
+  reps, tempo m:ss), remover série (deslizar) e exercício, descanso por
+  exercício, descartar treino (com confirmação), tela cheia (root navigator).
+- **Motor:** `routine.dart` (Routine, RoutineExercise, RoutinePlanner),
+  `personal_record.dart` (regras de PR), XP de série por tempo.
+- **Regra nova de PR** (decisão 29): primeira marca não dá bônus; PR e XP
+  calculados ao finalizar; máx. 1 bônus de PR por exercício por treino.
+- **Origem própria** do herói (nome + história).
+- **Schema v4:** tabelas `routines`, `routine_exercises`; colunas
+  `workout_sessions.routine_id`, `workout_sets.duration_seconds`,
+  `heroes.custom_origin_name/story`; `PRAGMA foreign_keys = ON`.
+- **Bug achado nos testes:** Drift grava DateTime com precisão de segundos →
+  "último treino" empatava; desempate pelo id da sessão.
+- Testes: 64 (regras de PR, planner, formatação de tempo, repositórios,
+  editor de rotina e origem própria via widget test).
+- **Avisos:** `flutter pub get` lista pacotes com versão maior disponível
+  (Riverpod 3, go_router 18…). São upgrades com breaking changes — fazer em
+  tarefa própria, não misturar com features.
+- **Próximo:** Etapa 3 — histórico, sequência semanal, bônus e tela
+  "Treino Concluído" (o resumo atual em diálogo é provisório).
+
 ## 2026-11-14 — Claude Code — Etapa 1: i18n pt/en, revamp pixel, configurações e créditos
 - **Idiomas:** ARB (`lib/l10n/arb`) para interface + mapas de conteúdo de jogo
   (`lib/l10n/content`) com 170 chaves (atributos, 16 classes, origens,

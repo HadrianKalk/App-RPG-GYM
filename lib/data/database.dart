@@ -29,6 +29,9 @@ class WorkoutSessions extends Table {
   DateTimeColumn get completedAt => dateTime().nullable()();
   TextColumn get notes => text().nullable()();
 
+  /// Routine this session was started from (template or custom id), if any.
+  TextColumn get routineId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -40,6 +43,9 @@ class WorkoutSets extends Table {
   IntColumn get setOrder => integer()();
   RealColumn get weightKg => real()();
   IntColumn get reps => integer()();
+
+  /// Duration of timed sets (planks, cardio). 0 for weight/reps sets.
+  IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
   RealColumn get rpe => real().withDefault(const Constant(8.0))();
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   BoolColumn get isPersonalRecord => boolean().withDefault(const Constant(false))();
@@ -111,11 +117,44 @@ class Heroes extends Table {
   TextColumn get oath => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 
+  /// Typed origin name/story when `origin` is custom (schema v4).
+  TextColumn get customOriginName => text().nullable()();
+  TextColumn get customOriginStory => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
 
+/// User-created routines (templates live in code: `RoutineSeed`).
+@DataClassName('RoutineRow')
+class Routines extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Ordered exercise targets of a custom routine.
+@DataClassName('RoutineExerciseRow')
+class RoutineExercises extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get routineId => text().references(Routines, #id, onDelete: KeyAction.cascade)();
+  IntColumn get position => integer()();
+  TextColumn get exerciseId => text().references(Exercises, #id)();
+  IntColumn get sets => integer()();
+  IntColumn get repsMin => integer().nullable()();
+  IntColumn get repsMax => integer().nullable()();
+  IntColumn get durationSeconds => integer().nullable()();
+  BoolColumn get toFailure => boolean().withDefault(const Constant(false))();
+  IntColumn get restSeconds => integer().withDefault(const Constant(90))();
+}
+
 @DriftDatabase(tables: [
+  Routines,
+  RoutineExercises,
   Heroes,
   Exercises,
   WorkoutSessions,
@@ -129,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -166,6 +205,19 @@ class AppDatabase extends _$AppDatabase {
               "UPDATE exercises SET equipment = 'other' WHERE equipment NOT IN ($equipment)",
             );
           }
+          // v4: routines, timed sets, custom hero origin.
+          if (from < 4) {
+            await m.createTable(routines);
+            await m.createTable(routineExercises);
+            await m.addColumn(workoutSessions, workoutSessions.routineId);
+            await m.addColumn(workoutSets, workoutSets.durationSeconds);
+            await m.addColumn(heroes, heroes.customOriginName);
+            await m.addColumn(heroes, heroes.customOriginStory);
+          }
+        },
+        // SQLite needs this to honor ON DELETE CASCADE (routine exercises).
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
         },
       );
 

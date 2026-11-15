@@ -182,35 +182,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get workoutDefaultTitle => 'Treino Livre';
 
   @override
-  String get routinesTitle => 'Rotinas Populares';
-
-  @override
-  String get routinePushTitle => 'Push · Peito, Ombro e Tríceps';
-
-  @override
-  String get routinePushSubtitle =>
-      'Supino, Militar, Elevação Lateral, Paralelas';
-
-  @override
-  String get routinePullTitle => 'Pull · Costas e Bíceps';
-
-  @override
-  String get routinePullSubtitle => 'Barra Fixa, Remada, Face Pull, Rosca';
-
-  @override
-  String get routineLegsTitle => 'Legs · Pernas e Glúteos';
-
-  @override
-  String get routineLegsSubtitle =>
-      'Agachamento, Stiff, Leg Press, Panturrilha';
-
-  @override
-  String get routineCardioTitle => 'Cardio & Mobilidade';
-
-  @override
-  String get routineCardioSubtitle => 'Corrida, Corda, Prancha, Alongamento';
-
-  @override
   String get activeEmpty => 'Nenhum exercício adicionado ainda.';
 
   @override
@@ -414,4 +385,198 @@ class AppLocalizationsPt extends AppLocalizations {
   String appVersion(String version) {
     return 'Versão $version';
   }
+
+  @override
+  String get routinesTemplates => 'Modelos para começar';
+
+  @override
+  String get routinesMine => 'Minhas Rotinas';
+
+  @override
+  String get routinesNew => 'Nova rotina';
+
+  @override
+  String get routinesEmpty =>
+      'Você ainda não criou rotinas. Monte a sua com os exercícios do app, ou copie um modelo.';
+
+  @override
+  String routineExerciseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercícios',
+      one: '1 exercício',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routineStart => 'Iniciar treino';
+
+  @override
+  String get routineEdit => 'Editar';
+
+  @override
+  String get routineDuplicate => 'Copiar para minhas rotinas';
+
+  @override
+  String routineCopyName(String name) {
+    return '$name (cópia)';
+  }
+
+  @override
+  String get commonDelete => 'Excluir';
+
+  @override
+  String routineDeleteConfirm(String name) {
+    return 'Excluir a rotina \"$name\"?';
+  }
+
+  @override
+  String get editorTitleNew => 'Nova Rotina';
+
+  @override
+  String get editorTitleEdit => 'Editar Rotina';
+
+  @override
+  String get editorNameLabel => 'Nome da rotina';
+
+  @override
+  String get editorNameRequired => 'Dê um nome à rotina.';
+
+  @override
+  String get editorNoExercises => 'Adicione pelo menos um exercício.';
+
+  @override
+  String get editorSave => 'Salvar rotina';
+
+  @override
+  String get editorSets => 'Séries';
+
+  @override
+  String get editorRepsMin => 'Reps mín.';
+
+  @override
+  String get editorRepsMax => 'Reps máx.';
+
+  @override
+  String get editorDuration => 'Tempo';
+
+  @override
+  String get editorRest => 'Descanso';
+
+  @override
+  String get editorToFailure => 'Até a falha';
+
+  @override
+  String get editorRemove => 'Remover';
+
+  @override
+  String get editorReorderHint => 'Segure e arraste para reordenar.';
+
+  @override
+  String targetReps(int sets, int min, int max) {
+    return '$sets × $min–$max reps';
+  }
+
+  @override
+  String targetRepsFixed(int sets, int reps) {
+    return '$sets × $reps reps';
+  }
+
+  @override
+  String targetFailure(int sets) {
+    return '$sets × até a falha';
+  }
+
+  @override
+  String targetDuration(int sets, String time) {
+    return '$sets × $time';
+  }
+
+  @override
+  String targetSetsOnly(int sets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      sets,
+      locale: localeName,
+      other: '$sets séries',
+      one: '1 série',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String targetRest(String time) {
+    return 'descanso $time';
+  }
+
+  @override
+  String get colPrevious => 'ANTERIOR';
+
+  @override
+  String get colTime => 'TEMPO';
+
+  @override
+  String get timeHint => 'm:ss';
+
+  @override
+  String get workoutDiscard => 'Descartar treino';
+
+  @override
+  String get workoutDiscardTitle => 'Descartar este treino?';
+
+  @override
+  String get workoutDiscardBody =>
+      'As séries não serão salvas e nenhum XP será concedido.';
+
+  @override
+  String get workoutKeepGoing => 'Continuar treinando';
+
+  @override
+  String get workoutNeedOneSet =>
+      'Marque pelo menos uma série como concluída para finalizar.';
+
+  @override
+  String get workoutRecordsTitle => 'Recordes Pessoais';
+
+  @override
+  String workoutRecordLine(String name, String weight, int reps) {
+    return '$name: $weight kg × $reps';
+  }
+
+  @override
+  String get workoutBaseline => 'primeira marca';
+
+  @override
+  String workoutSetsDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count séries concluídas',
+      one: '1 série concluída',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get exerciseRemove => 'Remover exercício';
+
+  @override
+  String get setRemove => 'Remover série';
+
+  @override
+  String get onbCustomOriginName => 'Nome da sua origem';
+
+  @override
+  String get onbCustomOriginNameHint => 'Ex.: Caçador das Montanhas';
+
+  @override
+  String get onbCustomOriginStory => 'Sua história (opcional)';
+
+  @override
+  String get onbCustomOriginStoryHint =>
+      'De onde você veio? O que te trouxe até a forja?';
+
+  @override
+  String get setComplete => 'Concluir série';
 }

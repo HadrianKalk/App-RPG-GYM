@@ -114,4 +114,40 @@ void main() {
     expect(find.text('Strength'), findsOneWidget);
     await disposeApp(tester, db);
   });
+
+  testWidgets('custom origin: typed name and story are saved and shown', (tester) async {
+    final db = await pumpApp(tester);
+    await settle(tester);
+
+    await tester.tap(find.text('INICIAR A JORNADA'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField), 'Guts');
+    await settle(tester);
+    await tester.tap(find.text('CONTINUAR'));
+    await settle(tester);
+
+    // The origin list is lazy: drag it until the custom option is built.
+    await tester.dragUntilVisible(find.text('Origem própria'), find.byType(ListView).first, const Offset(0, -300));
+    await settle(tester);
+    await tester.tap(find.text('Origem própria'));
+    await settle(tester);
+    // Continue stays disabled until the custom origin has a name.
+    await tester.enterText(find.byType(TextField).first, 'Mercenário Negro');
+    await settle(tester);
+    final story = find.widgetWithText(TextField, 'Sua história (opcional)');
+    await tester.dragUntilVisible(story, find.byType(ListView).first, const Offset(0, -200));
+    await tester.enterText(story, 'Nasceu sob a forca.');
+    await settle(tester);
+    await tester.tap(find.text('CONTINUAR'));
+    await settle(tester);
+    expect(find.textContaining('Herói · Mercenário Negro · Nível 1'), findsOneWidget);
+    await tester.tap(find.text('FORJAR HERÓI'));
+    await settle(tester);
+
+    final hero = await tester.runAsync(() => db.select(db.heroes).getSingle());
+    expect(hero!.customOriginName, 'Mercenário Negro');
+    expect(hero.customOriginStory, 'Nasceu sob a forca.');
+    expect(find.textContaining('Mercenário Negro'), findsOneWidget);
+    await disposeApp(tester, db);
+  });
 }
