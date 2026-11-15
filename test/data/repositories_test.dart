@@ -1,3 +1,4 @@
+import 'package:app/core/game/activity_catalog.dart';
 import 'package:app/core/game/attributes.dart';
 import 'package:app/core/game/hero_profile.dart';
 import 'package:app/core/game/quest_progress.dart';
@@ -188,6 +189,60 @@ void main() {
         questRepo.ensureTodayQuestsGenerated(character),
       ]);
       expect(await todayQuests(), hasLength(3));
+    });
+
+    test('catalog activity for Charisma advances and completes a CHA quest', () async {
+      await insertQuest(Attribute.charisma, QuestUnit.minutes, 15);
+      final result = await activityRepo.completeCatalogActivity(
+        activityId: 'act_oratory',
+        durationMinutes: 20,
+      );
+      expect(result.attribute, Attribute.charisma);
+      expect(result.baseXp, 20);
+      expect(result.completedQuests, hasLength(1));
+      expect((await todayQuests()).single.isCompleted, isTrue);
+    });
+
+    test('hydration awards cup XP, goal bonus, and prevents -/+ farming', () async {
+      await insertQuest(Attribute.constitution, QuestUnit.minutes, 10);
+
+      for (var i = 1; i <= 3; i++) {
+        final r = await activityRepo.updateWaterCups(delta: 1, goalCups: 4);
+        expect(r!.baseXp, 2);
+        expect(r.bonusXp, 0);
+      }
+
+      // Decrement and re-add cup #3 -> no new XP.
+      expect(await activityRepo.updateWaterCups(delta: -1, goalCups: 4), isNull);
+      expect(await activityRepo.updateWaterCups(delta: 1, goalCups: 4), isNull);
+
+      // Cup #4 hits the daily goal -> 2 cup XP + 10 bonus XP + completes 10-min CON quest.
+      final goalHit = await activityRepo.updateWaterCups(delta: 1, goalCups: 4);
+      expect(goalHit!.baseXp, 2);
+      expect(goalHit.bonusXp, 10);
+      expect(goalHit.completedQuests, hasLength(1));
+
+      final hydrationLedger = await (db.select(db.xpLedger)
+            ..where((t) => t.source.equalsValue(XpSource.hydration)))
+          .get();
+      final totalHydrationXp =
+          hydrationLedger.fold<double>(0, (s, e) => s + e.amount);
+      expect(totalHydrationXp, 18); // 4 * 2 + 10
+    });
+
+    test('diet check-in grants XP once per day and credits CON quest', () async {
+      await insertQuest(Attribute.constitution, QuestUnit.minutes, 10);
+      final first = await activityRepo.completeDietCheckIn(
+        adherence: DietAdherence.onTrack,
+      );
+      expect(first, isNotNull);
+      expect(first!.baseXp, 25);
+      expect(first.completedQuests, hasLength(1));
+
+      final second = await activityRepo.completeDietCheckIn(
+        adherence: DietAdherence.partial,
+      );
+      expect(second, isNull, reason: 'only one diet check-in per day');
     });
   });
 

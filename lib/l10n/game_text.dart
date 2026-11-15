@@ -73,6 +73,13 @@ class GameText {
   String muscle(MuscleGroup m) => t('muscle.${m.name}');
   String equipment(Equipment e) => t('equipment.${e.name}');
 
+  // --- Activities -----------------------------------------------------------
+  /// Catalog activities are translated by id (`activity.<id>.name` / `.description`).
+  String activityName(String id, {String? fallback}) =>
+      t('activity.$id.name', fallback: fallback ?? id);
+  String activityDescription(String id) =>
+      t('activity.$id.description', fallback: '');
+
   // --- Quests -------------------------------------------------------------
   /// Quest rows store keys (`quest.slot.<slot>` / `quest.task.<attr>`).
   /// Rows created before localization stored final Portuguese texts, which

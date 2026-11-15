@@ -773,4 +773,110 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsWaterGoal => 'Daily water goal';
+
+  @override
+  String get settingsWaterGoalHint =>
+      '250 ml cups per day. Every cup up to the goal grants Constitution XP, plus a bonus when you hit the goal.';
+
+  @override
+  String settingsWaterGoalValue(int cups, int ml) {
+    return '$cups cups ($ml ml)';
+  }
+
+  @override
+  String get hydrationTitle => 'Daily Hydration';
+
+  @override
+  String get hydrationSubtitle =>
+      'Each cup (250 ml) up to your goal builds Constitution.';
+
+  @override
+  String hydrationProgress(int cups, int goal, int ml) {
+    return '$cups/$goal cups · $ml ml';
+  }
+
+  @override
+  String get hydrationAddCup => '+1 cup (250 ml)';
+
+  @override
+  String get hydrationGoalMetBadge => 'Water goal met today!';
+
+  @override
+  String get hydrationBonusLine => 'Daily hydration goal met';
+
+  @override
+  String get dietTitle => 'Nutrition & Diet';
+
+  @override
+  String get dietSubtitle =>
+      'Daily food consistency check-in (no neurotic calorie counting).';
+
+  @override
+  String get dietOnTrackButton => 'On track';
+
+  @override
+  String get dietPartialButton => 'Partial / Balanced';
+
+  @override
+  String get dietDoneOnTrack => 'Today\'s check-in: Nutrition plan on track';
+
+  @override
+  String get dietDonePartial =>
+      'Today\'s check-in: Partial / balanced nutrition';
+
+  @override
+  String sleepLoggedToday(String hours) {
+    return 'Last logged today: $hours h';
+  }
+
+  @override
+  String get activitiesCatalogSection => 'Habit & Practice Catalog';
+
+  @override
+  String get activitiesCustomButton => 'Log another activity';
+
+  @override
+  String get customActivityTitle => 'Log Activity';
+
+  @override
+  String get customActivityNameLabel => 'What did you practice?';
+
+  @override
+  String get customActivityNameHint =>
+      'e.g. Guitar practice, catching up with a friend, hike...';
+
+  @override
+  String get customActivityDefaultName => 'Focused practice';
+
+  @override
+  String get customActivityAttributeLabel => 'Trained attribute';
+
+  @override
+  String get customActivityDurationLabel => 'Duration (minutes)';
+
+  @override
+  String get customActivityIntensityLabel => 'Intensity';
+
+  @override
+  String get intensityLightLabel => 'Light';
+
+  @override
+  String get intensityModerateLabel => 'Moderate';
+
+  @override
+  String get intensityHardLabel => 'Hard';
+
+  @override
+  String get customActivitySubmit => 'Complete & claim XP';
+
+  @override
+  String get activityRewardTitle => 'Activity Complete!';
+
+  @override
+  String activityRewardBaseLine(String name, int minutes) {
+    return '$name ($minutes min)';
+  }
 }

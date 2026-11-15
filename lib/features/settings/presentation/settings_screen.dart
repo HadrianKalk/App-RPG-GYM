@@ -7,6 +7,7 @@ import '../../../app/theme.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
 import '../../../l10n/l10n.dart';
+import '../../../core/game/attributes.dart';
 import '../../../core/game/xp_rules.dart';
 import '../../../data/repositories/providers.dart';
 import '../data/settings_providers.dart';
@@ -70,6 +71,8 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsTraining),
           const _WeeklyGoalTile(),
+          const SizedBox(height: 10),
+          const _WaterGoalTile(),
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsAbout),
           PixelFrame(
@@ -229,6 +232,57 @@ class _WeeklyGoalTile extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(l10n.settingsWeeklyGoalHint, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Daily water goal stepper (stored on the hero: it affects Constitution rewards).
+class _WaterGoalTile extends ConsumerWidget {
+  const _WaterGoalTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final goal = ref.watch(heroStreamProvider).valueOrNull?.waterGoalCups ?? XpRules.waterGoalDefaultCups;
+    final repo = ref.read(heroRepositoryProvider);
+    final conColor = AppTheme.attributeColor(Attribute.constitution);
+
+    Widget btn(IconData icon, VoidCallback? onTap) => InkWell(
+          onTap: onTap,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2)),
+            child: Icon(icon, size: 18, color: onTap == null ? AppTheme.forgedSteel : AppTheme.emberGold),
+          ),
+        );
+
+    return PixelFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              PixelIcon(PixelIcons.heart, size: 20, color: conColor),
+              const SizedBox(width: 10),
+              Expanded(child: Text(l10n.settingsWaterGoal, style: Theme.of(context).textTheme.titleMedium)),
+              btn(Icons.remove, goal > XpRules.waterGoalMinCups ? () => repo.setWaterGoalCups(goal - 1) : null),
+              SizedBox(
+                width: 112,
+                child: Text(
+                  l10n.settingsWaterGoalValue(goal, goal * XpRules.waterCupMl),
+                  textAlign: TextAlign.center,
+                  style: display.style(18, color: AppTheme.emberGold),
+                ),
+              ),
+              btn(Icons.add, goal < XpRules.waterGoalMaxCups ? () => repo.setWaterGoalCups(goal + 1) : null),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(l10n.settingsWaterGoalHint, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12)),
         ],
       ),
     );

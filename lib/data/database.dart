@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../core/game/activity_catalog.dart';
 import '../core/game/attributes.dart';
 import '../core/game/exercise_taxonomy.dart';
 import '../core/game/hero_profile.dart';
@@ -124,8 +125,26 @@ class Heroes extends Table {
   /// Training days per week the player aims for (schema v5).
   IntColumn get weeklyGoal => integer().withDefault(const Constant(3))();
 
+  /// Daily hydration goal in 250 ml cups (schema v6).
+  IntColumn get waterGoalCups => integer().withDefault(const Constant(8))();
+
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Daily health state for Constitution habits (hydration, diet, sleep).
+@DataClassName('DailyHealthRow')
+class DailyHealthLogs extends Table {
+  TextColumn get dateStr => text()();
+  IntColumn get waterCups => integer().withDefault(const Constant(0))();
+  IntColumn get rewardedWaterCups => integer().withDefault(const Constant(0))();
+  BoolColumn get waterGoalBonusClaimed =>
+      boolean().withDefault(const Constant(false))();
+  TextColumn get dietAdherence => textEnum<DietAdherence>().nullable()();
+  RealColumn get lastSleepHours => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {dateStr};
 }
 
 /// User-created routines (templates live in code: `RoutineSeed`).
@@ -159,6 +178,7 @@ class RoutineExercises extends Table {
   Routines,
   RoutineExercises,
   Heroes,
+  DailyHealthLogs,
   Exercises,
   WorkoutSessions,
   WorkoutSets,
@@ -171,7 +191,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -220,6 +240,11 @@ class AppDatabase extends _$AppDatabase {
           // v5: weekly goal (consistency bonuses).
           if (from < 5) {
             await m.addColumn(heroes, heroes.weeklyGoal);
+          }
+          // v6: Constitution health (hydration goal + daily health logs).
+          if (from < 6) {
+            await m.addColumn(heroes, heroes.waterGoalCups);
+            await m.createTable(dailyHealthLogs);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).

@@ -776,4 +776,110 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsWaterGoal => 'Meta diária de água';
+
+  @override
+  String get settingsWaterGoalHint =>
+      'Copos de 250 ml por dia. Cada copo até a meta concede XP de Constituição, com bônus ao atingir a meta.';
+
+  @override
+  String settingsWaterGoalValue(int cups, int ml) {
+    return '$cups copos ($ml ml)';
+  }
+
+  @override
+  String get hydrationTitle => 'Hidratação Diária';
+
+  @override
+  String get hydrationSubtitle =>
+      'Cada copo (250 ml) até a meta fortalece Constituição.';
+
+  @override
+  String hydrationProgress(int cups, int goal, int ml) {
+    return '$cups/$goal copos · $ml ml';
+  }
+
+  @override
+  String get hydrationAddCup => '+1 copo (250 ml)';
+
+  @override
+  String get hydrationGoalMetBadge => 'Meta de água batida hoje!';
+
+  @override
+  String get hydrationBonusLine => 'Meta diária de hidratação batida';
+
+  @override
+  String get dietTitle => 'Nutrição & Dieta';
+
+  @override
+  String get dietSubtitle =>
+      'Check-in diário de consistência alimentar (sem contagem neurótica).';
+
+  @override
+  String get dietOnTrackButton => 'Plano cumprido';
+
+  @override
+  String get dietPartialButton => 'Parcial / Equilibrado';
+
+  @override
+  String get dietDoneOnTrack => 'Check-in de hoje: Plano alimentar cumprido';
+
+  @override
+  String get dietDonePartial =>
+      'Check-in de hoje: Alimentação parcial / equilibrada';
+
+  @override
+  String sleepLoggedToday(String hours) {
+    return 'Último registro hoje: $hours h';
+  }
+
+  @override
+  String get activitiesCatalogSection => 'Catálogo de Hábitos & Práticas';
+
+  @override
+  String get activitiesCustomButton => 'Registrar outra atividade';
+
+  @override
+  String get customActivityTitle => 'Nova Atividade';
+
+  @override
+  String get customActivityNameLabel => 'O que você praticou?';
+
+  @override
+  String get customActivityNameHint =>
+      'Ex.: Aula de violão, conversa com amigo, trilha...';
+
+  @override
+  String get customActivityDefaultName => 'Prática focada';
+
+  @override
+  String get customActivityAttributeLabel => 'Atributo trabalhado';
+
+  @override
+  String get customActivityDurationLabel => 'Duração (minutos)';
+
+  @override
+  String get customActivityIntensityLabel => 'Intensidade';
+
+  @override
+  String get intensityLightLabel => 'Leve';
+
+  @override
+  String get intensityModerateLabel => 'Moderada';
+
+  @override
+  String get intensityHardLabel => 'Intensa';
+
+  @override
+  String get customActivitySubmit => 'Concluir e receber XP';
+
+  @override
+  String get activityRewardTitle => 'Atividade Concluída!';
+
+  @override
+  String activityRewardBaseLine(String name, int minutes) {
+    return '$name ($minutes min)';
+  }
 }

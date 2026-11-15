@@ -581,5 +581,76 @@
         "type": "int"
       }
     }
+  },
+  "settingsWaterGoal": "Meta diária de água",
+  "settingsWaterGoalHint": "Copos de 250 ml por dia. Cada copo até a meta concede XP de Constituição, com bônus ao atingir a meta.",
+  "settingsWaterGoalValue": "{cups} copos ({ml} ml)",
+  "@settingsWaterGoalValue": {
+    "placeholders": {
+      "cups": {
+        "type": "int"
+      },
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationTitle": "Hidratação Diária",
+  "hydrationSubtitle": "Cada copo (250 ml) até a meta fortalece Constituição.",
+  "hydrationProgress": "{cups}/{goal} copos · {ml} ml",
+  "@hydrationProgress": {
+    "placeholders": {
+      "cups": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationAddCup": "+1 copo (250 ml)",
+  "hydrationGoalMetBadge": "Meta de água batida hoje!",
+  "hydrationBonusLine": "Meta diária de hidratação batida",
+  "dietTitle": "Nutrição & Dieta",
+  "dietSubtitle": "Check-in diário de consistência alimentar (sem contagem neurótica).",
+  "dietOnTrackButton": "Plano cumprido",
+  "dietPartialButton": "Parcial / Equilibrado",
+  "dietDoneOnTrack": "Check-in de hoje: Plano alimentar cumprido",
+  "dietDonePartial": "Check-in de hoje: Alimentação parcial / equilibrada",
+  "sleepLoggedToday": "Último registro hoje: {hours} h",
+  "@sleepLoggedToday": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "activitiesCatalogSection": "Catálogo de Hábitos & Práticas",
+  "activitiesCustomButton": "Registrar outra atividade",
+  "customActivityTitle": "Nova Atividade",
+  "customActivityNameLabel": "O que você praticou?",
+  "customActivityNameHint": "Ex.: Aula de violão, conversa com amigo, trilha...",
+  "customActivityDefaultName": "Prática focada",
+  "customActivityAttributeLabel": "Atributo trabalhado",
+  "customActivityDurationLabel": "Duração (minutos)",
+  "customActivityIntensityLabel": "Intensidade",
+  "intensityLightLabel": "Leve",
+  "intensityModerateLabel": "Moderada",
+  "intensityHardLabel": "Intensa",
+  "customActivitySubmit": "Concluir e receber XP",
+  "activityRewardTitle": "Atividade Concluída!",
+  "activityRewardBaseLine": "{name} ({minutes} min)",
+  "@activityRewardBaseLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }

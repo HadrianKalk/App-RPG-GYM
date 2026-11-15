@@ -1,5 +1,8 @@
 ﻿import 'package:drift/drift.dart';
+
+import '../../core/game/activity_catalog.dart';
 import '../../core/game/attributes.dart';
+import '../../core/game/progress_diff.dart';
 import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_calculator.dart';
 import '../../core/game/xp_event.dart';
@@ -7,6 +10,50 @@ import '../database.dart';
 import 'character_repository.dart';
 import 'quest_repository.dart';
 
+/// Summary of rewards granted by an activity or health habit.
+final class ActivityRewardResult {
+  const ActivityRewardResult({
+    required this.attribute,
+    required this.baseXp,
+    required this.progress,
+    this.bonusXp = 0.0,
+    this.completedQuests = const [],
+    this.activityId,
+    this.customTitle,
+    this.durationMinutes = 0,
+  });
+
+  final Attribute attribute;
+
+  /// Direct XP from the activity / habit itself (after diminishing returns).
+  final double baseXp;
+
+  /// Additional milestone bonus XP (e.g. hitting the daily water goal).
+  final double bonusXp;
+
+  /// Daily quests completed by this action.
+  final List<DailyQuestsTableData> completedQuests;
+
+  /// Level / attribute increases caused by this action.
+  final ProgressDiff progress;
+
+  /// Built-in catalog identifier (`act_*`), if applicable.
+  final String? activityId;
+
+  /// User-typed title or subject, if applicable.
+  final String? customTitle;
+
+  /// Logged duration in minutes, if applicable.
+  final int durationMinutes;
+
+  double get questXp =>
+      completedQuests.fold(0.0, (sum, quest) => sum + quest.bonusXp);
+
+  double get totalXp => baseXp + bonusXp + questXp;
+}
+
+/// Manages real-life activities (catalog & custom) and Constitution health
+/// habits (sleep, hydration and daily nutrition check-in).
 class ActivityRepository {
   ActivityRepository(this._db, this._characterRepo, this._questRepo);
 
@@ -14,69 +61,284 @@ class ActivityRepository {
   final CharacterRepository _characterRepo;
   final QuestRepository _questRepo;
 
-  /// Registra uma sessão de estudo focado (Pomodoro) gerando XP de Inteligência (INT).
+  int _nonce = 0;
+
+  String _nextId(String prefix, DateTime now) =>
+      '${prefix}_${now.millisecondsSinceEpoch}_${++_nonce}';
+
+  String _todayDateStr([DateTime? now]) {
+    final d = now ?? DateTime.now();
+    return '${d.year}-${d.month}-${d.day}';
+  }
+
+  /// Watches today's Constitution health state (water cups, diet check-in, sleep).
+  Stream<DailyHealthRow?> watchTodayHealth() {
+    final today = _todayDateStr();
+    final query = _db.select(_db.dailyHealthLogs)
+      ..where((t) => t.dateStr.equals(today));
+    return query.watchSingleOrNull();
+  }
+
+  /// Fetches today's health row, or `null` if nothing has been logged today.
+  Future<DailyHealthRow?> getTodayHealth() {
+    final today = _todayDateStr();
+    return (_db.select(_db.dailyHealthLogs)
+          ..where((t) => t.dateStr.equals(today)))
+        .getSingleOrNull();
+  }
+
+  /// Logs a built-in catalog activity by its [activityId].
+  Future<ActivityRewardResult> completeCatalogActivity({
+    required String activityId,
+    required int durationMinutes,
+    double intensity = 1.0,
+    String? subject,
+  }) async {
+    final definition = ActivityCatalog.byId(activityId);
+    if (definition == null) {
+      throw ArgumentError.value(activityId, 'activityId', 'Unknown catalog activity');
+    }
+    final safeMinutes = HealthRules.clampActivityMinutes(durationMinutes);
+    final cleanSubject = subject?.trim();
+    final label = (cleanSubject != null && cleanSubject.isNotEmpty)
+        ? '${definition.id}: $cleanSubject'
+        : definition.id;
+
+    return _logActivityWithSummary(
+      type: label,
+      attribute: definition.attribute,
+      durationMinutes: safeMinutes.toDouble(),
+      intensity: intensity,
+      source: definition.xpSource,
+      description: cleanSubject,
+      activityId: definition.id,
+      customTitle: (cleanSubject != null && cleanSubject.isNotEmpty) ? cleanSubject : null,
+      displayMinutes: safeMinutes,
+    );
+  }
+
+  /// Logs a custom user-defined activity for any [attribute].
+  Future<ActivityRewardResult> completeCustomActivity({
+    required String title,
+    required Attribute attribute,
+    required int durationMinutes,
+    double intensity = 1.0,
+    String? notes,
+  }) async {
+    final safeMinutes = HealthRules.clampActivityMinutes(durationMinutes);
+    final cleanTitle = title.trim().isEmpty ? 'custom_activity' : title.trim();
+    return _logActivityWithSummary(
+      type: cleanTitle,
+      attribute: attribute,
+      durationMinutes: safeMinutes.toDouble(),
+      intensity: intensity,
+      source: XpSource.activity,
+      description: notes?.trim(),
+      customTitle: cleanTitle,
+      displayMinutes: safeMinutes,
+    );
+  }
+
+  /// Logs a night of sleep and updates today's health row, returning the full summary.
+  Future<ActivityRewardResult> completeSleep({
+    required double hoursSlept,
+    String? notes,
+  }) async {
+    final baseMinutes = HealthRules.sleepBaseMinutes(hoursSlept);
+    final today = _todayDateStr();
+    final existing = await getTodayHealth();
+    await _db.into(_db.dailyHealthLogs).insertOnConflictUpdate(
+          DailyHealthLogsCompanion.insert(
+            dateStr: today,
+            waterCups: Value(existing?.waterCups ?? 0),
+            rewardedWaterCups: Value(existing?.rewardedWaterCups ?? 0),
+            waterGoalBonusClaimed: Value(existing?.waterGoalBonusClaimed ?? false),
+            dietAdherence: Value(existing?.dietAdherence),
+            lastSleepHours: Value(hoursSlept),
+          ),
+        );
+
+    return _logActivityWithSummary(
+      type: 'sleep:${hoursSlept.toStringAsFixed(1)}h',
+      attribute: Attribute.constitution,
+      durationMinutes: baseMinutes,
+      intensity: 1.0,
+      source: XpSource.sleep,
+      description: notes ?? 'Restful sleep',
+      customQuestCredit: QuestProgress.fromSleep(hoursSlept: hoursSlept),
+    );
+  }
+
+  /// Applies [delta] (+1 or -1) to today's water cups and grants Constitution XP
+  /// for newly reached cups and for hitting the daily [goalCups] milestone.
+  ///
+  /// Returns an [ActivityRewardResult] when new XP was earned, or `null` when
+  /// decrementing / re-logging an already-rewarded cup.
+  Future<ActivityRewardResult?> updateWaterCups({
+    required int delta,
+    required int goalCups,
+  }) async {
+    await _questRepo.ensureTodayQuests();
+    final before = (await _characterRepo.watchCharacter().first).totalXpMap;
+    final today = _todayDateStr();
+    final existing = await getTodayHealth();
+
+    final update = HealthRules.applyWaterDelta(
+      currentCups: existing?.waterCups ?? 0,
+      rewardedCups: existing?.rewardedWaterCups ?? 0,
+      goalBonusClaimed: existing?.waterGoalBonusClaimed ?? false,
+      goalCups: goalCups,
+      delta: delta,
+    );
+
+    await _db.into(_db.dailyHealthLogs).insertOnConflictUpdate(
+          DailyHealthLogsCompanion.insert(
+            dateStr: today,
+            waterCups: Value(update.cups),
+            rewardedWaterCups: Value(update.rewardedCups),
+            waterGoalBonusClaimed: Value(update.goalBonusClaimed),
+            dietAdherence: Value(existing?.dietAdherence),
+            lastSleepHours: Value(existing?.lastSleepHours),
+          ),
+        );
+
+    if (update.totalXp <= 0) return null;
+
+    final now = DateTime.now();
+    if (update.cupXp > 0) {
+      await _characterRepo.addXp(
+        XpEvent(
+          id: _nextId('xp_water', now),
+          attribute: Attribute.constitution,
+          amount: update.cupXp,
+          source: XpSource.hydration,
+          timestamp: now,
+          description: 'hydration:cup:${update.cups}',
+        ),
+      );
+    }
+
+    if (update.goalBonusXp > 0) {
+      await _characterRepo.addXp(
+        XpEvent(
+          id: _nextId('xp_water_goal', now),
+          attribute: Attribute.constitution,
+          amount: update.goalBonusXp,
+          source: XpSource.hydration,
+          timestamp: now,
+          description: 'hydration:goal:$goalCups',
+        ),
+      );
+    }
+
+    final completedQuests = await _questRepo.applyCredit(update.questCredit);
+    final after = (await _characterRepo.watchCharacter().first).totalXpMap;
+
+    return ActivityRewardResult(
+      attribute: Attribute.constitution,
+      baseXp: update.cupXp,
+      bonusXp: update.goalBonusXp,
+      completedQuests: completedQuests,
+      progress: ProgressDiff.between(before, after),
+    );
+  }
+
+  /// Records today's nutrition / diet adherence check-in (once per day).
+  ///
+  /// Returns `null` if today's check-in was already completed.
+  Future<ActivityRewardResult?> completeDietCheckIn({
+    required DietAdherence adherence,
+  }) async {
+    final existing = await getTodayHealth();
+    if (existing?.dietAdherence != null) return null;
+
+    await _questRepo.ensureTodayQuests();
+    final before = (await _characterRepo.watchCharacter().first).totalXpMap;
+    final today = _todayDateStr();
+
+    await _db.into(_db.dailyHealthLogs).insertOnConflictUpdate(
+          DailyHealthLogsCompanion.insert(
+            dateStr: today,
+            waterCups: Value(existing?.waterCups ?? 0),
+            rewardedWaterCups: Value(existing?.rewardedWaterCups ?? 0),
+            waterGoalBonusClaimed: Value(existing?.waterGoalBonusClaimed ?? false),
+            dietAdherence: Value(adherence),
+            lastSleepHours: Value(existing?.lastSleepHours),
+          ),
+        );
+
+    final reward = HealthRules.dietReward(adherence);
+    final alreadyLoggedToday =
+        await _characterRepo.getMinutesOrXpLoggedToday(Attribute.constitution);
+    final earnedXp = XpCalculator.calculateXpWithDiminishingReturns(
+      minutesAlreadyLoggedToday: alreadyLoggedToday,
+      additionalMinutes: reward.baseXp,
+      intensityMultiplier: 1.0,
+    );
+
+    final now = DateTime.now();
+    await _characterRepo.addXp(
+      XpEvent(
+        id: _nextId('xp_diet', now),
+        attribute: Attribute.constitution,
+        amount: earnedXp,
+        source: XpSource.nutrition,
+        timestamp: now,
+        description: 'nutrition:${adherence.name}',
+      ),
+    );
+
+    final completedQuests = await _questRepo.applyCredit(reward.questCredit);
+    final after = (await _characterRepo.watchCharacter().first).totalXpMap;
+
+    return ActivityRewardResult(
+      attribute: Attribute.constitution,
+      baseXp: earnedXp,
+      completedQuests: completedQuests,
+      progress: ProgressDiff.between(before, after),
+    );
+  }
+
+  // --- Legacy / direct convenience methods returning earned XP ---
+
+  /// Logs a focused study session (Pomodoro) granting Intelligence (INT) XP.
   Future<double> logPomodoroStudy({
     required int durationMinutes,
     double intensity = 1.0,
     String? subject,
   }) async {
-    return _logActivityInternal(
-      type: 'Pomodoro: ${subject ?? "Estudo Geral"}',
-      attribute: Attribute.intelligence,
-      durationMinutes: durationMinutes.toDouble(),
+    final result = await completeCatalogActivity(
+      activityId: 'act_pomodoro',
+      durationMinutes: durationMinutes,
       intensity: intensity,
-      source: XpSource.pomodoroStudy,
-      description: subject != null ? 'Foco em $subject' : 'Sessão de estudo focado',
+      subject: subject,
     );
+    return result.baseXp;
   }
 
-  /// Registra uma noite de sono gerando XP de Constituição (CON).
-  /// Dentro da meta saudável (7-9 horas), concede bônus de eficiência.
+  /// Logs a night of sleep granting Constitution (CON) XP.
   Future<double> logSleep({
     required double hoursSlept,
     String? notes,
   }) async {
-    // 7 a 9 horas = sono ideal (ganho cheio de 60 XP base)
-    double calculatedMinutes = 0.0;
-    if (hoursSlept >= 7.0 && hoursSlept <= 9.0) {
-      calculatedMinutes = 60.0; // Ganho cheio ideal
-    } else if (hoursSlept >= 5.0) {
-      calculatedMinutes = 40.0;
-    } else {
-      calculatedMinutes = 20.0;
-    }
-
-    final xp = await _logActivityInternal(
-      type: 'Sono Reparador (${hoursSlept.toStringAsFixed(1)}h)',
-      attribute: Attribute.constitution,
-      durationMinutes: calculatedMinutes,
-      intensity: 1.0,
-      source: XpSource.sleep,
-      description: notes ?? 'Descanso e recuperação física',
-      // Os "minutos" do sono são pontos de XP, não tempo acordado:
-      // não contam para missões em minutos.
-      creditQuests: false,
-    );
-    await _questRepo.applyCredit(QuestProgress.fromSleep(hoursSlept: hoursSlept));
-    return xp;
+    final result = await completeSleep(hoursSlept: hoursSlept, notes: notes);
+    return result.baseXp;
   }
 
-  /// Registra uma sessão de meditação / reflexão gerando XP de Sabedoria (SAB).
+  /// Logs a meditation session granting Wisdom (WIS) XP.
   Future<double> logMeditation({
     required int durationMinutes,
     String? notes,
   }) async {
-    return _logActivityInternal(
-      type: 'Meditação / Quietude',
-      attribute: Attribute.wisdom,
-      durationMinutes: durationMinutes.toDouble(),
-      intensity: 1.0,
-      source: XpSource.activity,
-      description: notes ?? 'Prática de mindfulness e presença',
+    final result = await completeCatalogActivity(
+      activityId: 'act_meditation',
+      durationMinutes: durationMinutes,
+      subject: notes,
     );
+    return result.baseXp;
   }
 
-  /// Registra qualquer atividade genérica com atributo correspondente.
+  /// Logs a general activity for [attribute].
   Future<double> logGeneralActivity({
     required String title,
     required Attribute attribute,
@@ -84,28 +346,33 @@ class ActivityRepository {
     double intensity = 1.0,
     String? notes,
   }) async {
-    return _logActivityInternal(
-      type: title,
+    final result = await completeCustomActivity(
+      title: title,
       attribute: attribute,
-      durationMinutes: durationMinutes,
+      durationMinutes: durationMinutes.round(),
       intensity: intensity,
-      source: XpSource.activity,
-      description: notes,
+      notes: notes,
     );
+    return result.baseXp;
   }
 
-  Future<double> _logActivityInternal({
+  Future<ActivityRewardResult> _logActivityWithSummary({
     required String type,
     required Attribute attribute,
     required double durationMinutes,
     required double intensity,
     required XpSource source,
     String? description,
-    bool creditQuests = true,
+    String? activityId,
+    String? customTitle,
+    int displayMinutes = 0,
+    QuestCredit? customQuestCredit,
   }) async {
     await _questRepo.ensureTodayQuests();
+    final before = (await _characterRepo.watchCharacter().first).totalXpMap;
     final now = DateTime.now();
-    final alreadyLoggedToday = await _characterRepo.getMinutesOrXpLoggedToday(attribute);
+    final alreadyLoggedToday =
+        await _characterRepo.getMinutesOrXpLoggedToday(attribute);
 
     final earnedXp = XpCalculator.calculateXpWithDiminishingReturns(
       minutesAlreadyLoggedToday: alreadyLoggedToday,
@@ -113,19 +380,19 @@ class ActivityRepository {
       intensityMultiplier: intensity,
     );
 
-    final id = 'act_${now.millisecondsSinceEpoch}';
+    final id = _nextId('act', now);
 
     await _db.into(_db.activities).insert(
-      ActivitiesCompanion.insert(
-        id: id,
-        type: type,
-        attribute: attribute,
-        durationMinutes: durationMinutes,
-        intensity: Value(intensity),
-        timestamp: now,
-        notes: Value(description),
-      ),
-    );
+          ActivitiesCompanion.insert(
+            id: id,
+            type: type,
+            attribute: attribute,
+            durationMinutes: durationMinutes,
+            intensity: Value(intensity),
+            timestamp: now,
+            notes: Value(description),
+          ),
+        );
 
     await _characterRepo.addXp(
       XpEvent(
@@ -134,16 +401,27 @@ class ActivityRepository {
         amount: earnedXp,
         source: source,
         timestamp: now,
-        description: '$type (${durationMinutes.toInt()} min) -> +${earnedXp.toStringAsFixed(1)} XP',
+        description:
+            '$type (${durationMinutes.toInt()} min) -> +${earnedXp.toStringAsFixed(1)} XP',
       ),
     );
 
-    if (creditQuests) {
-      await _questRepo.applyCredit(
-        QuestProgress.fromActivity(attribute: attribute, durationMinutes: durationMinutes),
-      );
-    }
+    final credit = customQuestCredit ??
+        QuestProgress.fromActivity(
+          attribute: attribute,
+          durationMinutes: durationMinutes,
+        );
+    final completedQuests = await _questRepo.applyCredit(credit);
+    final after = (await _characterRepo.watchCharacter().first).totalXpMap;
 
-    return earnedXp;
+    return ActivityRewardResult(
+      attribute: attribute,
+      baseXp: earnedXp,
+      completedQuests: completedQuests,
+      progress: ProgressDiff.between(before, after),
+      activityId: activityId,
+      customTitle: customTitle,
+      durationMinutes: displayMinutes,
+    );
   }
 }

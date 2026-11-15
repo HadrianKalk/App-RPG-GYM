@@ -1309,6 +1309,192 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{count, plural, =1{1 dia} other{{count} dias}}'**
   String settingsWeeklyGoalValue(int count);
+
+  /// No description provided for @settingsWaterGoal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta diária de água'**
+  String get settingsWaterGoal;
+
+  /// No description provided for @settingsWaterGoalHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Copos de 250 ml por dia. Cada copo até a meta concede XP de Constituição, com bônus ao atingir a meta.'**
+  String get settingsWaterGoalHint;
+
+  /// No description provided for @settingsWaterGoalValue.
+  ///
+  /// In pt, this message translates to:
+  /// **'{cups} copos ({ml} ml)'**
+  String settingsWaterGoalValue(int cups, int ml);
+
+  /// No description provided for @hydrationTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hidratação Diária'**
+  String get hydrationTitle;
+
+  /// No description provided for @hydrationSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cada copo (250 ml) até a meta fortalece Constituição.'**
+  String get hydrationSubtitle;
+
+  /// No description provided for @hydrationProgress.
+  ///
+  /// In pt, this message translates to:
+  /// **'{cups}/{goal} copos · {ml} ml'**
+  String hydrationProgress(int cups, int goal, int ml);
+
+  /// No description provided for @hydrationAddCup.
+  ///
+  /// In pt, this message translates to:
+  /// **'+1 copo (250 ml)'**
+  String get hydrationAddCup;
+
+  /// No description provided for @hydrationGoalMetBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta de água batida hoje!'**
+  String get hydrationGoalMetBadge;
+
+  /// No description provided for @hydrationBonusLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta diária de hidratação batida'**
+  String get hydrationBonusLine;
+
+  /// No description provided for @dietTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nutrição & Dieta'**
+  String get dietTitle;
+
+  /// No description provided for @dietSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Check-in diário de consistência alimentar (sem contagem neurótica).'**
+  String get dietSubtitle;
+
+  /// No description provided for @dietOnTrackButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Plano cumprido'**
+  String get dietOnTrackButton;
+
+  /// No description provided for @dietPartialButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Parcial / Equilibrado'**
+  String get dietPartialButton;
+
+  /// No description provided for @dietDoneOnTrack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Check-in de hoje: Plano alimentar cumprido'**
+  String get dietDoneOnTrack;
+
+  /// No description provided for @dietDonePartial.
+  ///
+  /// In pt, this message translates to:
+  /// **'Check-in de hoje: Alimentação parcial / equilibrada'**
+  String get dietDonePartial;
+
+  /// No description provided for @sleepLoggedToday.
+  ///
+  /// In pt, this message translates to:
+  /// **'Último registro hoje: {hours} h'**
+  String sleepLoggedToday(String hours);
+
+  /// No description provided for @activitiesCatalogSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Catálogo de Hábitos & Práticas'**
+  String get activitiesCatalogSection;
+
+  /// No description provided for @activitiesCustomButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar outra atividade'**
+  String get activitiesCustomButton;
+
+  /// No description provided for @customActivityTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova Atividade'**
+  String get customActivityTitle;
+
+  /// No description provided for @customActivityNameLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'O que você praticou?'**
+  String get customActivityNameLabel;
+
+  /// No description provided for @customActivityNameHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ex.: Aula de violão, conversa com amigo, trilha...'**
+  String get customActivityNameHint;
+
+  /// No description provided for @customActivityDefaultName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prática focada'**
+  String get customActivityDefaultName;
+
+  /// No description provided for @customActivityAttributeLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atributo trabalhado'**
+  String get customActivityAttributeLabel;
+
+  /// No description provided for @customActivityDurationLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Duração (minutos)'**
+  String get customActivityDurationLabel;
+
+  /// No description provided for @customActivityIntensityLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intensidade'**
+  String get customActivityIntensityLabel;
+
+  /// No description provided for @intensityLightLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Leve'**
+  String get intensityLightLabel;
+
+  /// No description provided for @intensityModerateLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Moderada'**
+  String get intensityModerateLabel;
+
+  /// No description provided for @intensityHardLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intensa'**
+  String get intensityHardLabel;
+
+  /// No description provided for @customActivitySubmit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Concluir e receber XP'**
+  String get customActivitySubmit;
+
+  /// No description provided for @activityRewardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atividade Concluída!'**
+  String get activityRewardTitle;
+
+  /// No description provided for @activityRewardBaseLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} ({minutes} min)'**
+  String activityRewardBaseLine(String name, int minutes);
 }
 
 class _AppLocalizationsDelegate

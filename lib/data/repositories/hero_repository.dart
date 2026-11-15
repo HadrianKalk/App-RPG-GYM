@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../core/game/activity_catalog.dart';
 import '../../core/game/hero_profile.dart';
 import '../../core/game/weekly_progress.dart';
 import '../../core/game/xp_rules.dart';
@@ -65,6 +66,17 @@ class HeroRepository {
     return row?.weeklyGoal ?? XpRules.weeklyGoalDefault;
   }
 
+  /// Changes the daily water goal in 250 ml cups (clamped to allowed range).
+  Future<void> setWaterGoalCups(int cups) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(waterGoalCups: Value(HealthRules.clampWaterGoal(cups))));
+
+  /// Current daily water goal in cups (default when no hero exists yet).
+  Future<int> waterGoalCups() async {
+    final row = await (_db.select(_db.heroes)..where((t) => t.id.equals(_heroId))).getSingleOrNull();
+    return row?.waterGoalCups ?? XpRules.waterGoalDefaultCups;
+  }
+
   HeroProfile _toProfile(HeroRow row) => HeroProfile(
         name: row.name,
         form: row.form,
@@ -74,5 +86,6 @@ class HeroRepository {
         customOriginName: row.customOriginName,
         customOriginStory: row.customOriginStory,
         weeklyGoal: row.weeklyGoal,
+        waterGoalCups: row.waterGoalCups,
       );
 }

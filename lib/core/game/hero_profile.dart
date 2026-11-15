@@ -44,6 +44,7 @@ final class HeroProfile {
     this.customOriginName,
     this.customOriginStory,
     this.weeklyGoal = 3,
+    this.waterGoalCups = 8,
   });
 
   /// Maximum hero name length.
@@ -77,6 +78,9 @@ final class HeroProfile {
 
   /// Training days per week the player aims for (consistency bonuses).
   final int weeklyGoal;
+
+  /// Daily hydration goal in 250 ml cups (Constitution health).
+  final int waterGoalCups;
 
   /// Validates a raw hero name. Returns `null` when valid, or the reason.
   static HeroNameError? validateName(String raw) =>

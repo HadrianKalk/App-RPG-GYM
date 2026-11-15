@@ -93,3 +93,8 @@ final trainingDaysProvider = StreamProvider<Set<DateTime>>((ref) {
 final recordsProvider = StreamProvider<List<(PersonalRecord, Exercise)>>((ref) {
   return ref.watch(historyRepositoryProvider).watchRecords();
 });
+
+/// Today's Constitution health state (water cups, diet check-in, sleep).
+final todayHealthStreamProvider = StreamProvider<DailyHealthRow?>((ref) {
+  return ref.watch(activityRepositoryProvider).watchTodayHealth();
+});

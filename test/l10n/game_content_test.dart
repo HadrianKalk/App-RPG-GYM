@@ -1,3 +1,4 @@
+import 'package:app/core/game/activity_catalog.dart';
 import 'package:app/core/game/attributes.dart';
 import 'package:app/core/game/class_resolver.dart';
 import 'package:app/core/game/exercise_taxonomy.dart';
@@ -27,6 +28,7 @@ void main() {
       for (final m in MuscleGroup.values) 'muscle.${m.name}',
       for (final e in Equipment.values) 'equipment.${e.name}',
       for (final e in ExerciseSeed.defaultExercises) 'exercise.${e.id}',
+      for (final a in ActivityCatalog.entries) ...['activity.${a.id}.name', 'activity.${a.id}.description'],
     ];
     for (final lang in GameText.supportedLanguages) {
       final text = GameText(lang);

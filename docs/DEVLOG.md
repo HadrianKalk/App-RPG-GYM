@@ -3,6 +3,29 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 4: catálogo de atividades, hidratação e nutrição em CON
+- **Motor (`lib/core/game/activity_catalog.dart`):** catálogo de atividades
+  (`ActivityCatalog`, 12 hábitos cobrindo INT, SAB, CAR, DES e CON) e regras de
+  saúde em Constituição (`HealthRules`: hidratação com marca d'água anti-farm,
+  check-in diário de dieta e faixas de sono). Constantes em `xp_rules.dart`;
+  novos `XpSource.hydration` e `XpSource.nutrition`.
+- **Banco (Schema v6):** tabela `daily_health_logs` e coluna
+  `heroes.water_goal_cups` (meta diária de água ajustável em Configurações).
+- **Repositório (`activity_repository.dart`):** `ActivityRewardResult` com XP
+  base, bônus, missões concluídas e `ProgressDiff`; suporte a atividades do
+  catálogo, atividades personalizadas, hidratação e check-in de dieta.
+- **Tela de Atividades (`activities_screen.dart`):** Pomodoro (INT), Hidratação
+  diária (CON), Nutrição & Dieta (CON), Sono (CON), catálogo filtrável por
+  atributo (CAR, DES, SAB, INT, CON), modal de atividade personalizada e
+  diálogo de recompensas completo (bônus, missões concluídas e subidas de
+  nível/atributo).
+- **Localização:** traduções pt-BR e en para as 12 atividades do catálogo e
+  novos textos de interface.
+- **Testes:** 88 testes passando (`activity_catalog_test.dart`,
+  `repositories_test.dart`, `activities_screen_test.dart`, `game_content_test.dart`).
+- **Próximo:** botão "?" em cada exercício (passo a passo de execução) e
+  decisões sobre a Arena de Treino.
+
 ## 2026-11-15 — Claude Code — Etapa 3: histórico, sequência semanal, bônus e recompensas
 - **Motor:** `weekly_progress.dart` (WeekCalendar, bônus Meta Cumprida /
   Além do Dever / Chama da Constância, sequência), `progress_diff.dart`

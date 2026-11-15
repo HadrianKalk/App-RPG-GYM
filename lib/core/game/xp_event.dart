@@ -12,6 +12,12 @@ enum XpSource {
 
   /// Weekly consistency bonuses (goal met, beyond duty, flame).
   weeklyBonus,
+
+  /// Daily hydration (water cups & daily goal bonus).
+  hydration,
+
+  /// Daily nutrition / diet adherence check-in.
+  nutrition,
 }
 
 /// Representa uma transação imutável no "Livro-Razão" de XP do herói.

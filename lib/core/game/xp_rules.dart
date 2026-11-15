@@ -37,6 +37,39 @@ abstract final class XpRules {
   /// (protege contra sessões esquecidas abertas por horas).
   static const double questMaxMinutesPerWorkout = 180.0;
 
+  // --- Health & Activities (Constitution / Stage 4) ---
+  /// Ideal sleep window (hours) and base XP tiers for sleep logs.
+  static const double sleepIdealMinHours = 7.0;
+  static const double sleepIdealMaxHours = 9.0;
+  static const double sleepModerateMinHours = 5.0;
+  static const double sleepIdealXp = 60.0;
+  static const double sleepModerateXp = 40.0;
+  static const double sleepLowXp = 20.0;
+
+  /// Hydration tracking (cups of 250 ml).
+  static const int waterCupMl = 250;
+  static const int waterGoalDefaultCups = 8;
+  static const int waterGoalMinCups = 4;
+  static const int waterGoalMaxCups = 16;
+  static const int waterMaxDailyCups = 24;
+
+  /// XP per newly logged cup of water (up to the daily goal) and goal bonus.
+  static const double xpPerWaterCup = 2.0;
+  static const double waterGoalBonusXp = 10.0;
+
+  /// Minutes credited to Constitution daily quests when hitting the water goal.
+  static const double waterGoalQuestMinutes = 10.0;
+
+  /// Daily nutrition / diet check-in rewards (once per day).
+  static const double dietOnTrackXp = 25.0;
+  static const double dietPartialXp = 12.0;
+  static const double dietOnTrackQuestMinutes = 10.0;
+  static const double dietPartialQuestMinutes = 5.0;
+
+  /// Allowed duration range (in minutes) when logging a custom activity.
+  static const int activityMinMinutes = 1;
+  static const int activityMaxMinutes = 240;
+
   // --- Weekly consistency (see weekly_progress.dart) ---
   /// Default weekly goal: training days per week.
   static const int weeklyGoalDefault = 3;

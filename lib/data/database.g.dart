@@ -1508,6 +1508,18 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     requiredDuringInsert: false,
     defaultValue: const Constant(3),
   );
+  static const VerificationMeta _waterGoalCupsMeta = const VerificationMeta(
+    'waterGoalCups',
+  );
+  @override
+  late final GeneratedColumn<int> waterGoalCups = GeneratedColumn<int>(
+    'water_goal_cups',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(8),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1519,6 +1531,7 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     customOriginName,
     customOriginStory,
     weeklyGoal,
+    waterGoalCups,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1581,6 +1594,15 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         weeklyGoal.isAcceptableOrUnknown(data['weekly_goal']!, _weeklyGoalMeta),
       );
     }
+    if (data.containsKey('water_goal_cups')) {
+      context.handle(
+        _waterGoalCupsMeta,
+        waterGoalCups.isAcceptableOrUnknown(
+          data['water_goal_cups']!,
+          _waterGoalCupsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1630,6 +1652,10 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         DriftSqlType.int,
         data['${effectivePrefix}weekly_goal'],
       )!,
+      waterGoalCups: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}water_goal_cups'],
+      )!,
     );
   }
 
@@ -1658,6 +1684,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
 
   /// Training days per week the player aims for (schema v5).
   final int weeklyGoal;
+
+  /// Daily hydration goal in 250 ml cups (schema v6).
+  final int waterGoalCups;
   const HeroRow({
     required this.id,
     required this.name,
@@ -1668,6 +1697,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     this.customOriginName,
     this.customOriginStory,
     required this.weeklyGoal,
+    required this.waterGoalCups,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1693,6 +1723,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       map['custom_origin_story'] = Variable<String>(customOriginStory);
     }
     map['weekly_goal'] = Variable<int>(weeklyGoal);
+    map['water_goal_cups'] = Variable<int>(waterGoalCups);
     return map;
   }
 
@@ -1711,6 +1742,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ? const Value.absent()
           : Value(customOriginStory),
       weeklyGoal: Value(weeklyGoal),
+      waterGoalCups: Value(waterGoalCups),
     );
   }
 
@@ -1735,6 +1767,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
         json['customOriginStory'],
       ),
       weeklyGoal: serializer.fromJson<int>(json['weeklyGoal']),
+      waterGoalCups: serializer.fromJson<int>(json['waterGoalCups']),
     );
   }
   @override
@@ -1754,6 +1787,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       'customOriginName': serializer.toJson<String?>(customOriginName),
       'customOriginStory': serializer.toJson<String?>(customOriginStory),
       'weeklyGoal': serializer.toJson<int>(weeklyGoal),
+      'waterGoalCups': serializer.toJson<int>(waterGoalCups),
     };
   }
 
@@ -1767,6 +1801,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     Value<String?> customOriginName = const Value.absent(),
     Value<String?> customOriginStory = const Value.absent(),
     int? weeklyGoal,
+    int? waterGoalCups,
   }) => HeroRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1781,6 +1816,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
         ? customOriginStory.value
         : this.customOriginStory,
     weeklyGoal: weeklyGoal ?? this.weeklyGoal,
+    waterGoalCups: waterGoalCups ?? this.waterGoalCups,
   );
   HeroRow copyWithCompanion(HeroesCompanion data) {
     return HeroRow(
@@ -1799,6 +1835,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       weeklyGoal: data.weeklyGoal.present
           ? data.weeklyGoal.value
           : this.weeklyGoal,
+      waterGoalCups: data.waterGoalCups.present
+          ? data.waterGoalCups.value
+          : this.waterGoalCups,
     );
   }
 
@@ -1813,7 +1852,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ..write('createdAt: $createdAt, ')
           ..write('customOriginName: $customOriginName, ')
           ..write('customOriginStory: $customOriginStory, ')
-          ..write('weeklyGoal: $weeklyGoal')
+          ..write('weeklyGoal: $weeklyGoal, ')
+          ..write('waterGoalCups: $waterGoalCups')
           ..write(')'))
         .toString();
   }
@@ -1829,6 +1869,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     customOriginName,
     customOriginStory,
     weeklyGoal,
+    waterGoalCups,
   );
   @override
   bool operator ==(Object other) =>
@@ -1842,7 +1883,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           other.createdAt == this.createdAt &&
           other.customOriginName == this.customOriginName &&
           other.customOriginStory == this.customOriginStory &&
-          other.weeklyGoal == this.weeklyGoal);
+          other.weeklyGoal == this.weeklyGoal &&
+          other.waterGoalCups == this.waterGoalCups);
 }
 
 class HeroesCompanion extends UpdateCompanion<HeroRow> {
@@ -1855,6 +1897,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
   final Value<String?> customOriginName;
   final Value<String?> customOriginStory;
   final Value<int> weeklyGoal;
+  final Value<int> waterGoalCups;
   const HeroesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1865,6 +1908,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.customOriginName = const Value.absent(),
     this.customOriginStory = const Value.absent(),
     this.weeklyGoal = const Value.absent(),
+    this.waterGoalCups = const Value.absent(),
   });
   HeroesCompanion.insert({
     this.id = const Value.absent(),
@@ -1876,6 +1920,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.customOriginName = const Value.absent(),
     this.customOriginStory = const Value.absent(),
     this.weeklyGoal = const Value.absent(),
+    this.waterGoalCups = const Value.absent(),
   }) : name = Value(name),
        form = Value(form),
        origin = Value(origin),
@@ -1890,6 +1935,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Expression<String>? customOriginName,
     Expression<String>? customOriginStory,
     Expression<int>? weeklyGoal,
+    Expression<int>? waterGoalCups,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1901,6 +1947,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       if (customOriginName != null) 'custom_origin_name': customOriginName,
       if (customOriginStory != null) 'custom_origin_story': customOriginStory,
       if (weeklyGoal != null) 'weekly_goal': weeklyGoal,
+      if (waterGoalCups != null) 'water_goal_cups': waterGoalCups,
     });
   }
 
@@ -1914,6 +1961,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Value<String?>? customOriginName,
     Value<String?>? customOriginStory,
     Value<int>? weeklyGoal,
+    Value<int>? waterGoalCups,
   }) {
     return HeroesCompanion(
       id: id ?? this.id,
@@ -1925,6 +1973,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       customOriginName: customOriginName ?? this.customOriginName,
       customOriginStory: customOriginStory ?? this.customOriginStory,
       weeklyGoal: weeklyGoal ?? this.weeklyGoal,
+      waterGoalCups: waterGoalCups ?? this.waterGoalCups,
     );
   }
 
@@ -1962,6 +2011,9 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     if (weeklyGoal.present) {
       map['weekly_goal'] = Variable<int>(weeklyGoal.value);
     }
+    if (waterGoalCups.present) {
+      map['water_goal_cups'] = Variable<int>(waterGoalCups.value);
+    }
     return map;
   }
 
@@ -1976,7 +2028,471 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
           ..write('createdAt: $createdAt, ')
           ..write('customOriginName: $customOriginName, ')
           ..write('customOriginStory: $customOriginStory, ')
-          ..write('weeklyGoal: $weeklyGoal')
+          ..write('weeklyGoal: $weeklyGoal, ')
+          ..write('waterGoalCups: $waterGoalCups')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyHealthLogsTable extends DailyHealthLogs
+    with TableInfo<$DailyHealthLogsTable, DailyHealthRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyHealthLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateStrMeta = const VerificationMeta(
+    'dateStr',
+  );
+  @override
+  late final GeneratedColumn<String> dateStr = GeneratedColumn<String>(
+    'date_str',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _waterCupsMeta = const VerificationMeta(
+    'waterCups',
+  );
+  @override
+  late final GeneratedColumn<int> waterCups = GeneratedColumn<int>(
+    'water_cups',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _rewardedWaterCupsMeta = const VerificationMeta(
+    'rewardedWaterCups',
+  );
+  @override
+  late final GeneratedColumn<int> rewardedWaterCups = GeneratedColumn<int>(
+    'rewarded_water_cups',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _waterGoalBonusClaimedMeta =
+      const VerificationMeta('waterGoalBonusClaimed');
+  @override
+  late final GeneratedColumn<bool> waterGoalBonusClaimed =
+      GeneratedColumn<bool>(
+        'water_goal_bonus_claimed',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("water_goal_bonus_claimed" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<DietAdherence?, String>
+  dietAdherence =
+      GeneratedColumn<String>(
+        'diet_adherence',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<DietAdherence?>(
+        $DailyHealthLogsTable.$converterdietAdherencen,
+      );
+  static const VerificationMeta _lastSleepHoursMeta = const VerificationMeta(
+    'lastSleepHours',
+  );
+  @override
+  late final GeneratedColumn<double> lastSleepHours = GeneratedColumn<double>(
+    'last_sleep_hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    dateStr,
+    waterCups,
+    rewardedWaterCups,
+    waterGoalBonusClaimed,
+    dietAdherence,
+    lastSleepHours,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_health_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyHealthRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date_str')) {
+      context.handle(
+        _dateStrMeta,
+        dateStr.isAcceptableOrUnknown(data['date_str']!, _dateStrMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateStrMeta);
+    }
+    if (data.containsKey('water_cups')) {
+      context.handle(
+        _waterCupsMeta,
+        waterCups.isAcceptableOrUnknown(data['water_cups']!, _waterCupsMeta),
+      );
+    }
+    if (data.containsKey('rewarded_water_cups')) {
+      context.handle(
+        _rewardedWaterCupsMeta,
+        rewardedWaterCups.isAcceptableOrUnknown(
+          data['rewarded_water_cups']!,
+          _rewardedWaterCupsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('water_goal_bonus_claimed')) {
+      context.handle(
+        _waterGoalBonusClaimedMeta,
+        waterGoalBonusClaimed.isAcceptableOrUnknown(
+          data['water_goal_bonus_claimed']!,
+          _waterGoalBonusClaimedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_sleep_hours')) {
+      context.handle(
+        _lastSleepHoursMeta,
+        lastSleepHours.isAcceptableOrUnknown(
+          data['last_sleep_hours']!,
+          _lastSleepHoursMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dateStr};
+  @override
+  DailyHealthRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyHealthRow(
+      dateStr: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date_str'],
+      )!,
+      waterCups: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}water_cups'],
+      )!,
+      rewardedWaterCups: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rewarded_water_cups'],
+      )!,
+      waterGoalBonusClaimed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}water_goal_bonus_claimed'],
+      )!,
+      dietAdherence: $DailyHealthLogsTable.$converterdietAdherencen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}diet_adherence'],
+        ),
+      ),
+      lastSleepHours: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}last_sleep_hours'],
+      ),
+    );
+  }
+
+  @override
+  $DailyHealthLogsTable createAlias(String alias) {
+    return $DailyHealthLogsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<DietAdherence, String, String>
+  $converterdietAdherence = const EnumNameConverter<DietAdherence>(
+    DietAdherence.values,
+  );
+  static JsonTypeConverter2<DietAdherence?, String?, String?>
+  $converterdietAdherencen = JsonTypeConverter2.asNullable(
+    $converterdietAdherence,
+  );
+}
+
+class DailyHealthRow extends DataClass implements Insertable<DailyHealthRow> {
+  final String dateStr;
+  final int waterCups;
+  final int rewardedWaterCups;
+  final bool waterGoalBonusClaimed;
+  final DietAdherence? dietAdherence;
+  final double? lastSleepHours;
+  const DailyHealthRow({
+    required this.dateStr,
+    required this.waterCups,
+    required this.rewardedWaterCups,
+    required this.waterGoalBonusClaimed,
+    this.dietAdherence,
+    this.lastSleepHours,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date_str'] = Variable<String>(dateStr);
+    map['water_cups'] = Variable<int>(waterCups);
+    map['rewarded_water_cups'] = Variable<int>(rewardedWaterCups);
+    map['water_goal_bonus_claimed'] = Variable<bool>(waterGoalBonusClaimed);
+    if (!nullToAbsent || dietAdherence != null) {
+      map['diet_adherence'] = Variable<String>(
+        $DailyHealthLogsTable.$converterdietAdherencen.toSql(dietAdherence),
+      );
+    }
+    if (!nullToAbsent || lastSleepHours != null) {
+      map['last_sleep_hours'] = Variable<double>(lastSleepHours);
+    }
+    return map;
+  }
+
+  DailyHealthLogsCompanion toCompanion(bool nullToAbsent) {
+    return DailyHealthLogsCompanion(
+      dateStr: Value(dateStr),
+      waterCups: Value(waterCups),
+      rewardedWaterCups: Value(rewardedWaterCups),
+      waterGoalBonusClaimed: Value(waterGoalBonusClaimed),
+      dietAdherence: dietAdherence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dietAdherence),
+      lastSleepHours: lastSleepHours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSleepHours),
+    );
+  }
+
+  factory DailyHealthRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyHealthRow(
+      dateStr: serializer.fromJson<String>(json['dateStr']),
+      waterCups: serializer.fromJson<int>(json['waterCups']),
+      rewardedWaterCups: serializer.fromJson<int>(json['rewardedWaterCups']),
+      waterGoalBonusClaimed: serializer.fromJson<bool>(
+        json['waterGoalBonusClaimed'],
+      ),
+      dietAdherence: $DailyHealthLogsTable.$converterdietAdherencen.fromJson(
+        serializer.fromJson<String?>(json['dietAdherence']),
+      ),
+      lastSleepHours: serializer.fromJson<double?>(json['lastSleepHours']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dateStr': serializer.toJson<String>(dateStr),
+      'waterCups': serializer.toJson<int>(waterCups),
+      'rewardedWaterCups': serializer.toJson<int>(rewardedWaterCups),
+      'waterGoalBonusClaimed': serializer.toJson<bool>(waterGoalBonusClaimed),
+      'dietAdherence': serializer.toJson<String?>(
+        $DailyHealthLogsTable.$converterdietAdherencen.toJson(dietAdherence),
+      ),
+      'lastSleepHours': serializer.toJson<double?>(lastSleepHours),
+    };
+  }
+
+  DailyHealthRow copyWith({
+    String? dateStr,
+    int? waterCups,
+    int? rewardedWaterCups,
+    bool? waterGoalBonusClaimed,
+    Value<DietAdherence?> dietAdherence = const Value.absent(),
+    Value<double?> lastSleepHours = const Value.absent(),
+  }) => DailyHealthRow(
+    dateStr: dateStr ?? this.dateStr,
+    waterCups: waterCups ?? this.waterCups,
+    rewardedWaterCups: rewardedWaterCups ?? this.rewardedWaterCups,
+    waterGoalBonusClaimed: waterGoalBonusClaimed ?? this.waterGoalBonusClaimed,
+    dietAdherence: dietAdherence.present
+        ? dietAdherence.value
+        : this.dietAdherence,
+    lastSleepHours: lastSleepHours.present
+        ? lastSleepHours.value
+        : this.lastSleepHours,
+  );
+  DailyHealthRow copyWithCompanion(DailyHealthLogsCompanion data) {
+    return DailyHealthRow(
+      dateStr: data.dateStr.present ? data.dateStr.value : this.dateStr,
+      waterCups: data.waterCups.present ? data.waterCups.value : this.waterCups,
+      rewardedWaterCups: data.rewardedWaterCups.present
+          ? data.rewardedWaterCups.value
+          : this.rewardedWaterCups,
+      waterGoalBonusClaimed: data.waterGoalBonusClaimed.present
+          ? data.waterGoalBonusClaimed.value
+          : this.waterGoalBonusClaimed,
+      dietAdherence: data.dietAdherence.present
+          ? data.dietAdherence.value
+          : this.dietAdherence,
+      lastSleepHours: data.lastSleepHours.present
+          ? data.lastSleepHours.value
+          : this.lastSleepHours,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyHealthRow(')
+          ..write('dateStr: $dateStr, ')
+          ..write('waterCups: $waterCups, ')
+          ..write('rewardedWaterCups: $rewardedWaterCups, ')
+          ..write('waterGoalBonusClaimed: $waterGoalBonusClaimed, ')
+          ..write('dietAdherence: $dietAdherence, ')
+          ..write('lastSleepHours: $lastSleepHours')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    dateStr,
+    waterCups,
+    rewardedWaterCups,
+    waterGoalBonusClaimed,
+    dietAdherence,
+    lastSleepHours,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyHealthRow &&
+          other.dateStr == this.dateStr &&
+          other.waterCups == this.waterCups &&
+          other.rewardedWaterCups == this.rewardedWaterCups &&
+          other.waterGoalBonusClaimed == this.waterGoalBonusClaimed &&
+          other.dietAdherence == this.dietAdherence &&
+          other.lastSleepHours == this.lastSleepHours);
+}
+
+class DailyHealthLogsCompanion extends UpdateCompanion<DailyHealthRow> {
+  final Value<String> dateStr;
+  final Value<int> waterCups;
+  final Value<int> rewardedWaterCups;
+  final Value<bool> waterGoalBonusClaimed;
+  final Value<DietAdherence?> dietAdherence;
+  final Value<double?> lastSleepHours;
+  final Value<int> rowid;
+  const DailyHealthLogsCompanion({
+    this.dateStr = const Value.absent(),
+    this.waterCups = const Value.absent(),
+    this.rewardedWaterCups = const Value.absent(),
+    this.waterGoalBonusClaimed = const Value.absent(),
+    this.dietAdherence = const Value.absent(),
+    this.lastSleepHours = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyHealthLogsCompanion.insert({
+    required String dateStr,
+    this.waterCups = const Value.absent(),
+    this.rewardedWaterCups = const Value.absent(),
+    this.waterGoalBonusClaimed = const Value.absent(),
+    this.dietAdherence = const Value.absent(),
+    this.lastSleepHours = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : dateStr = Value(dateStr);
+  static Insertable<DailyHealthRow> custom({
+    Expression<String>? dateStr,
+    Expression<int>? waterCups,
+    Expression<int>? rewardedWaterCups,
+    Expression<bool>? waterGoalBonusClaimed,
+    Expression<String>? dietAdherence,
+    Expression<double>? lastSleepHours,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (dateStr != null) 'date_str': dateStr,
+      if (waterCups != null) 'water_cups': waterCups,
+      if (rewardedWaterCups != null) 'rewarded_water_cups': rewardedWaterCups,
+      if (waterGoalBonusClaimed != null)
+        'water_goal_bonus_claimed': waterGoalBonusClaimed,
+      if (dietAdherence != null) 'diet_adherence': dietAdherence,
+      if (lastSleepHours != null) 'last_sleep_hours': lastSleepHours,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyHealthLogsCompanion copyWith({
+    Value<String>? dateStr,
+    Value<int>? waterCups,
+    Value<int>? rewardedWaterCups,
+    Value<bool>? waterGoalBonusClaimed,
+    Value<DietAdherence?>? dietAdherence,
+    Value<double?>? lastSleepHours,
+    Value<int>? rowid,
+  }) {
+    return DailyHealthLogsCompanion(
+      dateStr: dateStr ?? this.dateStr,
+      waterCups: waterCups ?? this.waterCups,
+      rewardedWaterCups: rewardedWaterCups ?? this.rewardedWaterCups,
+      waterGoalBonusClaimed:
+          waterGoalBonusClaimed ?? this.waterGoalBonusClaimed,
+      dietAdherence: dietAdherence ?? this.dietAdherence,
+      lastSleepHours: lastSleepHours ?? this.lastSleepHours,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dateStr.present) {
+      map['date_str'] = Variable<String>(dateStr.value);
+    }
+    if (waterCups.present) {
+      map['water_cups'] = Variable<int>(waterCups.value);
+    }
+    if (rewardedWaterCups.present) {
+      map['rewarded_water_cups'] = Variable<int>(rewardedWaterCups.value);
+    }
+    if (waterGoalBonusClaimed.present) {
+      map['water_goal_bonus_claimed'] = Variable<bool>(
+        waterGoalBonusClaimed.value,
+      );
+    }
+    if (dietAdherence.present) {
+      map['diet_adherence'] = Variable<String>(
+        $DailyHealthLogsTable.$converterdietAdherencen.toSql(
+          dietAdherence.value,
+        ),
+      );
+    }
+    if (lastSleepHours.present) {
+      map['last_sleep_hours'] = Variable<double>(lastSleepHours.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyHealthLogsCompanion(')
+          ..write('dateStr: $dateStr, ')
+          ..write('waterCups: $waterCups, ')
+          ..write('rewardedWaterCups: $rewardedWaterCups, ')
+          ..write('waterGoalBonusClaimed: $waterGoalBonusClaimed, ')
+          ..write('dietAdherence: $dietAdherence, ')
+          ..write('lastSleepHours: $lastSleepHours, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -5016,6 +5532,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $HeroesTable heroes = $HeroesTable(this);
+  late final $DailyHealthLogsTable dailyHealthLogs = $DailyHealthLogsTable(
+    this,
+  );
   late final $WorkoutSessionsTable workoutSessions = $WorkoutSessionsTable(
     this,
   );
@@ -5037,6 +5556,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     exercises,
     routineExercises,
     heroes,
+    dailyHealthLogs,
     workoutSessions,
     workoutSets,
     personalRecords,
@@ -6397,6 +6917,7 @@ typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
   Value<String?> customOriginName,
   Value<String?> customOriginStory,
   Value<int> weeklyGoal,
+  Value<int> waterGoalCups,
 });
 typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> id,
@@ -6408,6 +6929,7 @@ typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<String?> customOriginName,
   Value<String?> customOriginStory,
   Value<int> weeklyGoal,
+  Value<int> waterGoalCups,
 });
 
 class $$HeroesTableFilterComposer
@@ -6465,6 +6987,11 @@ class $$HeroesTableFilterComposer
     column: $table.weeklyGoal,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get waterGoalCups => $composableBuilder(
+    column: $table.waterGoalCups,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$HeroesTableOrderingComposer
@@ -6520,6 +7047,11 @@ class $$HeroesTableOrderingComposer
     column: $table.weeklyGoal,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get waterGoalCups => $composableBuilder(
+    column: $table.waterGoalCups,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HeroesTableAnnotationComposer
@@ -6563,6 +7095,11 @@ class $$HeroesTableAnnotationComposer
     column: $table.weeklyGoal,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get waterGoalCups => $composableBuilder(
+    column: $table.waterGoalCups,
+    builder: (column) => column,
+  );
 }
 
 class $$HeroesTableTableManager
@@ -6602,6 +7139,7 @@ class $$HeroesTableTableManager
                 Value<String?> customOriginName = const Value.absent(),
                 Value<String?> customOriginStory = const Value.absent(),
                 Value<int> weeklyGoal = const Value.absent(),
+                Value<int> waterGoalCups = const Value.absent(),
               }) => HeroesCompanion(
                 id: id,
                 name: name,
@@ -6612,6 +7150,7 @@ class $$HeroesTableTableManager
                 customOriginName: customOriginName,
                 customOriginStory: customOriginStory,
                 weeklyGoal: weeklyGoal,
+                waterGoalCups: waterGoalCups,
               ),
           createCompanionCallback:
               ({
@@ -6624,6 +7163,7 @@ class $$HeroesTableTableManager
                 Value<String?> customOriginName = const Value.absent(),
                 Value<String?> customOriginStory = const Value.absent(),
                 Value<int> weeklyGoal = const Value.absent(),
+                Value<int> waterGoalCups = const Value.absent(),
               }) => HeroesCompanion.insert(
                 id: id,
                 name: name,
@@ -6634,6 +7174,7 @@ class $$HeroesTableTableManager
                 customOriginName: customOriginName,
                 customOriginStory: customOriginStory,
                 weeklyGoal: weeklyGoal,
+                waterGoalCups: waterGoalCups,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -6664,6 +7205,250 @@ typedef $$HeroesTableProcessedTableManager =
       $$HeroesTableUpdateCompanionBuilder,
       (HeroRow, BaseReferences<_$AppDatabase, $HeroesTable, HeroRow>),
       HeroRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DailyHealthLogsTableCreateCompanionBuilder =
+    DailyHealthLogsCompanion Function({
+      required String dateStr,
+      Value<int> waterCups,
+      Value<int> rewardedWaterCups,
+      Value<bool> waterGoalBonusClaimed,
+      Value<DietAdherence?> dietAdherence,
+      Value<double?> lastSleepHours,
+      Value<int> rowid,
+    });
+typedef $$DailyHealthLogsTableUpdateCompanionBuilder =
+    DailyHealthLogsCompanion Function({
+      Value<String> dateStr,
+      Value<int> waterCups,
+      Value<int> rewardedWaterCups,
+      Value<bool> waterGoalBonusClaimed,
+      Value<DietAdherence?> dietAdherence,
+      Value<double?> lastSleepHours,
+      Value<int> rowid,
+    });
+
+class $$DailyHealthLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyHealthLogsTable> {
+  $$DailyHealthLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get dateStr => $composableBuilder(
+    column: $table.dateStr,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get waterCups => $composableBuilder(
+    column: $table.waterCups,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rewardedWaterCups => $composableBuilder(
+    column: $table.rewardedWaterCups,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get waterGoalBonusClaimed => $composableBuilder(
+    column: $table.waterGoalBonusClaimed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DietAdherence?, DietAdherence, String>
+  get dietAdherence => $composableBuilder(
+    column: $table.dietAdherence,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<double> get lastSleepHours => $composableBuilder(
+    column: $table.lastSleepHours,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyHealthLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyHealthLogsTable> {
+  $$DailyHealthLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get dateStr => $composableBuilder(
+    column: $table.dateStr,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get waterCups => $composableBuilder(
+    column: $table.waterCups,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rewardedWaterCups => $composableBuilder(
+    column: $table.rewardedWaterCups,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get waterGoalBonusClaimed => $composableBuilder(
+    column: $table.waterGoalBonusClaimed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dietAdherence => $composableBuilder(
+    column: $table.dietAdherence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get lastSleepHours => $composableBuilder(
+    column: $table.lastSleepHours,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyHealthLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyHealthLogsTable> {
+  $$DailyHealthLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get dateStr =>
+      $composableBuilder(column: $table.dateStr, builder: (column) => column);
+
+  GeneratedColumn<int> get waterCups =>
+      $composableBuilder(column: $table.waterCups, builder: (column) => column);
+
+  GeneratedColumn<int> get rewardedWaterCups => $composableBuilder(
+    column: $table.rewardedWaterCups,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get waterGoalBonusClaimed => $composableBuilder(
+    column: $table.waterGoalBonusClaimed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<DietAdherence?, String> get dietAdherence =>
+      $composableBuilder(
+        column: $table.dietAdherence,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<double> get lastSleepHours => $composableBuilder(
+    column: $table.lastSleepHours,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyHealthLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyHealthLogsTable,
+          DailyHealthRow,
+          $$DailyHealthLogsTableFilterComposer,
+          $$DailyHealthLogsTableOrderingComposer,
+          $$DailyHealthLogsTableAnnotationComposer,
+          $$DailyHealthLogsTableCreateCompanionBuilder,
+          $$DailyHealthLogsTableUpdateCompanionBuilder,
+          (
+            DailyHealthRow,
+            BaseReferences<
+              _$AppDatabase,
+              $DailyHealthLogsTable,
+              DailyHealthRow
+            >,
+          ),
+          DailyHealthRow,
+          PrefetchHooks Function()
+        > {
+  $$DailyHealthLogsTableTableManager(
+    _$AppDatabase db,
+    $DailyHealthLogsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyHealthLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyHealthLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyHealthLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> dateStr = const Value.absent(),
+                Value<int> waterCups = const Value.absent(),
+                Value<int> rewardedWaterCups = const Value.absent(),
+                Value<bool> waterGoalBonusClaimed = const Value.absent(),
+                Value<DietAdherence?> dietAdherence = const Value.absent(),
+                Value<double?> lastSleepHours = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyHealthLogsCompanion(
+                dateStr: dateStr,
+                waterCups: waterCups,
+                rewardedWaterCups: rewardedWaterCups,
+                waterGoalBonusClaimed: waterGoalBonusClaimed,
+                dietAdherence: dietAdherence,
+                lastSleepHours: lastSleepHours,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String dateStr,
+                Value<int> waterCups = const Value.absent(),
+                Value<int> rewardedWaterCups = const Value.absent(),
+                Value<bool> waterGoalBonusClaimed = const Value.absent(),
+                Value<DietAdherence?> dietAdherence = const Value.absent(),
+                Value<double?> lastSleepHours = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyHealthLogsCompanion.insert(
+                dateStr: dateStr,
+                waterCups: waterCups,
+                rewardedWaterCups: rewardedWaterCups,
+                waterGoalBonusClaimed: waterGoalBonusClaimed,
+                dietAdherence: dietAdherence,
+                lastSleepHours: lastSleepHours,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DailyHealthLogsTable, DailyHealthRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DailyHealthLogsTable,
+                    DailyHealthRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyHealthLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyHealthLogsTable,
+      DailyHealthRow,
+      $$DailyHealthLogsTableFilterComposer,
+      $$DailyHealthLogsTableOrderingComposer,
+      $$DailyHealthLogsTableAnnotationComposer,
+      $$DailyHealthLogsTableCreateCompanionBuilder,
+      $$DailyHealthLogsTableUpdateCompanionBuilder,
+      (
+        DailyHealthRow,
+        BaseReferences<_$AppDatabase, $DailyHealthLogsTable, DailyHealthRow>,
+      ),
+      DailyHealthRow,
       PrefetchHooks Function()
     >;
 typedef $$WorkoutSessionsTableCreateCompanionBuilder =
@@ -8660,6 +9445,8 @@ class $AppDatabaseManager {
       $$RoutineExercisesTableTableManager(_db, _db.routineExercises);
   $$HeroesTableTableManager get heroes =>
       $$HeroesTableTableManager(_db, _db.heroes);
+  $$DailyHealthLogsTableTableManager get dailyHealthLogs =>
+      $$DailyHealthLogsTableTableManager(_db, _db.dailyHealthLogs);
   $$WorkoutSessionsTableTableManager get workoutSessions =>
       $$WorkoutSessionsTableTableManager(_db, _db.workoutSessions);
   $$WorkoutSetsTableTableManager get workoutSets =>

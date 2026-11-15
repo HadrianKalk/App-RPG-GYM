@@ -87,3 +87,15 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     entre os atributos treinados naquele treino, na proporção do XP das séries.
 35. **Chama da Constância** conta a semana atual a partir do momento em que a
     meta é batida; semana em andamento nunca quebra a sequência.
+36. **Catálogo de atividades (`ActivityCatalog`)**: hábitos fora da musculação
+    (CAR, DES, SAB, INT, CON) são dados em `lib/core/game/activity_catalog.dart`,
+    traduzidos via `activity.<id>.name`/`.description`, além de atividade
+    personalizada com título, atributo, duração e intensidade.
+37. **Saúde em Constituição (Hidratação & Dieta)**:
+    - Hidratação em copos de 250 ml (`heroes.water_goal_cups`, 4–16, padrão 8).
+      Cada copo novo até a meta concede +2 XP de CON; atingir a meta diária
+      concede +10 XP bônus e +10 min na missão de CON. A marca d'água
+      (`rewarded_water_cups` em `daily_health_logs`) impede farm com `-1/+1`
+      preservando o livro-razão append-only.
+    - Check-in diário de nutrição (1× por dia): Plano cumprido (+25 XP base,
+      +10 min na missão de CON) ou Parcial (+12 XP base, +5 min na missão).
