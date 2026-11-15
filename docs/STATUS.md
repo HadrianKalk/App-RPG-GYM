@@ -42,9 +42,11 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - [x] **Botão "?" em cada exercício** (passo a passo de execução e postura nos
       64 exercícios em pt-BR e en; ilustrações pixel a definir).
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
-- [ ] **Proposta: Arena de Treino** (combate tático por turnos, offline, sem
-      IA; números do motor). Aguardando decisões do usuário: XP ou não,
-      fichas de combate ganhas com hábitos reais, quando encaixar.
+- [ ] (Backlog) **Seleção de classe desbloqueada**: permitir trocar entre classes
+      cujos pré-requisitos de atributos o herói já cumpriu (Decisão #41).
+- [ ] **Sistema de Combate (sem XP — apenas cosméticos e títulos, Decisão #40):**
+      3 pilares: Arena (1v1 NPCs), Torneios (sequência escalável) e Dungeon
+      (exploração). Em definição de modelo de combate e fichas de entrada.
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).

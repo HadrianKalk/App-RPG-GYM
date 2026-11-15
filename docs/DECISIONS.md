@@ -110,3 +110,17 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
 39. **Guia de execução ("?") em cada exercício:** passo a passo de execução e
     postura em `exercise.<id>.guide` (pt-BR e en) exibido em modal pixel a
     partir do treino ativo, seletor de exercícios e editor de rotinas.
+40. **Combate sem XP (regras-base da Arena / Dungeon / Torneios):**
+    - Nenhum modo de combate concede XP. Toda evolução numérica (nível e
+      atributos) vem exclusivamente de hábitos e esforço no mundo real.
+    - Recompensas dos modos de combate: **itens cosméticos e títulos**.
+    - Pilares planejados: **Arena** (duelos 1v1 contra NPCs), **Torneios**
+      (chaves com múltiplos adversários escalando conforme o nível do torneio)
+      e **Dungeon** (exploração por salas/nós usando todos os 6 atributos).
+41. **Seleção de classe com pré-requisito de atributos (backlog):**
+    - Em níveis mais altos, quando múltiplos atributos estiverem bem evoluídos,
+      o jogador poderá escolher/alternar livremente entre as classes que já
+      desbloqueou.
+    - Regra de coerência mantida: uma classe só é desbloqueada quando o jogador
+      possui os atributos reais compatíveis com ela (não é possível ser Mago
+      treinando apenas Força).
