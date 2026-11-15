@@ -99,3 +99,14 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
       preservando o livro-razão append-only.
     - Check-in diário de nutrição (1× por dia): Plano cumprido (+25 XP base,
       +10 min na missão de CON) ou Parcial (+12 XP base, +5 min na missão).
+38. **Curva diária unificada por atributo (anti-burla sem frustrar):**
+    - Todas as fontes de esforço (`workoutSet`, `pomodoroStudy`, `sleep`,
+      `activity`, `hydration`, `nutrition`) passam pela curva diária do
+      atributo: `0–60: 100%`, `60–120: 75%`, `120–180: 50%`, `180–300: 25%`,
+      `300+: 0%` (teto diário de 165 XP de esforço por atributo).
+    - Bônus motivacionais (`personalRecord`, `dailyQuest`, `weeklyBonus`,
+      bônus de meta de água) **nunca** sofrem redução e **não** consomem a
+      curva de esforço diário.
+39. **Guia de execução ("?") em cada exercício:** passo a passo de execução e
+    postura em `exercise.<id>.guide` (pt-BR e en) exibido em modal pixel a
+    partir do treino ativo, seletor de exercícios e editor de rotinas.

@@ -73,6 +73,17 @@ class GameText {
   String muscle(MuscleGroup m) => t('muscle.${m.name}');
   String equipment(Equipment e) => t('equipment.${e.name}');
 
+  /// Step-by-step execution cues for a catalog exercise (`exercise.<id>.guide`).
+  List<String> exerciseSteps(String id) {
+    final raw = t('exercise.$id.guide', fallback: '');
+    if (raw.isEmpty) return const [];
+    return raw
+        .split('\n')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
+  }
+
   // --- Activities -----------------------------------------------------------
   /// Catalog activities are translated by id (`activity.<id>.name` / `.description`).
   String activityName(String id, {String? fallback}) =>

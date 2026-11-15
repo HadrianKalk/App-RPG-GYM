@@ -50,6 +50,7 @@ final class WorkoutSummary {
     this.streakWeeks = 0,
     this.progress,
     this.repeatedDay = false,
+    this.curveReduced = false,
   });
 
   final String sessionId;
@@ -80,6 +81,9 @@ final class WorkoutSummary {
   /// True when today was already a training day: weekly bonuses are only
   /// granted on the first workout of each day.
   final bool repeatedDay;
+
+  /// True when any attribute's set XP was scaled down by the daily curve.
+  final bool curveReduced;
 
   double get recordXp => records.fold(0.0, (sum, r) => sum + r.bonusXp);
   double get weeklyXp => weeklyBonuses.fold(0.0, (sum, b) => sum + b.xp);
@@ -250,11 +254,13 @@ class WorkoutRepository {
     }
 
     final exercises = {for (final e in await getExercises(sets.map((s) => s.exerciseId).toSet().toList())) e.id: e};
+    final rawXpByAttribute = <Attribute, double>{};
     final xpByAttribute = <Attribute, double>{};
     final setsByAttribute = <Attribute, int>{};
     final runningMarks = <String, RecordMarks?>{};
     final records = <String, AchievedRecord>{};
     var setXp = 0.0;
+    var curveReduced = false;
 
     for (final set in sets) {
       final exercise = exercises[set.exerciseId];
@@ -266,9 +272,8 @@ class WorkoutRepository {
       final xp = exercise.tracking == SetTracking.duration
           ? XpCalculator.calculateDurationSetXp(durationSeconds: set.durationSeconds, intensity: intensity)
           : XpCalculator.calculateWorkoutSetXp(intensity: intensity);
-      xpByAttribute[attr] = (xpByAttribute[attr] ?? 0) + xp;
+      rawXpByAttribute[attr] = (rawXpByAttribute[attr] ?? 0) + xp;
       setsByAttribute[attr] = (setsByAttribute[attr] ?? 0) + 1;
-      setXp += xp;
 
       // Records only exist for loaded sets.
       if (exercise.tracking != SetTracking.weightReps) continue;
@@ -291,6 +296,18 @@ class WorkoutRepository {
       );
     }
 
+    // Apply the per-attribute daily diminishing-returns curve to set effort XP.
+    for (final entry in rawXpByAttribute.entries) {
+      final alreadyToday = await _characterRepo.getMinutesOrXpLoggedToday(entry.key);
+      final curve = XpCalculator.applyDailyCurve(
+        alreadyLoggedToday: alreadyToday,
+        rawEffortXp: entry.value,
+      );
+      xpByAttribute[entry.key] = curve.earnedXp;
+      setXp += curve.earnedXp;
+      if (curve.wasReduced) curveReduced = true;
+    }
+
     // Persist the improved marks.
     for (final entry in runningMarks.entries) {
       final marks = entry.value;
@@ -309,6 +326,7 @@ class WorkoutRepository {
 
     // Ledger: one entry per attribute for sets, one per PR bonus.
     for (final entry in xpByAttribute.entries) {
+      if (entry.value <= 0) continue;
       await _characterRepo.addXp(
         XpEvent(
           id: 'workout_${sessionId}_${entry.key.name}',
@@ -341,7 +359,7 @@ class WorkoutRepository {
     final weekly = alreadyTrainedToday
         ? const <WeeklyBonus>[]
         : WeeklyProgress.bonusesFor(trainingDay: trainingDay, goal: goal, streakWeeks: streak);
-    await _grantWeeklyBonuses(sessionId, now, weekly, xpByAttribute);
+    await _grantWeeklyBonuses(sessionId, now, weekly, rawXpByAttribute);
 
     final quests = await _questRepo.applyCredit(
       QuestProgress.fromWorkout(completedSetsByAttribute: setsByAttribute, sessionDuration: duration),
@@ -362,6 +380,7 @@ class WorkoutRepository {
       streakWeeks: streak,
       progress: ProgressDiff.between(xpBefore, xpAfter),
       repeatedDay: alreadyTrainedToday,
+      curveReduced: curveReduced,
     );
   }
 

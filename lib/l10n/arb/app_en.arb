@@ -232,5 +232,10 @@
   "intensityHardLabel": "Hard",
   "customActivitySubmit": "Complete & claim XP",
   "activityRewardTitle": "Activity Complete!",
-  "activityRewardBaseLine": "{name} ({minutes} min)"
+  "activityRewardBaseLine": "{name} ({minutes} min)",
+  "exerciseGuideTooltip": "How to perform",
+  "exerciseGuideTitle": "Execution Guide",
+  "exerciseGuideStepsTitle": "Step-by-step & Form",
+  "exerciseGuideSpriteNote": "Pixel-art movement illustration coming soon.",
+  "dailyCurveNote": "Daily Stamina: part of today's effort entered this attribute's recovery curve. Your records, quests and bonuses still count 100%!"
 }

@@ -1495,6 +1495,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{name} ({minutes} min)'**
   String activityRewardBaseLine(String name, int minutes);
+
+  /// No description provided for @exerciseGuideTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Como executar'**
+  String get exerciseGuideTooltip;
+
+  /// No description provided for @exerciseGuideTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guia de Execução'**
+  String get exerciseGuideTitle;
+
+  /// No description provided for @exerciseGuideStepsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Passo a passo & Postura'**
+  String get exerciseGuideStepsTitle;
+
+  /// No description provided for @exerciseGuideSpriteNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ilustração em pixel art do movimento em breve.'**
+  String get exerciseGuideSpriteNote;
+
+  /// No description provided for @dailyCurveNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!'**
+  String get dailyCurveNote;
 }
 
 class _AppLocalizationsDelegate

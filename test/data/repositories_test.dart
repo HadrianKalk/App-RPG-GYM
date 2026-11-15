@@ -442,10 +442,29 @@ void main() {
     });
 
     test('summary reports level and attribute increases', () async {
+      // Yesterday's XP brings the hero close to STR 11 (300 XP) and Level 2 (380 XP).
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      await charRepo.addXp(
+        XpEvent(
+          id: 'prev_str',
+          attribute: Attribute.strength,
+          amount: 260,
+          source: XpSource.workoutSet,
+          timestamp: yesterday,
+        ),
+      );
+      await charRepo.addXp(
+        XpEvent(
+          id: 'prev_int',
+          attribute: Attribute.intelligence,
+          amount: 50,
+          source: XpSource.pomodoroStudy,
+          timestamp: yesterday,
+        ),
+      );
+
       final session = await workoutRepo.startWorkoutSession(title: 'Big');
-      // 80 sets x 4 XP = 320 XP of STR (+ weekly bonus): STR 10 -> 11 (300 XP)
-      // and total XP above 380 -> level 2.
-      for (var i = 0; i < 80; i++) {
+      for (var i = 0; i < 15; i++) {
         await workoutRepo.saveWorkoutSet(
           id: 'b$i', sessionId: session.id, exerciseId: 'ex_agachamento_livre_barra', setOrder: i + 1,
           weightKg: 0, reps: 10, isCompleted: true,
@@ -454,6 +473,41 @@ void main() {
       final summary = await workoutRepo.completeWorkoutSession(session.id);
       expect(summary.progress!.attributes.any((a) => a.attribute == Attribute.strength && a.to > a.from), isTrue);
       expect(summary.progress!.leveledUp, isTrue);
+    });
+
+    test('workout sets obey per-attribute daily curve while PR bonuses stay 100%', () async {
+      // Establish baseline PR yesterday so today's heavier set triggers a PR bonus.
+      await db.into(db.personalRecords).insert(
+            PersonalRecordsCompanion.insert(
+              exerciseId: 'ex_supino_reto_barra',
+              maxWeightKg: 50,
+              estimatedOneRepMax: 60,
+              repsAtMaxWeight: 5,
+              achievedAt: DateTime.now().subtract(const Duration(days: 2)),
+            ),
+          );
+
+      // 30 sets x 4 XP = 120 raw STR XP -> 60 (100%) + 60*0.75 (45) = 105 set XP.
+      final session = await workoutRepo.startWorkoutSession(title: 'Curve');
+      for (var i = 0; i < 30; i++) {
+        await workoutRepo.saveWorkoutSet(
+          id: 'c$i',
+          sessionId: session.id,
+          exerciseId: 'ex_supino_reto_barra',
+          setOrder: i + 1,
+          weightKg: 60,
+          reps: 5,
+          isCompleted: true,
+        );
+      }
+      final summary = await workoutRepo.completeWorkoutSession(session.id);
+      expect(summary.setXp, 105);
+      expect(summary.curveReduced, isTrue);
+      expect(summary.recordXp, 25, reason: 'PR bonus is never reduced by the daily curve');
+
+      // Intelligence is a different attribute -> still gets 100% efficiency today!
+      final intXp = await activityRepo.logPomodoroStudy(durationMinutes: 50);
+      expect(intXp, 50);
     });
   });
 }

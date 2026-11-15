@@ -3,6 +3,21 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Curva diária unificada por atributo + Guia "?" nos exercícios
+- **Motor (`xp_calculator.dart`, `xp_rules.dart`, `xp_event.dart`):** curva
+  diária de retornos decrescentes por atributo (`0–60: 100%`, `60–120: 75%`,
+  `120–180: 50%`, `180–300: 25%`, `300+: 0%`, teto de 165 XP de esforço/dia por
+  atributo) aplicada também às séries de treino (`WorkoutRepository`). Bônus
+  motivacionais (`personalRecord`, `dailyQuest`, `weeklyBonus`, meta de água)
+  são 100% preservados e não consomem a curva (`XpSource.isEffort`).
+- **Guia de execução ("?") nos 64 exercícios:** `exercise_guide_sheet.dart` com
+  `ExerciseHelpButton` no treino ativo, seletor de exercícios e editor de
+  rotinas; passo a passo em 3 etapas (`exercise.<id>.guide`) traduzido em
+  pt-BR e en.
+- **Regra adicionada em `AGENTS.md`:** sempre recomendar o modelo e nível de
+  intensidade ideal ao sugerir a próxima etapa ao usuário.
+- **Testes:** 91 testes passando, `flutter analyze` limpo.
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 4: catálogo de atividades, hidratação e nutrição em CON
 - **Motor (`lib/core/game/activity_catalog.dart`):** catálogo de atividades
   (`ActivityCatalog`, 12 hábitos cobrindo INT, SAB, CAR, DES e CON) e regras de

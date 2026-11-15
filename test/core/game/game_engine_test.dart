@@ -44,6 +44,27 @@ void main() {
       final prSet = XpCalculator.calculateWorkoutSetXp(intensity: 1.0, isPersonalRecord: true);
       expect(prSet, equals(29.0)); // 4.0 + 25.0
     });
+
+    test('Curva diária zera após o teto de 300 unidades de esforço (máx 165 XP/dia por atributo)', () {
+      // 0..60 (100%) = 60
+      // 60..120 (75%) = 45
+      // 120..180 (50%) = 30
+      // 180..300 (25%) = 30
+      // 300+ (0%) = 0 -> Total = 165.0
+      final curve = XpCalculator.applyDailyCurve(
+        alreadyLoggedToday: 0.0,
+        rawEffortXp: 500.0,
+      );
+      expect(curve.earnedXp, equals(165.0));
+      expect(curve.wasReduced, isTrue);
+
+      final capped = XpCalculator.applyDailyCurve(
+        alreadyLoggedToday: 300.0,
+        rawEffortXp: 40.0,
+      );
+      expect(capped.earnedXp, equals(0.0));
+      expect(capped.reachedCap, isTrue);
+    });
   });
 
   group('Progression - Atributos e Niveis D&D', () {

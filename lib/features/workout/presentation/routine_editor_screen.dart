@@ -10,6 +10,7 @@ import '../../../core/game/routine.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
+import 'exercise_guide_sheet.dart';
 import 'exercise_picker_sheet.dart';
 import 'workout_format.dart';
 
@@ -214,6 +215,8 @@ class _TargetEditor extends StatelessWidget {
                 ),
               ),
               Expanded(child: Text(game.exerciseName(ex.id, ex.name), style: display.style(20))),
+              ExerciseHelpButton(exercise: ex),
+              const SizedBox(width: 6),
               PixelTag(text: game.attributeCode(ex.attribute), color: AppTheme.attributeColor(ex.attribute), fontSize: 14),
               IconButton(
                 tooltip: l10n.editorRemove,

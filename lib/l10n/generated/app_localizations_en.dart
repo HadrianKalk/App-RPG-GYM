@@ -879,4 +879,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String activityRewardBaseLine(String name, int minutes) {
     return '$name ($minutes min)';
   }
+
+  @override
+  String get exerciseGuideTooltip => 'How to perform';
+
+  @override
+  String get exerciseGuideTitle => 'Execution Guide';
+
+  @override
+  String get exerciseGuideStepsTitle => 'Step-by-step & Form';
+
+  @override
+  String get exerciseGuideSpriteNote =>
+      'Pixel-art movement illustration coming soon.';
+
+  @override
+  String get dailyCurveNote =>
+      'Daily Stamina: part of today\'s effort entered this attribute\'s recovery curve. Your records, quests and bonuses still count 100%!';
 }

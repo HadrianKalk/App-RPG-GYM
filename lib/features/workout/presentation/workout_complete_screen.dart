@@ -238,6 +238,10 @@ class _WorkoutCompleteScreenState extends State<WorkoutCompleteScreen> with Tick
                               const SizedBox(height: 6),
                               Text(l10n.rewardsNoWeeklyBonus, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 11)),
                             ],
+                            if (s.curveReduced) ...[
+                              const SizedBox(height: 6),
+                              Text(l10n.dailyCurveNote, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 11)),
+                            ],
                           ],
                         ),
                       ),

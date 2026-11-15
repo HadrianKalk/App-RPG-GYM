@@ -2,27 +2,28 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 4 concluída
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Curva diária unificada + Guia "?" nos exercícios
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
 
 ## O que existe
-- Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes,
-  progressão de atributos (base 10) e níveis 1–20, 15 classes emergentes +
-  Aventureiro, missões diárias determinísticas e Inspiração.
-- Persistência Drift/SQLite: exercícios (seed 60+ pt-BR), treinos, séries, PRs
-  (1RM Epley), atividades, saúde diária (água, dieta, sono), livro-razão de XP,
-  missões.
-- Telas: Herói, Treino (estilo Hevy, timer de descanso), Atividades (Pomodoro,
-  hidratação, nutrição, sono, catálogo CAR/DES/SAB/INT/CON e atividade
-  personalizada), Missões.
+- Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
+  unificados por atributo (treinos e atividades, bônus isentos), progressão de
+  atributos (base 10) e níveis 1–20, 15 classes emergentes + Aventureiro,
+  missões diárias determinísticas e Inspiração.
+- Persistência Drift/SQLite: exercícios (seed 64 pt-BR + en com guia passo a
+  passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária (água,
+  dieta, sono), livro-razão de XP, missões.
+- Telas: Herói, Treino (estilo Hevy, timer de descanso, botão "?" de execução),
+  Atividades (Pomodoro, hidratação, nutrição, sono, catálogo CAR/DES/SAB/INT/CON
+  e atividade personalizada), Missões.
 - Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
 - Visual pixel art, pt-BR + inglês, configurações e créditos.
 - Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
   por tempo, recordes calculados ao finalizar.
 - Histórico, calendário, recordes, sequência semanal e tela de recompensas.
-- 88 testes passando; `flutter analyze` limpo.
+- 91 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
@@ -36,7 +37,10 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - [x] **Etapa 4:** registro de atividades genérico (catálogo: CAR, DES, CON,
       SAB, INT + atividade personalizada) + saúde em CON (água e dieta) +
       modal de recompensas completo.
-- [ ] Botão "?" em cada exercício (passo a passo; imagens a definir).
+- [x] **Curva diária unificada por atributo** (séries de treino + atividades,
+      teto diário de esforço e bônus 100% preservados).
+- [x] **Botão "?" em cada exercício** (passo a passo de execução e postura nos
+      64 exercícios em pt-BR e en; ilustrações pixel a definir).
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
 - [ ] **Proposta: Arena de Treino** (combate tático por turnos, offline, sem
       IA; números do motor). Aguardando decisões do usuário: XP ou não,

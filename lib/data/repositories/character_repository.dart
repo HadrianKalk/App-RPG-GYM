@@ -99,7 +99,9 @@ class CharacterRepository {
     final records = await query.get();
     double total = 0.0;
     for (final r in records) {
-      total += r.amount;
+      if (r.source.isEffort) {
+        total += r.amount;
+      }
     }
     return total;
   }

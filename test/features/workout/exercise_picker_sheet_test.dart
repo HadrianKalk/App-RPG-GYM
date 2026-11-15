@@ -72,4 +72,16 @@ void main() {
     await tester.pump();
     expect(find.text('Agachamento Livre com Barra'), findsOneWidget);
   });
+
+  testWidgets('tapping "?" opens the step-by-step execution guide', (tester) async {
+    await tester.pumpWidget(_picker('pt'));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('help_ex_supino_reto_barra')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Guia de Execução'), findsOneWidget);
+    expect(find.text('Passo a passo & Postura'), findsOneWidget);
+    expect(find.textContaining('escápulas retraídas'), findsOneWidget);
+  });
 }

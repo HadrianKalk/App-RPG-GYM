@@ -16,6 +16,7 @@ import '../../../data/repositories/providers.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../l10n/l10n.dart';
 import '../application/active_workout_controller.dart';
+import 'exercise_guide_sheet.dart';
 import 'exercise_picker_sheet.dart';
 import 'workout_complete_screen.dart';
 import 'workout_format.dart';
@@ -308,6 +309,8 @@ class _ExerciseCard extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text(game.exerciseName(ex.id, ex.name), style: display.style(22))),
+              ExerciseHelpButton(exercise: ex),
+              const SizedBox(width: 6),
               PixelTag(text: game.attributeCode(ex.attribute), color: AppTheme.attributeColor(ex.attribute), fontSize: 15),
               PopupMenuButton<String>(
                 padding: EdgeInsets.zero,

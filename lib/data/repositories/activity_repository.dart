@@ -21,6 +21,7 @@ final class ActivityRewardResult {
     this.activityId,
     this.customTitle,
     this.durationMinutes = 0,
+    this.curveReduced = false,
   });
 
   final Attribute attribute;
@@ -45,6 +46,9 @@ final class ActivityRewardResult {
 
   /// Logged duration in minutes, if applicable.
   final int durationMinutes;
+
+  /// True when the per-attribute daily curve scaled down the base effort XP.
+  final bool curveReduced;
 
   double get questXp =>
       completedQuests.fold(0.0, (sum, quest) => sum + quest.bonusXp);
@@ -205,12 +209,19 @@ class ActivityRepository {
     if (update.totalXp <= 0) return null;
 
     final now = DateTime.now();
-    if (update.cupXp > 0) {
+    final alreadyToday =
+        await _characterRepo.getMinutesOrXpLoggedToday(Attribute.constitution);
+    final cupCurve = XpCalculator.applyDailyCurve(
+      alreadyLoggedToday: alreadyToday,
+      rawEffortXp: update.cupXp,
+    );
+
+    if (cupCurve.earnedXp > 0) {
       await _characterRepo.addXp(
         XpEvent(
           id: _nextId('xp_water', now),
           attribute: Attribute.constitution,
-          amount: update.cupXp,
+          amount: cupCurve.earnedXp,
           source: XpSource.hydration,
           timestamp: now,
           description: 'hydration:cup:${update.cups}',
@@ -236,10 +247,11 @@ class ActivityRepository {
 
     return ActivityRewardResult(
       attribute: Attribute.constitution,
-      baseXp: update.cupXp,
+      baseXp: cupCurve.earnedXp,
       bonusXp: update.goalBonusXp,
       completedQuests: completedQuests,
       progress: ProgressDiff.between(before, after),
+      curveReduced: cupCurve.wasReduced,
     );
   }
 
@@ -296,6 +308,7 @@ class ActivityRepository {
       baseXp: earnedXp,
       completedQuests: completedQuests,
       progress: ProgressDiff.between(before, after),
+      curveReduced: earnedXp + 0.01 < reward.baseXp,
     );
   }
 
@@ -414,6 +427,7 @@ class ActivityRepository {
     final completedQuests = await _questRepo.applyCredit(credit);
     final after = (await _characterRepo.watchCharacter().first).totalXpMap;
 
+    final rawEffortXp = durationMinutes * intensity;
     return ActivityRewardResult(
       attribute: attribute,
       baseXp: earnedXp,
@@ -422,6 +436,7 @@ class ActivityRepository {
       activityId: activityId,
       customTitle: customTitle,
       durationMinutes: displayMinutes,
+      curveReduced: earnedXp + 0.01 < rawEffortXp,
     );
   }
 }

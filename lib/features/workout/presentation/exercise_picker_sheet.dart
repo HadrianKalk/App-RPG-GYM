@@ -8,6 +8,7 @@ import '../../../core/game/exercise_taxonomy.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
+import 'exercise_guide_sheet.dart';
 
 /// Bottom sheet to pick an exercise, with search and muscle filter.
 ///
@@ -108,10 +109,17 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                                     '${game.muscle(ex.muscleGroup)} · ${game.equipment(ex.equipment)}',
                                     style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
                                   ),
-                                  trailing: PixelTag(
-                                    text: game.attributeCode(ex.attribute),
-                                    color: AppTheme.attributeColor(ex.attribute),
-                                    fontSize: 15,
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ExerciseHelpButton(exercise: ex),
+                                      const SizedBox(width: 8),
+                                      PixelTag(
+                                        text: game.attributeCode(ex.attribute),
+                                        color: AppTheme.attributeColor(ex.attribute),
+                                        fontSize: 15,
+                                      ),
+                                    ],
                                   ),
                                   onTap: () => Navigator.of(context).pop(ex),
                                 );

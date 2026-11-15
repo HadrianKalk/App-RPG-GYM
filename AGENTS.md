@@ -22,6 +22,11 @@ para o outro.
 3. Atualizar `docs/STATUS.md` se o estado/próximos passos mudaram.
 4. Se uma decisão de design/arquitetura foi tomada, registrar em `docs/DECISIONS.md`.
 5. Commit + push. Trabalho não enviado ao GitHub = trabalho perdido para o outro agente.
+6. **Ao sugerir a próxima etapa ao usuário:** sempre indicar junto qual modelo e
+   nível de intensidade são ideais para executá-la, visando o melhor
+   custo-benefício para o caso (ex.: *"Para esse caso, o modelo ideal é Gemini 4
+   Argon (Medium), pois ele cumpre todos os papéis e tem o melhor
+   custo-benefício."*).
 
 Formato da entrada do DEVLOG:
 ```

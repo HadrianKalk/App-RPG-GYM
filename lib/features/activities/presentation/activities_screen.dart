@@ -945,6 +945,13 @@ class _ActivityRewardDialog extends StatelessWidget {
               color: AppTheme.emberGold,
             ),
           ],
+          if (result.curveReduced) ...[
+            const SizedBox(height: 8),
+            Text(
+              l10n.dailyCurveNote,
+              style: const TextStyle(color: AppTheme.dullSilver, fontSize: 11),
+            ),
+          ],
           if (result.progress.leveledUp) ...[
             const SizedBox(height: 10),
             PixelFrame(

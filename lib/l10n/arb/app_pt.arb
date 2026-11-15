@@ -652,5 +652,10 @@
         "type": "int"
       }
     }
-  }
+  },
+  "exerciseGuideTooltip": "Como executar",
+  "exerciseGuideTitle": "Guia de Execução",
+  "exerciseGuideStepsTitle": "Passo a passo & Postura",
+  "exerciseGuideSpriteNote": "Ilustração em pixel art do movimento em breve.",
+  "dailyCurveNote": "Fôlego do Dia: parte do esforço entrou na curva diária de recuperação deste atributo. Seus recordes, missões e bônus continuam valendo 100%!"
 }

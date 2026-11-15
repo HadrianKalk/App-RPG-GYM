@@ -19,15 +19,17 @@ abstract final class XpRules {
 
   // --- Retornos Decrescentes Diários (por atributo) ---
   // Evita "grind" abusivo e valoriza consistência sobre excessos.
-  static const double tier1MaxMinutes = 60.0;  // 0 - 60 min -> 100%
-  static const double tier2MaxMinutes = 120.0; // 60 - 120 min -> 75%
-  static const double tier3MaxMinutes = 180.0; // 120 - 180 min -> 50%
-  // 180 min+ -> 25%
+  static const double tier1MaxMinutes = 60.0;  // 0 - 60 -> 100%
+  static const double tier2MaxMinutes = 120.0; // 60 - 120 -> 75%
+  static const double tier3MaxMinutes = 180.0; // 120 - 180 -> 50%
+  static const double tier4MaxMinutes = 300.0; // 180 - 300 -> 25%
+  // 300+ -> 0% (teto diário de esforço por atributo atingido)
 
   static const double tier1Efficiency = 1.0;
   static const double tier2Efficiency = 0.75;
   static const double tier3Efficiency = 0.50;
   static const double tier4Efficiency = 0.25;
+  static const double tier5Efficiency = 0.0;
 
   // --- Missões Diárias ---
   /// Horas de sono que completam sozinhas a missão de Constituição.

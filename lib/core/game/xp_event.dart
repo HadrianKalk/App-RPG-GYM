@@ -17,7 +17,27 @@ enum XpSource {
   hydration,
 
   /// Daily nutrition / diet adherence check-in.
-  nutrition,
+  nutrition;
+
+  /// True for daily effort sources that count toward and are subject to the
+  /// per-attribute daily diminishing-returns curve.
+  ///
+  /// Motivational milestones (personal records, daily quests, weekly bonuses)
+  /// are exempt so they never lose value or eat into the player's effort pool.
+  bool get isEffort => switch (this) {
+        XpSource.workoutSet ||
+        XpSource.pomodoroStudy ||
+        XpSource.sleep ||
+        XpSource.activity ||
+        XpSource.hydration ||
+        XpSource.nutrition =>
+          true,
+        XpSource.personalRecord ||
+        XpSource.dailyQuest ||
+        XpSource.weeklyBonus ||
+        XpSource.penaltyAtrophy =>
+          false,
+      };
 }
 
 /// Representa uma transação imutável no "Livro-Razão" de XP do herói.

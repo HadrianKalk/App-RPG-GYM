@@ -27,7 +27,7 @@ void main() {
       for (final t in QuestCatalog.templates.values) 'questUnit.${t.unit}',
       for (final m in MuscleGroup.values) 'muscle.${m.name}',
       for (final e in Equipment.values) 'equipment.${e.name}',
-      for (final e in ExerciseSeed.defaultExercises) 'exercise.${e.id}',
+      for (final e in ExerciseSeed.defaultExercises) ...['exercise.${e.id}', 'exercise.${e.id}.guide'],
       for (final a in ActivityCatalog.entries) ...['activity.${a.id}.name', 'activity.${a.id}.description'],
     ];
     for (final lang in GameText.supportedLanguages) {
