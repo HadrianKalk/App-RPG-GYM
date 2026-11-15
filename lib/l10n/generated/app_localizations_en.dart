@@ -1147,4 +1147,218 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tournamentVictoryTitle => 'Tournament Champion!';
+
+  @override
+  String get navCombat => 'Combat';
+
+  @override
+  String get combatHubTitle => 'Combat Hub';
+
+  @override
+  String get combatHubSubtitle =>
+      'Put your real-world attributes to the test in duels, tournaments, and dungeons (zero XP — prestige rewards).';
+
+  @override
+  String get combatBackToHub => 'Back to Modes';
+
+  @override
+  String get combatModeStoryTitle => 'Story Mode · Forge Chronicles';
+
+  @override
+  String get combatModeStoryBadge => 'COMING SOON · PHASE 2';
+
+  @override
+  String get combatModeStoryDescription =>
+      'Dark narrative campaign guided by the Game Master. Your choices, your origin, and the real level of your 6 attributes will unlock unique paths, dialogues, and trials.';
+
+  @override
+  String get combatModeDuelsTitle => 'Duel Arena (1v1)';
+
+  @override
+  String get combatModeDuelsDescription =>
+      'Tactical turn-based 1v1 duels against Forge champions. Roll d20 + your primary attribute against the enemy\'s Armor Class (AC), unleash your class skill, and claim exclusive titles and cosmetics.';
+
+  @override
+  String get combatModeDuelsButton => 'Enter 1v1 Arena';
+
+  @override
+  String get combatModeTournamentsTitle => 'Forge Tournaments (Gauntlet)';
+
+  @override
+  String combatModeTournamentsBadge(int won, int total) {
+    return 'Tournaments: $won/$total';
+  }
+
+  @override
+  String get combatModeTournamentsDescription =>
+      'Multi-round elimination brackets fought sequentially. Opponents scale in power with each league and your hero recovers only part of their HP (+35%) and Focus (+50%) between fights.';
+
+  @override
+  String get combatModeTournamentsButton => 'View Tournament Brackets';
+
+  @override
+  String get combatModeDungeonsTitle => 'Deep Dungeons';
+
+  @override
+  String combatModeDungeonsBadge(int completed, int total) {
+    return 'Dungeons: $completed/$total';
+  }
+
+  @override
+  String get combatModeDungeonsDescription =>
+      'Explore hazardous chambers filled with traps, arcane riddles, and trials that test all 6 attributes on the d20 before facing the Dungeon Boss.';
+
+  @override
+  String get combatModeDungeonsButton => 'Explore Dungeons';
+
+  @override
+  String combatArmorClassLabel(int ac) {
+    return 'AC $ac';
+  }
+
+  @override
+  String get combatD20CritTitle => 'NATURAL 20! CRITICAL HIT (2× DAMAGE)!';
+
+  @override
+  String get combatD20FumbleTitle => 'NATURAL 1! CRITICAL FUMBLE!';
+
+  @override
+  String combatD20HitTitle(int total, int ac) {
+    return 'HIT! (Total $total vs AC $ac)';
+  }
+
+  @override
+  String combatD20MissTitle(int total, int ac) {
+    return 'MISS! (Total $total vs AC $ac)';
+  }
+
+  @override
+  String combatD20Formula(
+    int roll,
+    String attr,
+    String mod,
+    int prof,
+    int total,
+    String targetLabel,
+    int target,
+  ) {
+    return 'd20 ($roll) + $attr ($mod) + Prof (+$prof) = $total vs $targetLabel $target';
+  }
+
+  @override
+  String combatLogHeroFumble(int turn, int dmg) {
+    return 'T$turn: CRITICAL FUMBLE (Nat 1)! You left your guard open and took $dmg damage!';
+  }
+
+  @override
+  String get dungeonEnterButton => 'Explore Dungeon (1 token)';
+
+  @override
+  String dungeonRoomsBadge(int rooms) {
+    return '$rooms rooms + Boss';
+  }
+
+  @override
+  String dungeonRoomProgress(int current, int total) {
+    return 'Room $current/$total';
+  }
+
+  @override
+  String dungeonDifficultyLabel(int dc) {
+    return 'DC $dc';
+  }
+
+  @override
+  String dungeonRoomCheckButton(String attr, int dc) {
+    return 'Roll d20 + $attr (DC $dc)';
+  }
+
+  @override
+  String get dungeonRoomBypassButton => 'Cautious Bypass (-5% HP, -3 Focus)';
+
+  @override
+  String get dungeonRoomBlessingTitle => 'Trial Overcome!';
+
+  @override
+  String dungeonRoomBlessingBody(String attr, int hp) {
+    return 'Your mastery of $attr cleared the way! You recovered +$hp HP, +Focus, and gained +1 Blessing for the Boss.';
+  }
+
+  @override
+  String get dungeonRoomTrapTitle => 'Trap Triggered!';
+
+  @override
+  String dungeonRoomTrapBody(int dmg) {
+    return 'The trial took its toll: you suffered $dmg damage crossing the chamber.';
+  }
+
+  @override
+  String get dungeonRoomBypassTitle => 'Cautious Passage';
+
+  @override
+  String dungeonRoomBypassBody(int dmg) {
+    return 'You bypassed the hazard via the long route, spending $dmg HP and 3 Focus.';
+  }
+
+  @override
+  String dungeonNextRoomButton(int next) {
+    return 'Advance to Room $next';
+  }
+
+  @override
+  String get dungeonEnterBossButton => 'Face the Dungeon Boss';
+
+  @override
+  String get dungeonVictoryTitle => 'Dungeon Conquered!';
+
+  @override
+  String heroDungeonLockedHint(String dungeon) {
+    return 'Conquer $dungeon to unlock';
+  }
+
+  @override
+  String get testerButtonLabel => 'Tester Mode';
+
+  @override
+  String get testerActiveBadge => 'TESTER ACTIVE';
+
+  @override
+  String get testerSheetTitle => 'Tester Panel (Sandbox)';
+
+  @override
+  String get testerSheetSubtitle =>
+      'Edit attributes, tokens, and the d20 roll in memory to test combat and classes without altering your real XP history.';
+
+  @override
+  String get testerEnableSwitch => 'Enable Tester attribute override';
+
+  @override
+  String get testerInfiniteTokens => 'Infinite Combat Tokens';
+
+  @override
+  String get testerInspirationLabel => 'Heroic Inspiration';
+
+  @override
+  String get testerDiceModeTitle => 'd20 Roll Mode';
+
+  @override
+  String get testerDiceRandom => 'Random (1d20)';
+
+  @override
+  String get testerDiceForce20 => 'Force 20 (Critical)';
+
+  @override
+  String get testerDiceForce1 => 'Force 1 (Fumble)';
+
+  @override
+  String get testerPresetNovice => 'Novice (10)';
+
+  @override
+  String get testerPresetBalanced => 'Veteran (16)';
+
+  @override
+  String get testerPresetLegend => 'Legend (22)';
+
+  @override
+  String get testerResetButton => 'Restore Real Attributes';
 }

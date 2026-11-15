@@ -10,14 +10,12 @@ import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
 import '../../../core/game/attributes.dart';
-import '../../../core/game/combat.dart';
 import '../../../core/game/hero_profile.dart';
 import '../../../core/game/progression.dart';
 import '../../../data/repositories/character_repository.dart';
-import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
-import '../../arena/presentation/arena_screen.dart';
+import '../../settings/presentation/tester_panel_sheet.dart';
 import 'hero_customization_sheet.dart';
 import 'streak_card.dart';
 
@@ -29,12 +27,16 @@ class CharacterScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final characterAsync = ref.watch(characterStreamProvider);
     final hero = ref.watch(heroStreamProvider).valueOrNull;
-    final arena = ref.watch(arenaStateStreamProvider).valueOrNull;
+    final tester = ref.watch(testerModeProvider);
 
     return Scaffold(
       appBar: const GameAppBar(title: AppBrand.fullTitle),
       body: characterAsync.when(
-        data: (char) => _HeroSheet(char: char, hero: hero, arena: arena),
+        data: (char) => _HeroSheet(
+          char: char,
+          hero: hero,
+          testerEnabled: tester.enabled,
+        ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text(context.l10n.loadError('$err'))),
       ),
@@ -46,12 +48,12 @@ class _HeroSheet extends StatelessWidget {
   const _HeroSheet({
     required this.char,
     required this.hero,
-    required this.arena,
+    required this.testerEnabled,
   });
 
   final CharacterState char;
   final HeroProfile? hero;
-  final ArenaState? arena;
+  final bool testerEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -185,57 +187,26 @@ class _HeroSheet extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 12),
-        // --- Forge Arena Banner ------------------------------------------
-        PixelFrame(
-          key: const Key('open_arena_card'),
-          color: AppTheme.darkBlood,
-          onTap: () => Navigator.of(context, rootNavigator: true).push(
-            MaterialPageRoute(builder: (_) => const ArenaScreen()),
-          ),
-          child: Row(
-            children: [
-              const PixelIcon(PixelIcons.swords, size: 28, color: AppTheme.emberGold),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.arenaBannerTitle, style: display.style(22, color: AppTheme.emberGold)),
-                    Text(
-                      l10n.arenaBannerSubtitle,
-                      style: const TextStyle(color: AppTheme.ashWhite, fontSize: 11),
-                    ),
-                    if (arena != null) ...[
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: [
-                          PixelTag(
-                            text: l10n.arenaTokensBadge(
-                              arena!.entriesRemainingToday,
-                              arena!.totalEntriesToday,
-                            ),
-                            color: AppTheme.emberGold,
-                          ),
-                          PixelTag(
-                            text: l10n.arenaChampionsBadge(
-                              arena!.defeatedChampionsCount,
-                              ArenaCatalog.opponents.length,
-                            ),
-                            color: AppTheme.dullSilver,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
+        if (testerEnabled) ...[
+          const SizedBox(height: 12),
+          PixelFrame(
+            highlight: true,
+            onTap: () => showTesterPanelSheet(context),
+            child: Row(
+              children: [
+                const PixelIcon(PixelIcons.gear, size: 20, color: AppTheme.emberGold),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.testerActiveBadge,
+                    style: display.style(18, color: AppTheme.emberGold),
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right, color: AppTheme.emberGold, size: 28),
-            ],
+                const Icon(Icons.chevron_right, color: AppTheme.emberGold),
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

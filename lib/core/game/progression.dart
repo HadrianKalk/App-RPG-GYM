@@ -52,6 +52,16 @@ abstract final class Progression {
     return XpRules.attributeCostBase * math.pow(diff, XpRules.attributeCostExponent);
   }
 
+  /// Minimum cumulative XP required to reach [targetScore] from [XpRules.baseAttributeScore].
+  static double xpForAttributeScore(int targetScore) {
+    if (targetScore <= XpRules.baseAttributeScore) return 0.0;
+    var total = 0.0;
+    for (var s = XpRules.baseAttributeScore; s < targetScore; s++) {
+      total += xpCostForScore(s);
+    }
+    return total + 0.5;
+  }
+
   /// Calcula a pontuação e progresso de um atributo a partir do XP total acumulado nele.
   static AttributeProgression calculateAttribute(Attribute attr, double accumulatedXp) {
     int score = XpRules.baseAttributeScore;

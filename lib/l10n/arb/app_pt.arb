@@ -983,5 +983,215 @@
       }
     }
   },
-  "tournamentVictoryTitle": "Campeão do Torneio!"
+  "tournamentVictoryTitle": "Campeão do Torneio!",
+  "navCombat": "Combate",
+  "combatHubTitle": "Central de Combate",
+  "combatHubSubtitle": "Ponha seus atributos reais à prova em duelos, torneios e masmorras (sem ganho de XP — recompensas de prestígio).",
+  "combatBackToHub": "Voltar aos Modos",
+  "combatModeStoryTitle": "Modo História · Crônicas da Forja",
+  "combatModeStoryBadge": "EM BREVE · FASE 2",
+  "combatModeStoryDescription": "Campanha narrativa sombria conduzida pelo Mestre de Jogo. Suas escolhas, sua origem e o nível real dos seus 6 atributos abrirão caminhos, diálogos e provações únicas.",
+  "combatModeDuelsTitle": "Arena de Duelos (1v1)",
+  "combatModeDuelsDescription": "Duelos táticos 1v1 por turnos contra os campeões da Forja. Role o d20 + seu atributo principal contra a Classe de Armadura (CA) do inimigo, use sua habilidade de classe e conquiste títulos e cosméticos exclusivos.",
+  "combatModeDuelsButton": "Entrar na Arena 1v1",
+  "combatModeTournamentsTitle": "Torneios da Forja (Gauntlet)",
+  "combatModeTournamentsBadge": "Torneios: {won}/{total}",
+  "@combatModeTournamentsBadge": {
+    "placeholders": {
+      "won": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "combatModeTournamentsDescription": "Chaves eliminatórias de múltiplas rodadas em sequência. Os adversários escalam de poder a cada liga e seu herói recupera apenas parte do PV (+35%) e Foco (+50%) entre as lutas.",
+  "combatModeTournamentsButton": "Ver Chaves de Torneio",
+  "combatModeDungeonsTitle": "Masmorras Profundas (Dungeons)",
+  "combatModeDungeonsBadge": "Masmorras: {completed}/{total}",
+  "@combatModeDungeonsBadge": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "combatModeDungeonsDescription": "Explore salas perigosas com armadilhas, enigmas arcanos e provações que testam seus 6 atributos no d20 antes de enfrentar o Chefe da masmorra.",
+  "combatModeDungeonsButton": "Explorar Masmorras",
+  "combatArmorClassLabel": "CA {ac}",
+  "@combatArmorClassLabel": {
+    "placeholders": {
+      "ac": {
+        "type": "int"
+      }
+    }
+  },
+  "combatD20CritTitle": "20 NATURAL! ACERTO CRÍTICO (2× DANO)!",
+  "combatD20FumbleTitle": "1 NATURAL! FALHA ABSURDA!",
+  "combatD20HitTitle": "ACERTOU! (Total {total} vs CA {ac})",
+  "@combatD20HitTitle": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "ac": {
+        "type": "int"
+      }
+    }
+  },
+  "combatD20MissTitle": "ERROU! (Total {total} vs CA {ac})",
+  "@combatD20MissTitle": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "ac": {
+        "type": "int"
+      }
+    }
+  },
+  "combatD20Formula": "d20 ({roll}) + {attr} ({mod}) + Prof (+{prof}) = {total} vs {targetLabel} {target}",
+  "@combatD20Formula": {
+    "placeholders": {
+      "roll": {
+        "type": "int"
+      },
+      "attr": {
+        "type": "String"
+      },
+      "mod": {
+        "type": "String"
+      },
+      "prof": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "targetLabel": {
+        "type": "String"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "combatLogHeroFumble": "T{turn}: FALHA ABSURDA (1 no d20)! Você abriu a guarda e sofreu {dmg} de dano!",
+  "@combatLogHeroFumble": {
+    "placeholders": {
+      "turn": {
+        "type": "int"
+      },
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonEnterButton": "Explorar Masmorra (1 ficha)",
+  "dungeonRoomsBadge": "{rooms} salas + Chefe",
+  "@dungeonRoomsBadge": {
+    "placeholders": {
+      "rooms": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonRoomProgress": "Sala {current}/{total}",
+  "@dungeonRoomProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonDifficultyLabel": "CD {dc}",
+  "@dungeonDifficultyLabel": {
+    "placeholders": {
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonRoomCheckButton": "Rolar d20 + {attr} (CD {dc})",
+  "@dungeonRoomCheckButton": {
+    "placeholders": {
+      "attr": {
+        "type": "String"
+      },
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonRoomBypassButton": "Contornar com Cautela (-5% PV, -3 Foco)",
+  "dungeonRoomBlessingTitle": "Provação Superada!",
+  "dungeonRoomBlessingBody": "Seu domínio de {attr} abriu caminho! Você recuperou +{hp} PV, +Foco e ganhou +1 Benção para o Chefe.",
+  "@dungeonRoomBlessingBody": {
+    "placeholders": {
+      "attr": {
+        "type": "String"
+      },
+      "hp": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonRoomTrapTitle": "Armadilha Acionada!",
+  "dungeonRoomTrapBody": "A provação cobrou seu preço: você sofreu {dmg} de dano ao atravessar a sala.",
+  "@dungeonRoomTrapBody": {
+    "placeholders": {
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonRoomBypassTitle": "Passagem Cautelosa",
+  "dungeonRoomBypassBody": "Você contornou o perigo pelo caminho longo, gastando {dmg} PV e 3 de Foco.",
+  "@dungeonRoomBypassBody": {
+    "placeholders": {
+      "dmg": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonNextRoomButton": "Avançar para a Sala {next}",
+  "@dungeonNextRoomButton": {
+    "placeholders": {
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "dungeonEnterBossButton": "Enfrentar o Chefe da Masmorra",
+  "dungeonVictoryTitle": "Masmorra Conquistada!",
+  "heroDungeonLockedHint": "Conquiste {dungeon} para desbloquear",
+  "@heroDungeonLockedHint": {
+    "placeholders": {
+      "dungeon": {
+        "type": "String"
+      }
+    }
+  },
+  "testerButtonLabel": "Modo Tester",
+  "testerActiveBadge": "TESTER ATIVO",
+  "testerSheetTitle": "Painel de Tester (Sandbox)",
+  "testerSheetSubtitle": "Edite atributos, fichas e o dado d20 em memória para testar combates e classes sem alterar seu histórico real de XP.",
+  "testerEnableSwitch": "Ativar atributos de Tester",
+  "testerInfiniteTokens": "Fichas de Combate Infinitas",
+  "testerInspirationLabel": "Inspiração Heroica",
+  "testerDiceModeTitle": "Rolagem do Dado d20",
+  "testerDiceRandom": "Aleatório (1d20)",
+  "testerDiceForce20": "Forçar 20 (Crítico)",
+  "testerDiceForce1": "Forçar 1 (Falha Absurda)",
+  "testerPresetNovice": "Iniciante (10)",
+  "testerPresetBalanced": "Veterano (16)",
+  "testerPresetLegend": "Lenda (22)",
+  "testerResetButton": "Voltar aos Atributos Reais"
 }

@@ -2,39 +2,43 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 5C: Seleção de Classe Desbloqueada + Torneios da Forja
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Combate D20 (Crítico 20 / Falha Absurda 1 + Animação) + Aba Central de Combate + Etapa 5D (Dungeons) + Modo Tester
 
 ## Fase atual
-**Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
+**Fase 1 — MVP offline concluído**; pronto para iniciar a Fase 2 (Narrador IA & Modo História).
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
   unificados por atributo (treinos e atividades, bônus isentos), progressão de
   atributos (base 10) e níveis 1–20, 15 classes emergentes + Aventureiro com
   **desbloqueio e seleção de classe por atributo ≥ 12 (`ClassResolver`)**,
-  missões diárias determinísticas, Inspiração e **motor de combate tático em
-  turnos (`combat.dart`)** com 16 habilidades de classe inspiradas no D&D 5e,
-  6 NPCs da Arena e **4 Torneios (Gauntlet)** com escalonamento de atributos
-  (`0.85×` a `1.30×`) e recuperação parcial entre rodadas (zero XP).
+  missões diárias determinísticas, Inspiração e **motor de combate e masmorras
+  baseado em `1d20 + Atributo + Proficiência vs CA/CD` (`combat.dart`)** com:
+  - **20 Natural (Crítico 2×)** e **1 Natural (Falha Absurda)**;
+  - 16 habilidades de classe inspiradas no D&D 5e (`ClassSkillCatalog`);
+  - 6 NPCs da Arena (`ArenaCatalog`), **4 Torneios (`TournamentCatalog`)** e
+    **3 Masmorras multi-salas (`DungeonCatalog`)** testando os 6 atributos
+    (zero XP; recompensas de títulos e cosméticos).
 - Persistência Drift/SQLite (schema v8): exercícios (seed 64 pt-BR + en com guia
   passo a passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária
-  (água, dieta, sono), progresso da Arena e Torneios (`arena_progress`), fichas
-  diárias (`daily_arena_logs`), classe selecionada (`heroes.selected_class`),
+  (água, dieta, sono), progresso de Arena, Torneios e Dungeons (`arena_progress`),
+  fichas diárias (`daily_arena_logs`), classe selecionada (`heroes.selected_class`),
   título/cosmético equipados no herói, livro-razão de XP (incluindo
   `inspirationSpend`), missões.
-- Telas: Herói (com seletor de classe desbloqueada, título/cosmético equipados
-  via `HeroCustomizationSheet` e acesso à **Arena da Forja**), Arena & Torneios
-  (`ArenaScreen`), Treino (estilo Hevy, timer de descanso, botão "?" de
-  execução), Atividades (Pomodoro, hidratação, nutrição, sono, catálogo
-  CAR/DES/SAB/INT/CON e atividade personalizada), Missões.
-- Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
-- Visual pixel art, pt-BR + inglês, configurações e créditos.
-- Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
-  por tempo, recordes calculados ao finalizar.
-- Histórico, calendário, recordes, sequência semanal e tela de recompensas.
-- 110 testes passando; `flutter analyze` limpo.
+- Telas (5 abas na `PixelNavBar`):
+  1. **Herói** (ficha limpa, seletor de classe desbloqueada, títulos e cosméticos);
+  2. **Treino** (estilo Hevy, timer de descanso, botão "?" de execução);
+  3. **Atividades** (Pomodoro, hidratação, nutrição, sono, catálogo e atividade personalizada);
+  4. **Missões** (3 missões diárias determinísticas + Inspiração);
+  5. **Combate** (`ArenaScreen`: Central de Combate com retângulos de seleção para
+     **Modo História** bloqueado no topo, **Arena 1v1**, **Torneios**,
+     **Masmorras / Dungeons**, **dado d20 animado** e **Painel de Tester**).
+- **Modo Tester / Sandbox (`TesterPanelSheet`):** edição ao vivo dos 6 atributos
+  (8–30), presets rápidos, fichas infinitas e forçar rolagem `20` ou `1` no d20
+  sem tocar no `xp_ledger`.
+- 112 testes passando; `flutter analyze` limpo.
 
-## Fechamento da Fase 1 (em andamento)
+## Fechamento da Fase 1 (concluído)
 - [x] Criação do herói (onboarding).
 - [x] Missões avançam sozinhas com treinos/atividades; Inspiração real.
 - [x] **Etapa 1:** pt-BR + inglês, visual pixel (Jersey 10 + Inter),
@@ -61,8 +65,11 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - [x] **Etapa 5C:** seleção de classe desbloqueada (Decisão #41, schema v8) +
       Modo **Torneios da Forja** (`TournamentCatalog`, 4 chaves escalonadas com
       títulos e cosméticos de prestígio).
-- [ ] **Etapa 5D (futuro):** Modo **Dungeon** (exploração por salas/nós com
-      testes dos 6 atributos e encontros de combate).
+- [x] **Etapa 5D + Combate D20 + Aba de Combate + Modo Tester:** rolagem `1d20 + Atributo`
+      com `CA/CD`, Crítico no 20 (`2×`), Falha Absurda no 1, animação visual do
+      d20, 5ª aba dedicada de **Combate** com retângulos de seleção (Modo
+      História bloqueado no topo, Duelos 1v1, Torneios e Dungeons com 3
+      masmorras testando os 6 atributos) e **Painel de Tester (Sandbox)**.
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
 
 ## Fase 2 — Mundo Vivo & Narrador IA

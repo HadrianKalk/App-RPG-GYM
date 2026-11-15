@@ -114,6 +114,11 @@ class GameText {
   String arenaNpcLore(String npcId) => t('arenaNpc.$npcId.lore');
   String tournamentName(String tournamentId) => t('tournament.$tournamentId.name');
   String tournamentLore(String tournamentId) => t('tournament.$tournamentId.lore');
+  String dungeonName(String dungeonId) => t('dungeon.$dungeonId.name');
+  String dungeonLore(String dungeonId) => t('dungeon.$dungeonId.lore');
+  String dungeonRoomName(String roomId) => t('dungeonRoom.$roomId.name');
+  String dungeonRoomDescription(String roomId) =>
+      t('dungeonRoom.$roomId.description');
   String combatTitle(String titleId) => t('combatTitle.$titleId');
   String combatCosmetic(String cosmeticId) => t('combatCosmetic.$cosmeticId');
 }

@@ -621,6 +621,27 @@ void main() {
       expect(arena.tournamentsWonCount, 1);
       expect(arena.unlockedTitleIds.contains(bronze.reward.titleId), isTrue);
       expect(arena.unlockedCosmeticIds.contains(bronze.reward.cosmeticId), isTrue);
+
+      // Win Sunken Crypt Dungeon (step 5D) -> unlocks Dungeon title & cosmetic
+      final crypt = DungeonCatalog.dungeons.first;
+      final firstDungeonWin = await combatRepo.finishDungeon(
+        dungeon: crypt,
+        victory: true,
+        spentInspiration: false,
+      );
+      expect(firstDungeonWin, isTrue);
+      final arenaAfterDungeon = await combatRepo.getArenaState();
+      expect(arenaAfterDungeon.dungeonsCompletedCount, 1);
+      expect(arenaAfterDungeon.unlockedTitleIds.contains(crypt.reward.titleId), isTrue);
+      expect(arenaAfterDungeon.unlockedCosmeticIds.contains(crypt.reward.cosmeticId), isTrue);
+
+      // Tester Mode sandbox override builds CharacterState without mutating xp_ledger
+      final sandboxState = CharacterState.fromOverrideScores(
+        scores: {for (final a in Attribute.values) a: 20},
+        inspirationCount: 5,
+      );
+      expect(sandboxState.attributeProgressions[Attribute.strength]!.score, 20);
+      expect(sandboxState.unlockedClasses.length, CharacterClass.values.length);
     });
   });
 }

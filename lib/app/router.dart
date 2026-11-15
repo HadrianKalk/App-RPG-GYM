@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/game/hero_profile.dart';
 import '../data/repositories/providers.dart';
 import '../features/activities/presentation/activities_screen.dart';
+import '../features/arena/presentation/arena_screen.dart';
 import '../features/character/presentation/character_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/quests/presentation/quests_screen.dart';
@@ -65,6 +66,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           _tab('/workout', const WorkoutScreen()),
           _tab('/activities', const ActivitiesScreen()),
           _tab('/quests', const QuestsScreen()),
+          _tab('/combat', const ArenaScreen()),
         ],
       ),
     ],
@@ -97,6 +99,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           PixelNavItem(icon: PixelIcons.dumbbell, label: l10n.navWorkout),
           PixelNavItem(icon: PixelIcons.hourglass, label: l10n.navActivities),
           PixelNavItem(icon: PixelIcons.scroll, label: l10n.navQuests),
+          PixelNavItem(icon: PixelIcons.swords, label: l10n.navCombat),
         ],
       ),
     );

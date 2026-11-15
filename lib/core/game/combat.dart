@@ -41,6 +41,7 @@ enum CombatLogKind {
   heroClassSkill,
   heroDefend,
   heroInspirationStrike,
+  heroCriticalFumble,
   enemyStrike,
   enemyHeavyBlow,
   enemyGuard,
@@ -49,6 +50,58 @@ enum CombatLogKind {
   heroDodged,
   victory,
   defeat,
+}
+
+/// Outcome classification of a `1d20 + modifier` roll.
+enum D20Outcome {
+  /// Natural 20 (or Heroic Inspiration guaranteed critical): automatic hit and 2x damage.
+  criticalHit,
+
+  /// Total roll (`d20 + attributeModifier + proficiencyBonus`) >= target AC/DC.
+  hit,
+
+  /// Total roll < target AC/DC (and not a Natural 1 or 20).
+  miss,
+
+  /// Natural 1: catastrophic failure (automatic miss and self-opening recoil).
+  criticalFumble,
+}
+
+/// Immutable snapshot of a single D&D 5e `1d20` check or attack roll.
+final class D20RollResult {
+  const D20RollResult({
+    required this.naturalRoll,
+    required this.attribute,
+    required this.attributeModifier,
+    required this.proficiencyBonus,
+    required this.targetNumber,
+    required this.outcome,
+  });
+
+  /// Face shown on the 20-sided die (`1..20`).
+  final int naturalRoll;
+
+  /// Attribute added to the roll.
+  final Attribute attribute;
+
+  /// Classic D&D 5e modifier `floor((score - 10) / 2)`.
+  final int attributeModifier;
+
+  /// Level-based proficiency bonus (`+2` to `+6`).
+  final int proficiencyBonus;
+
+  /// Target Armor Class (AC) or Difficulty Class (DC).
+  final int targetNumber;
+
+  /// Resulting outcome of the roll.
+  final D20Outcome outcome;
+
+  int get totalBonus => attributeModifier + proficiencyBonus;
+  int get totalRoll => naturalRoll + totalBonus;
+  bool get isHit =>
+      outcome == D20Outcome.criticalHit || outcome == D20Outcome.hit;
+  bool get isCriticalHit => outcome == D20Outcome.criticalHit;
+  bool get isCriticalFumble => outcome == D20Outcome.criticalFumble;
 }
 
 /// Structured, language-neutral combat log entry.
@@ -60,6 +113,7 @@ final class CombatLogEntry {
     this.heal = 0,
     this.isCritical = false,
     this.skillId,
+    this.roll,
   });
 
   final int turn;
@@ -68,6 +122,7 @@ final class CombatLogEntry {
   final int heal;
   final bool isCritical;
   final String? skillId;
+  final D20RollResult? roll;
 }
 
 /// Signature combat technique of one of the 16 [CharacterClass]es, inspired by
@@ -316,6 +371,10 @@ final class ArenaOpponent {
   final int initiative;
   final double dodgeChance;
   final CombatReward reward;
+
+  /// Target Armor Class (AC) in D&D 5e (`1d20 + attackBonus >= armorClass`).
+  int get armorClass =>
+      (9 + (defense ~/ 2) + (dodgeChance * 15).round()).clamp(10, 20);
 }
 
 /// Built-in catalog of Arena NPCs.
@@ -550,12 +609,198 @@ final class TournamentRun {
       encounter.status == CombatStatus.victory && !hasNextRound;
 }
 
+/// Single room/node inside a [DungeonDefinition] that challenges one of the
+/// hero's 6 real-world D&D attributes (`1d20 + mod + proficiency >= difficultyClass`).
+final class DungeonRoom {
+  const DungeonRoom({
+    required this.id,
+    required this.attribute,
+    required this.difficultyClass,
+  });
+
+  final String id;
+  final Attribute attribute;
+  final int difficultyClass;
+}
+
+/// Static definition of a multi-room Dungeon culminating in a Boss fight.
+///
+/// Never grants XP (Decision #40); awards a prestige [reward] upon defeating
+/// the final Boss.
+final class DungeonDefinition {
+  const DungeonDefinition({
+    required this.id,
+    required this.recommendedLevel,
+    required this.rooms,
+    required this.bossId,
+    required this.statScale,
+    required this.reward,
+  });
+
+  final String id;
+  final int recommendedLevel;
+  final List<DungeonRoom> rooms;
+  final String bossId;
+  final double statScale;
+  final CombatReward reward;
+
+  /// Boss opponent scaled for this dungeon's tier.
+  ArenaOpponent get scaledBoss {
+    final base = ArenaCatalog.byId(bossId) ?? ArenaCatalog.opponents.first;
+    return ArenaOpponent(
+      id: base.id,
+      recommendedLevel: recommendedLevel,
+      maxHp: math.max(15, (base.maxHp * statScale).round()),
+      attack: math.max(3, (base.attack * statScale).round()),
+      defense: math.max(0, (base.defense * statScale).round()),
+      initiative: base.initiative,
+      dodgeChance: base.dodgeChance,
+      reward: reward,
+    );
+  }
+}
+
+/// Built-in catalog of Forge Dungeons (Stage 5D).
+abstract final class DungeonCatalog {
+  static const List<DungeonDefinition> dungeons = [
+    DungeonDefinition(
+      id: 'dungeon_sunken_crypt',
+      recommendedLevel: 3,
+      statScale: 0.90,
+      rooms: [
+        DungeonRoom(
+          id: 'room_crypt_pendulum',
+          attribute: Attribute.dexterity,
+          difficultyClass: 11,
+        ),
+        DungeonRoom(
+          id: 'room_crypt_altar',
+          attribute: Attribute.wisdom,
+          difficultyClass: 11,
+        ),
+        DungeonRoom(
+          id: 'room_crypt_gate',
+          attribute: Attribute.strength,
+          difficultyClass: 11,
+        ),
+      ],
+      bossId: 'npc_iron_sentinel',
+      reward: CombatReward(
+        titleId: 'title_crypt_delver',
+        cosmeticId: 'cosmetic_crypt_lantern',
+      ),
+    ),
+    DungeonDefinition(
+      id: 'dungeon_arcane_sanctum',
+      recommendedLevel: 8,
+      statScale: 1.05,
+      rooms: [
+        DungeonRoom(
+          id: 'room_sanctum_runes',
+          attribute: Attribute.intelligence,
+          difficultyClass: 13,
+        ),
+        DungeonRoom(
+          id: 'room_sanctum_miasma',
+          attribute: Attribute.constitution,
+          difficultyClass: 13,
+        ),
+        DungeonRoom(
+          id: 'room_sanctum_oath',
+          attribute: Attribute.charisma,
+          difficultyClass: 13,
+        ),
+      ],
+      bossId: 'npc_hollow_archmage',
+      reward: CombatReward(
+        titleId: 'title_sanctum_breaker',
+        cosmeticId: 'cosmetic_arcane_sigil',
+      ),
+    ),
+    DungeonDefinition(
+      id: 'dungeon_abyssal_forge',
+      recommendedLevel: 14,
+      statScale: 1.20,
+      rooms: [
+        DungeonRoom(
+          id: 'room_abyss_chains',
+          attribute: Attribute.strength,
+          difficultyClass: 15,
+        ),
+        DungeonRoom(
+          id: 'room_abyss_magma',
+          attribute: Attribute.dexterity,
+          difficultyClass: 15,
+        ),
+        DungeonRoom(
+          id: 'room_abyss_eye',
+          attribute: Attribute.wisdom,
+          difficultyClass: 15,
+        ),
+      ],
+      bossId: 'npc_forge_colossus',
+      reward: CombatReward(
+        titleId: 'title_abyss_conqueror',
+        cosmeticId: 'cosmetic_abyssal_flame',
+      ),
+    ),
+  ];
+
+  static DungeonDefinition? byId(String id) {
+    for (final d in dungeons) {
+      if (d.id == id) return d;
+    }
+    return null;
+  }
+}
+
+/// Active multi-room Dungeon expedition state.
+final class DungeonRun {
+  const DungeonRun({
+    required this.dungeon,
+    required this.hero,
+    required this.roomIndex,
+    required this.heroHp,
+    required this.heroFocus,
+    required this.blessingsEarned,
+    required this.availableInspiration,
+    this.lastRoomRoll,
+    this.lastRoomBypassed = false,
+    this.lastRoomDeltaHp = 0,
+    this.roomResolved = false,
+    this.bossEncounter,
+  });
+
+  final DungeonDefinition dungeon;
+  final CombatStats hero;
+  final int roomIndex;
+  final int heroHp;
+  final int heroFocus;
+  final int blessingsEarned;
+  final int availableInspiration;
+  final D20RollResult? lastRoomRoll;
+  final bool lastRoomBypassed;
+  final int lastRoomDeltaHp;
+  final bool roomResolved;
+  final CombatEncounter? bossEncounter;
+
+  bool get inBossPhase => bossEncounter != null;
+  int get currentRoomNumber => roomIndex + 1;
+  int get totalRooms => dungeon.rooms.length;
+  DungeonRoom get currentRoom => dungeon.rooms[roomIndex];
+  bool get isDungeonVictory =>
+      bossEncounter != null && bossEncounter!.status == CombatStatus.victory;
+  bool get isDungeonDefeat =>
+      heroHp <= 0 ||
+      (bossEncounter != null && bossEncounter!.status == CombatStatus.defeat);
+}
+
 /// Derived combat numbers of the hero from their real-world D&D attributes.
 ///
 /// Every attribute has a clear role:
 /// - **STR**: physical strike power and guard penetration.
-/// - **DEX**: initiative, dodge chance, critical chance, and agile strike power.
-/// - **CON**: maximum HP and physical defense.
+/// - **DEX**: initiative, Armor Class (AC), dodge chance, and agile strike power.
+/// - **CON**: maximum HP, Armor Class (AC), and physical defense.
 /// - **INT**: maximum Focus pool and arcane strike power.
 /// - **WIS**: healing efficiency, defend recovery, and counter-insight.
 /// - **CHA**: critical chance, buff/debuff potency, and Heroic Inspiration power.
@@ -632,6 +877,26 @@ final class CombatStats {
   final int healBonus;
   final double presenceMultiplier;
 
+  /// Classic D&D 5e proficiency bonus (`+2` at Lv 1–4 up to `+6` at Lv 17–20).
+  int get proficiencyBonus => 2 + ((level - 1) ~/ 4);
+
+  /// Classic D&D 5e Armor Class (`10 + mod(DEX) + mod(CON)/2`).
+  int get armorClass {
+    final dexMod = attackModifierFor(Attribute.dexterity);
+    final conMod = attackModifierFor(Attribute.constitution);
+    return (10 + dexMod + (conMod ~/ 2)).clamp(10, 25);
+  }
+
+  /// D&D 5e attribute modifier `floor((score - 10) / 2)` for [attribute].
+  int attackModifierFor(Attribute attribute) =>
+      Progression.calculateModifier(
+        scores[attribute] ?? XpRules.baseAttributeScore,
+      );
+
+  /// Total D20 attack/check bonus (`attributeModifier + proficiencyBonus`).
+  int attackBonusFor(Attribute attribute) =>
+      proficiencyBonus + attackModifierFor(attribute);
+
   /// Attribute that powers the hero's primary attack (class primary, or the
   /// highest attribute for Adventurer).
   Attribute get primaryAttackAttribute {
@@ -684,6 +949,7 @@ final class CombatEncounter {
     required this.inspirationUsed,
     required this.status,
     required this.log,
+    this.lastRoll,
   });
 
   final CombatStats hero;
@@ -702,6 +968,9 @@ final class CombatEncounter {
   final bool inspirationUsed;
   final CombatStatus status;
   final List<CombatLogEntry> log;
+
+  /// Latest `1d20 + attribute` roll performed by the hero in this encounter.
+  final D20RollResult? lastRoll;
 
   ClassSkill get skill => ClassSkillCatalog.forClass(hero.characterClass);
 
@@ -735,8 +1004,54 @@ abstract final class ArenaTokenRules {
   }
 }
 
-/// Pure-Dart turn-based combat engine.
+/// Pure-Dart turn-based combat and dungeon engine.
 abstract final class CombatEngine {
+  /// Rolls a uniform 20-sided die (`1..20`).
+  ///
+  /// Maps `0 -> 20` and `1..19 -> 1..19` so every face has exact `1/20`
+  /// probability under `math.Random` while `nextInt(20) == 19` in deterministic
+  /// test stubs yields `19` (a strong non-critical hit).
+  static int rollD20([math.Random? random]) {
+    final rng = random ?? math.Random();
+    final raw = rng.nextInt(20);
+    return raw == 0 ? 20 : raw;
+  }
+
+  /// Evaluates a D&D 5e `1d20 + attributeModifier + proficiencyBonus` roll
+  /// against [targetNumber] (Armor Class or Difficulty Class).
+  static D20RollResult resolveD20Check({
+    required CombatStats hero,
+    required Attribute attribute,
+    required int targetNumber,
+    required int naturalRoll,
+    bool forceCritical = false,
+  }) {
+    final clamped = naturalRoll.clamp(1, 20);
+    final mod = hero.attackModifierFor(attribute);
+    final prof = hero.proficiencyBonus;
+    final total = clamped + mod + prof;
+
+    final D20Outcome outcome;
+    if (clamped == 20 || (forceCritical && clamped > 1)) {
+      outcome = D20Outcome.criticalHit;
+    } else if (clamped == 1) {
+      outcome = D20Outcome.criticalFumble;
+    } else if (total >= targetNumber) {
+      outcome = D20Outcome.hit;
+    } else {
+      outcome = D20Outcome.miss;
+    }
+
+    return D20RollResult(
+      naturalRoll: clamped,
+      attribute: attribute,
+      attributeModifier: mod,
+      proficiencyBonus: prof,
+      targetNumber: targetNumber,
+      outcome: outcome,
+    );
+  }
+
   /// Starts a new 1v1 encounter between [hero] and [opponent].
   static CombatEncounter start({
     required CombatStats hero,
@@ -764,10 +1079,20 @@ abstract final class CombatEngine {
   }
 
   /// Resolves one full round (hero action followed by opponent response).
+  ///
+  /// Offensive actions (`basicStrike`, `classSkill`) roll `1d20 + Attribute + Proficiency`
+  /// against `opponent.armorClass`:
+  /// - **Natural 20** (`D20Outcome.criticalHit`): automatic hit and `2.0x` damage.
+  /// - **Natural 1** (`D20Outcome.criticalFumble`): automatic miss and the hero
+  ///   suffers self-opening recoil damage (`6%` of max HP).
+  /// - **Hit (`total >= AC`)**: damage scales with both attribute power and the
+  ///   `d20 + attributeModifier` roll total.
+  /// - **Miss (`total < AC`)**: 0 damage dealt.
   static CombatEncounter executeTurn(
     CombatEncounter state,
     CombatAction action, {
     math.Random? random,
+    int? forcedD20,
   }) {
     if (state.status != CombatStatus.ongoing) return state;
     final rng = random ?? math.Random();
@@ -784,23 +1109,28 @@ abstract final class CombatEngine {
     var defending = false;
     var inspirationUsed = state.inspirationUsed;
     var availableInsp = state.availableInspiration;
+    D20RollResult? lastRoll = state.lastRoll;
 
     final heroBuffMultiplier = heroBuff > 0 ? 1.25 : 1.0;
     final enemyGuardReduction =
         state.enemyIntent == EnemyIntent.guard ? 0.65 : 1.0;
 
-    int computeDamage({
-      required Attribute attr,
+    int computeD20Damage({
+      required D20RollResult roll,
       required double multiplier,
       required bool ignoresDefense,
-      required bool forceCrit,
     }) {
-      final raw = state.hero.attackPowerFor(attr) *
+      // Higher (d20 + attributeModifier) increases strike precision and damage.
+      final rollPrecisionScale = 0.85 +
+          ((roll.naturalRoll + math.max(0, roll.attributeModifier)) / 20.0) *
+              0.45;
+      final raw = state.hero.attackPowerFor(roll.attribute) *
           multiplier *
+          rollPrecisionScale *
           heroBuffMultiplier *
           enemyGuardReduction;
-      final isCrit = forceCrit || rng.nextDouble() < state.hero.critChance;
-      final critBoosted = isCrit ? raw * 1.5 : raw;
+      final critBoosted =
+          roll.isCriticalHit ? raw * XpRules.combatCriticalMultiplier : raw;
       final mitigation = ignoresDefense ? 0 : state.opponent.defense;
       return math.max(1, (critBoosted - mitigation).round());
     }
@@ -809,33 +1139,63 @@ abstract final class CombatEngine {
     switch (action) {
       case CombatAction.basicStrike:
         heroFocus = math.min(state.hero.maxFocus, heroFocus + 3);
-        if (rng.nextDouble() < state.opponent.dodgeChance) {
+        final nat = forcedD20 ?? rollD20(rng);
+        final roll = resolveD20Check(
+          hero: state.hero,
+          attribute: state.hero.primaryAttackAttribute,
+          targetNumber: state.opponent.armorClass,
+          naturalRoll: nat,
+        );
+        lastRoll = roll;
+
+        if (roll.isCriticalFumble) {
+          final fumbleSelfDmg = math.max(
+            2,
+            (state.hero.maxHp * XpRules.combatFumbleSelfDamageFraction).round(),
+          );
+          heroHp = math.max(0, heroHp - fumbleSelfDmg);
           log.add(
-            CombatLogEntry(turn: state.turn, kind: CombatLogKind.enemyDodged),
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.heroCriticalFumble,
+              damage: fumbleSelfDmg,
+              roll: roll,
+            ),
+          );
+        } else if (!roll.isHit) {
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.enemyDodged,
+              roll: roll,
+            ),
           );
         } else {
-          final isCrit = rng.nextDouble() < state.hero.critChance;
-          final raw = state.hero.attackPowerFor(
-                state.hero.primaryAttackAttribute,
-              ) *
-              heroBuffMultiplier *
-              enemyGuardReduction *
-              (isCrit ? 1.5 : 1.0);
-          final dmg = math.max(1, (raw - state.opponent.defense).round());
+          final dmg = computeD20Damage(
+            roll: roll,
+            multiplier: 1.0,
+            ignoresDefense: false,
+          );
           enemyHp = math.max(0, enemyHp - dmg);
           log.add(
             CombatLogEntry(
               turn: state.turn,
               kind: CombatLogKind.heroBasicStrike,
               damage: dmg,
-              isCritical: isCrit,
+              isCritical: roll.isCriticalHit,
+              roll: roll,
             ),
           );
         }
 
       case CombatAction.classSkill:
         if (!state.canUseClassSkill) {
-          return executeTurn(state, CombatAction.basicStrike, random: rng);
+          return executeTurn(
+            state,
+            CombatAction.basicStrike,
+            random: rng,
+            forcedD20: forcedD20,
+          );
         }
         heroFocus -= skill.focusCost;
         cooldown = skill.cooldownTurns;
@@ -843,53 +1203,84 @@ abstract final class CombatEngine {
             skill.scalesWith ?? state.hero.primaryAttackAttribute;
         final forceCrit = skill.guaranteedCritWhenBuffedOrWeaken &&
             (heroBuff > 0 || enemyWeaken > 0);
-        final hits = skill.hitsTwice ? 2 : 1;
-        var totalDmg = 0;
-        var anyCrit = forceCrit;
-        for (var i = 0; i < hits; i++) {
-          final isCrit =
-              forceCrit || rng.nextDouble() < state.hero.critChance;
-          if (isCrit) anyCrit = true;
-          final raw = state.hero.attackPowerFor(scaleAttr) *
-              skill.damageMultiplier *
-              heroBuffMultiplier *
-              enemyGuardReduction *
-              (isCrit ? 1.5 : 1.0);
-          final mitigation =
-              skill.ignoresDefense ? 0 : state.opponent.defense;
-          totalDmg += math.max(1, (raw - mitigation).round());
-        }
-        enemyHp = math.max(0, enemyHp - totalDmg);
-        var healAmount = 0;
-        if (skill.selfHealFraction > 0) {
-          healAmount = math.max(
-            state.hero.healBonus,
-            (totalDmg * skill.selfHealFraction).round(),
-          );
-          heroHp = math.min(state.hero.maxHp, heroHp + healAmount);
-        }
-        if (skill.buffTurns > 0) {
-          heroBuff = math.max(heroBuff, skill.buffTurns);
-        }
-        if (skill.weakenTurns > 0) {
-          enemyWeaken = math.max(enemyWeaken, skill.weakenTurns);
-        }
-        if (skill.stunsTarget) {
-          enemyStunned = true;
-        }
-        log.add(
-          CombatLogEntry(
-            turn: state.turn,
-            kind: CombatLogKind.heroClassSkill,
-            damage: totalDmg,
-            heal: healAmount,
-            isCritical: anyCrit,
-            skillId: skill.id,
-          ),
+        final nat = forcedD20 ?? rollD20(rng);
+        final roll = resolveD20Check(
+          hero: state.hero,
+          attribute: scaleAttr,
+          targetNumber: state.opponent.armorClass,
+          naturalRoll: nat,
+          forceCritical: forceCrit,
         );
+        lastRoll = roll;
+
+        if (roll.isCriticalFumble) {
+          final fumbleSelfDmg = math.max(
+            2,
+            (state.hero.maxHp * XpRules.combatFumbleSelfDamageFraction).round(),
+          );
+          heroHp = math.max(0, heroHp - fumbleSelfDmg);
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.heroCriticalFumble,
+              damage: fumbleSelfDmg,
+              skillId: skill.id,
+              roll: roll,
+            ),
+          );
+        } else if (!roll.isHit) {
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.enemyDodged,
+              skillId: skill.id,
+              roll: roll,
+            ),
+          );
+        } else {
+          final hits = skill.hitsTwice ? 2 : 1;
+          var totalDmg = 0;
+          for (var i = 0; i < hits; i++) {
+            totalDmg += computeD20Damage(
+              roll: roll,
+              multiplier: skill.damageMultiplier,
+              ignoresDefense: skill.ignoresDefense,
+            );
+          }
+          enemyHp = math.max(0, enemyHp - totalDmg);
+          var healAmount = 0;
+          if (skill.selfHealFraction > 0) {
+            healAmount = math.max(
+              state.hero.healBonus,
+              (totalDmg * skill.selfHealFraction).round(),
+            );
+            heroHp = math.min(state.hero.maxHp, heroHp + healAmount);
+          }
+          if (skill.buffTurns > 0) {
+            heroBuff = math.max(heroBuff, skill.buffTurns);
+          }
+          if (skill.weakenTurns > 0) {
+            enemyWeaken = math.max(enemyWeaken, skill.weakenTurns);
+          }
+          if (skill.stunsTarget) {
+            enemyStunned = true;
+          }
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.heroClassSkill,
+              damage: totalDmg,
+              heal: healAmount,
+              isCritical: roll.isCriticalHit,
+              skillId: skill.id,
+              roll: roll,
+            ),
+          );
+        }
 
       case CombatAction.defend:
         defending = true;
+        lastRoll = null;
         heroFocus = math.min(state.hero.maxFocus, heroFocus + 8);
         final heal = state.hero.healBonus;
         heroHp = math.min(state.hero.maxHp, heroHp + heal);
@@ -903,16 +1294,28 @@ abstract final class CombatEngine {
 
       case CombatAction.heroicInspiration:
         if (!state.canUseInspiration) {
-          return executeTurn(state, CombatAction.basicStrike, random: rng);
+          return executeTurn(
+            state,
+            CombatAction.basicStrike,
+            random: rng,
+            forcedD20: forcedD20,
+          );
         }
         inspirationUsed = true;
         availableInsp = math.max(0, availableInsp - 1);
         heroFocus = math.min(state.hero.maxFocus, heroFocus + 6);
-        final dmg = computeDamage(
-          attr: state.hero.primaryAttackAttribute,
+        final roll = resolveD20Check(
+          hero: state.hero,
+          attribute: state.hero.primaryAttackAttribute,
+          targetNumber: state.opponent.armorClass,
+          naturalRoll: 20,
+          forceCritical: true,
+        );
+        lastRoll = roll;
+        final dmg = computeD20Damage(
+          roll: roll,
           multiplier: 1.65,
           ignoresDefense: true,
-          forceCrit: true,
         );
         enemyHp = math.max(0, enemyHp - dmg);
         log.add(
@@ -921,6 +1324,7 @@ abstract final class CombatEngine {
             kind: CombatLogKind.heroInspirationStrike,
             damage: dmg,
             isCritical: true,
+            roll: roll,
           ),
         );
     }
@@ -945,53 +1349,56 @@ abstract final class CombatEngine {
         inspirationUsed: inspirationUsed,
         status: CombatStatus.victory,
         log: log,
+        lastRoll: lastRoll,
       );
     }
 
-    // --- 2. Opponent Turn ---
-    if (enemyStunned) {
-      enemyStunned = false;
-      log.add(
-        CombatLogEntry(turn: state.turn, kind: CombatLogKind.enemyStunned),
-      );
-    } else if (state.enemyIntent == EnemyIntent.guard) {
-      final enemyHeal = math.max(2, (state.opponent.maxHp * 0.05).round());
-      enemyHp = math.min(state.opponent.maxHp, enemyHp + enemyHeal);
-      log.add(
-        CombatLogEntry(
-          turn: state.turn,
-          kind: CombatLogKind.enemyGuard,
-          heal: enemyHeal,
-        ),
-      );
-    } else {
-      if (rng.nextDouble() < state.hero.dodgeChance) {
+    // --- 2. Opponent Turn (only if hero didn't already fall to 0 HP) ---
+    if (heroHp > 0) {
+      if (enemyStunned) {
+        enemyStunned = false;
         log.add(
-          CombatLogEntry(turn: state.turn, kind: CombatLogKind.heroDodged),
+          CombatLogEntry(turn: state.turn, kind: CombatLogKind.enemyStunned),
         );
-      } else {
-        final intentMult =
-            state.enemyIntent == EnemyIntent.heavyBlow ? 1.50 : 1.0;
-        final weakenMult = enemyWeaken > 0 ? 0.75 : 1.0;
-        final buffMitigation = heroBuff > 0 ? 0.75 : 1.0;
-        final defendMitigation = defending ? 0.50 : 1.0;
-
-        final rawEnemy = state.opponent.attack * intentMult * weakenMult;
-        final afterDef = math.max(1.0, rawEnemy - state.hero.defense);
-        final dmg = math.max(
-          1,
-          (afterDef * buffMitigation * defendMitigation).round(),
-        );
-        heroHp = math.max(0, heroHp - dmg);
+      } else if (state.enemyIntent == EnemyIntent.guard) {
+        final enemyHeal = math.max(2, (state.opponent.maxHp * 0.05).round());
+        enemyHp = math.min(state.opponent.maxHp, enemyHp + enemyHeal);
         log.add(
           CombatLogEntry(
             turn: state.turn,
-            kind: state.enemyIntent == EnemyIntent.heavyBlow
-                ? CombatLogKind.enemyHeavyBlow
-                : CombatLogKind.enemyStrike,
-            damage: dmg,
+            kind: CombatLogKind.enemyGuard,
+            heal: enemyHeal,
           ),
         );
+      } else {
+        if (rng.nextDouble() < state.hero.dodgeChance) {
+          log.add(
+            CombatLogEntry(turn: state.turn, kind: CombatLogKind.heroDodged),
+          );
+        } else {
+          final intentMult =
+              state.enemyIntent == EnemyIntent.heavyBlow ? 1.50 : 1.0;
+          final weakenMult = enemyWeaken > 0 ? 0.75 : 1.0;
+          final buffMitigation = heroBuff > 0 ? 0.75 : 1.0;
+          final defendMitigation = defending ? 0.50 : 1.0;
+
+          final rawEnemy = state.opponent.attack * intentMult * weakenMult;
+          final afterDef = math.max(1.0, rawEnemy - state.hero.defense);
+          final dmg = math.max(
+            1,
+            (afterDef * buffMitigation * defendMitigation).round(),
+          );
+          heroHp = math.max(0, heroHp - dmg);
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: state.enemyIntent == EnemyIntent.heavyBlow
+                  ? CombatLogKind.enemyHeavyBlow
+                  : CombatLogKind.enemyStrike,
+              damage: dmg,
+            ),
+          );
+        }
       }
     }
 
@@ -1029,6 +1436,7 @@ abstract final class CombatEngine {
       inspirationUsed: inspirationUsed,
       status: defeated ? CombatStatus.defeat : CombatStatus.ongoing,
       log: log,
+      lastRoll: lastRoll,
     );
   }
 
@@ -1087,6 +1495,163 @@ abstract final class CombatEngine {
         enemyIntent: EnemyIntent.strike,
         availableInspiration: prev.availableInspiration,
         inspirationUsed: prev.inspirationUsed,
+        status: CombatStatus.ongoing,
+        log: const [],
+      ),
+    );
+  }
+
+  /// Starts a new [dungeon] expedition at room 1.
+  static DungeonRun startDungeon({
+    required CombatStats hero,
+    required DungeonDefinition dungeon,
+    int availableInspiration = 0,
+  }) {
+    return DungeonRun(
+      dungeon: dungeon,
+      hero: hero,
+      roomIndex: 0,
+      heroHp: hero.maxHp,
+      heroFocus: hero.maxFocus,
+      blessingsEarned: 0,
+      availableInspiration: math.max(0, availableInspiration),
+    );
+  }
+
+  /// Resolves the current [DungeonRoom] attribute check using `1d20 + mod + proficiency`.
+  static DungeonRun resolveDungeonRoom(
+    DungeonRun run, {
+    math.Random? random,
+    int? forcedD20,
+  }) {
+    if (run.inBossPhase || run.roomResolved) return run;
+    final room = run.currentRoom;
+    final nat = forcedD20 ?? rollD20(random);
+    final roll = resolveD20Check(
+      hero: run.hero,
+      attribute: room.attribute,
+      targetNumber: room.difficultyClass,
+      naturalRoll: nat,
+    );
+
+    if (roll.isHit) {
+      final mult = roll.isCriticalHit ? 1.5 : 1.0;
+      final hpGain =
+          (run.hero.maxHp * XpRules.dungeonCheckBlessingHpRecovery * mult)
+              .round();
+      final focusGain =
+          (run.hero.maxFocus * XpRules.dungeonCheckBlessingFocusRecovery * mult)
+              .round();
+      final nextHp = math.min<int>(run.hero.maxHp, run.heroHp + hpGain);
+      final nextFocus =
+          math.min<int>(run.hero.maxFocus, run.heroFocus + focusGain);
+      return DungeonRun(
+        dungeon: run.dungeon,
+        hero: run.hero,
+        roomIndex: run.roomIndex,
+        heroHp: nextHp,
+        heroFocus: nextFocus,
+        blessingsEarned: run.blessingsEarned + (roll.isCriticalHit ? 2 : 1),
+        availableInspiration: run.availableInspiration,
+        lastRoomRoll: roll,
+        lastRoomBypassed: false,
+        lastRoomDeltaHp: nextHp - run.heroHp,
+        roomResolved: true,
+      );
+    } else {
+      final mult = roll.isCriticalFumble ? 1.6 : 1.0;
+      final trapDmg = math.max(
+        2,
+        (run.hero.maxHp * XpRules.dungeonCheckTrapDamageFraction * mult)
+            .round(),
+      );
+      // Leave at least 1 HP on normal trap failure, or allow 0 HP if already at 1 HP on fumble.
+      final nextHp = roll.isCriticalFumble
+          ? math.max<int>(1, run.heroHp - trapDmg)
+          : math.max<int>(1, run.heroHp - trapDmg);
+      return DungeonRun(
+        dungeon: run.dungeon,
+        hero: run.hero,
+        roomIndex: run.roomIndex,
+        heroHp: nextHp,
+        heroFocus: run.heroFocus,
+        blessingsEarned: run.blessingsEarned,
+        availableInspiration: run.availableInspiration,
+        lastRoomRoll: roll,
+        lastRoomBypassed: false,
+        lastRoomDeltaHp: nextHp - run.heroHp,
+        roomResolved: true,
+      );
+    }
+  }
+
+  /// Cautiously bypasses the current [DungeonRoom] without rolling the d20,
+  /// paying a small stamina toll (`-5% HP`, `-3 Focus`).
+  static DungeonRun bypassDungeonRoom(DungeonRun run) {
+    if (run.inBossPhase || run.roomResolved) return run;
+    final toll = math.max(
+      1,
+      (run.hero.maxHp * XpRules.dungeonBypassHpFraction).round(),
+    );
+    final nextHp = math.max<int>(1, run.heroHp - toll);
+    final nextFocus = math.max<int>(0, run.heroFocus - 3);
+    return DungeonRun(
+      dungeon: run.dungeon,
+      hero: run.hero,
+      roomIndex: run.roomIndex,
+      heroHp: nextHp,
+      heroFocus: nextFocus,
+      blessingsEarned: run.blessingsEarned,
+      availableInspiration: run.availableInspiration,
+      lastRoomRoll: null,
+      lastRoomBypassed: true,
+      lastRoomDeltaHp: nextHp - run.heroHp,
+      roomResolved: true,
+    );
+  }
+
+  /// Advances the [DungeonRun] after a resolved room to either the next room
+  /// or the final Boss chamber.
+  static DungeonRun advanceDungeon(DungeonRun run) {
+    if (!run.roomResolved || run.inBossPhase) return run;
+    if (run.roomIndex + 1 < run.dungeon.rooms.length) {
+      return DungeonRun(
+        dungeon: run.dungeon,
+        hero: run.hero,
+        roomIndex: run.roomIndex + 1,
+        heroHp: run.heroHp,
+        heroFocus: run.heroFocus,
+        blessingsEarned: run.blessingsEarned,
+        availableInspiration: run.availableInspiration,
+      );
+    }
+
+    // Enter Boss Chamber carrying current HP, Focus, and earned blessings as initial buff turns!
+    final boss = run.dungeon.scaledBoss;
+    return DungeonRun(
+      dungeon: run.dungeon,
+      hero: run.hero,
+      roomIndex: run.roomIndex,
+      heroHp: run.heroHp,
+      heroFocus: run.heroFocus,
+      blessingsEarned: run.blessingsEarned,
+      availableInspiration: run.availableInspiration,
+      roomResolved: true,
+      bossEncounter: CombatEncounter(
+        hero: run.hero,
+        opponent: boss,
+        turn: 1,
+        heroHp: run.heroHp,
+        heroFocus: run.heroFocus,
+        enemyHp: boss.maxHp,
+        heroSkillCooldown: 0,
+        heroBuffTurns: run.blessingsEarned,
+        heroDefending: false,
+        enemyWeakenTurns: 0,
+        enemyStunned: false,
+        enemyIntent: EnemyIntent.strike,
+        availableInspiration: run.availableInspiration,
+        inspirationUsed: false,
         status: CombatStatus.ongoing,
         log: const [],
       ),

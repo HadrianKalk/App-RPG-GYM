@@ -3,6 +3,38 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Combate D20 (Crítico 20 / Falha Absurda 1 + Animação) + Aba Central de Combate + Etapa 5D (Dungeons) + Modo Tester
+- **Rolagem D20 + Atributo + Proficiência vs CA/CD (`combat.dart`, `xp_rules.dart`, `d20_roller_widget.dart`):**
+  - `D20RollResult` e `D20Outcome`: todo ataque do herói e teste de masmorra rola
+    `1d20 + mod(Atributo) + Proficiência` contra a Classe de Armadura (`CA/AC`)
+    do oponente ou Classe de Dificuldade (`CD/DC`) da sala.
+  - **20 Natural:** acerto crítico garantido (`2.0×` de dano).
+  - **1 Natural:** falha absurda (*Critical Fumble*), erro automático e dano de
+    abertura de guarda (`6%` do PV máximo).
+  - **Acerto normal:** tanto a chance de acertar quanto o multiplicador de
+    precisão do dano escalam com `d20 + mod(Atributo)`.
+  - `D20RollerBanner`: widget animado de dado d20 icosaédrico que gira/cicla as
+    faces e exibe o número sorteado + fórmula completa D&D 5e.
+- **5ª Aba Exclusiva de Combate + Retângulos de Seleção (`router.dart`, `arena_screen.dart`, `character_screen.dart`):**
+  - Removido o card da Arena de dentro da ficha do Herói e adicionada a aba
+    **Combate** (`/combat`) na `PixelNavBar`.
+  - Central de Combate com 4 retângulos de seleção explicativos:
+    1. **Modo História · Crônicas da Forja** no topo, em destaque, bloqueado com
+       badge `EM BREVE · FASE 2`;
+    2. **Arena de Duelos (1v1)**;
+    3. **Torneios da Forja (Gauntlet)**;
+    4. **Masmorras Profundas (Dungeons — Etapa 5D)**: 3 masmorras (`DungeonCatalog`)
+       com 3 salas de provação dos 6 atributos no d20 + Chefe final, concedendo
+       3 novos títulos e 3 novos cosméticos (zero XP).
+- **Modo Tester / Sandbox (`providers.dart`, `character_repository.dart`, `tester_panel_sheet.dart`):**
+  - Suporte a `--dart-define=TESTER_MODE=true` e botão direto **Modo Tester** na
+    Central de Combate e Configurações.
+  - Permite editar os 6 atributos (`8..30`), aplicar presets rápidos, ativar
+    fichas infinitas e forçar `20` (Crítico) ou `1` (Falha Absurda) no d20 sem
+    tocar no `xp_ledger`.
+- **Testes:** 112 testes passando, `flutter analyze` limpo.
+- **Próximo:** Fase 2 — Narrador IA e Modo História (Crônicas da Forja).
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 5C: Seleção de Classe Desbloqueada + Torneios da Forja
 - **Seleção de Classe Desbloqueada (`class_resolver.dart`, `xp_rules.dart`, `database.dart` schema v8):**
   - `ClassResolver.unlockedClasses` e `effectiveClass`: desbloqueia `Aventureiro`,

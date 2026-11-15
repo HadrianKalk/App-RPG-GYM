@@ -1151,4 +1151,219 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get tournamentVictoryTitle => 'Campeão do Torneio!';
+
+  @override
+  String get navCombat => 'Combate';
+
+  @override
+  String get combatHubTitle => 'Central de Combate';
+
+  @override
+  String get combatHubSubtitle =>
+      'Ponha seus atributos reais à prova em duelos, torneios e masmorras (sem ganho de XP — recompensas de prestígio).';
+
+  @override
+  String get combatBackToHub => 'Voltar aos Modos';
+
+  @override
+  String get combatModeStoryTitle => 'Modo História · Crônicas da Forja';
+
+  @override
+  String get combatModeStoryBadge => 'EM BREVE · FASE 2';
+
+  @override
+  String get combatModeStoryDescription =>
+      'Campanha narrativa sombria conduzida pelo Mestre de Jogo. Suas escolhas, sua origem e o nível real dos seus 6 atributos abrirão caminhos, diálogos e provações únicas.';
+
+  @override
+  String get combatModeDuelsTitle => 'Arena de Duelos (1v1)';
+
+  @override
+  String get combatModeDuelsDescription =>
+      'Duelos táticos 1v1 por turnos contra os campeões da Forja. Role o d20 + seu atributo principal contra a Classe de Armadura (CA) do inimigo, use sua habilidade de classe e conquiste títulos e cosméticos exclusivos.';
+
+  @override
+  String get combatModeDuelsButton => 'Entrar na Arena 1v1';
+
+  @override
+  String get combatModeTournamentsTitle => 'Torneios da Forja (Gauntlet)';
+
+  @override
+  String combatModeTournamentsBadge(int won, int total) {
+    return 'Torneios: $won/$total';
+  }
+
+  @override
+  String get combatModeTournamentsDescription =>
+      'Chaves eliminatórias de múltiplas rodadas em sequência. Os adversários escalam de poder a cada liga e seu herói recupera apenas parte do PV (+35%) e Foco (+50%) entre as lutas.';
+
+  @override
+  String get combatModeTournamentsButton => 'Ver Chaves de Torneio';
+
+  @override
+  String get combatModeDungeonsTitle => 'Masmorras Profundas (Dungeons)';
+
+  @override
+  String combatModeDungeonsBadge(int completed, int total) {
+    return 'Masmorras: $completed/$total';
+  }
+
+  @override
+  String get combatModeDungeonsDescription =>
+      'Explore salas perigosas com armadilhas, enigmas arcanos e provações que testam seus 6 atributos no d20 antes de enfrentar o Chefe da masmorra.';
+
+  @override
+  String get combatModeDungeonsButton => 'Explorar Masmorras';
+
+  @override
+  String combatArmorClassLabel(int ac) {
+    return 'CA $ac';
+  }
+
+  @override
+  String get combatD20CritTitle => '20 NATURAL! ACERTO CRÍTICO (2× DANO)!';
+
+  @override
+  String get combatD20FumbleTitle => '1 NATURAL! FALHA ABSURDA!';
+
+  @override
+  String combatD20HitTitle(int total, int ac) {
+    return 'ACERTOU! (Total $total vs CA $ac)';
+  }
+
+  @override
+  String combatD20MissTitle(int total, int ac) {
+    return 'ERROU! (Total $total vs CA $ac)';
+  }
+
+  @override
+  String combatD20Formula(
+    int roll,
+    String attr,
+    String mod,
+    int prof,
+    int total,
+    String targetLabel,
+    int target,
+  ) {
+    return 'd20 ($roll) + $attr ($mod) + Prof (+$prof) = $total vs $targetLabel $target';
+  }
+
+  @override
+  String combatLogHeroFumble(int turn, int dmg) {
+    return 'T$turn: FALHA ABSURDA (1 no d20)! Você abriu a guarda e sofreu $dmg de dano!';
+  }
+
+  @override
+  String get dungeonEnterButton => 'Explorar Masmorra (1 ficha)';
+
+  @override
+  String dungeonRoomsBadge(int rooms) {
+    return '$rooms salas + Chefe';
+  }
+
+  @override
+  String dungeonRoomProgress(int current, int total) {
+    return 'Sala $current/$total';
+  }
+
+  @override
+  String dungeonDifficultyLabel(int dc) {
+    return 'CD $dc';
+  }
+
+  @override
+  String dungeonRoomCheckButton(String attr, int dc) {
+    return 'Rolar d20 + $attr (CD $dc)';
+  }
+
+  @override
+  String get dungeonRoomBypassButton =>
+      'Contornar com Cautela (-5% PV, -3 Foco)';
+
+  @override
+  String get dungeonRoomBlessingTitle => 'Provação Superada!';
+
+  @override
+  String dungeonRoomBlessingBody(String attr, int hp) {
+    return 'Seu domínio de $attr abriu caminho! Você recuperou +$hp PV, +Foco e ganhou +1 Benção para o Chefe.';
+  }
+
+  @override
+  String get dungeonRoomTrapTitle => 'Armadilha Acionada!';
+
+  @override
+  String dungeonRoomTrapBody(int dmg) {
+    return 'A provação cobrou seu preço: você sofreu $dmg de dano ao atravessar a sala.';
+  }
+
+  @override
+  String get dungeonRoomBypassTitle => 'Passagem Cautelosa';
+
+  @override
+  String dungeonRoomBypassBody(int dmg) {
+    return 'Você contornou o perigo pelo caminho longo, gastando $dmg PV e 3 de Foco.';
+  }
+
+  @override
+  String dungeonNextRoomButton(int next) {
+    return 'Avançar para a Sala $next';
+  }
+
+  @override
+  String get dungeonEnterBossButton => 'Enfrentar o Chefe da Masmorra';
+
+  @override
+  String get dungeonVictoryTitle => 'Masmorra Conquistada!';
+
+  @override
+  String heroDungeonLockedHint(String dungeon) {
+    return 'Conquiste $dungeon para desbloquear';
+  }
+
+  @override
+  String get testerButtonLabel => 'Modo Tester';
+
+  @override
+  String get testerActiveBadge => 'TESTER ATIVO';
+
+  @override
+  String get testerSheetTitle => 'Painel de Tester (Sandbox)';
+
+  @override
+  String get testerSheetSubtitle =>
+      'Edite atributos, fichas e o dado d20 em memória para testar combates e classes sem alterar seu histórico real de XP.';
+
+  @override
+  String get testerEnableSwitch => 'Ativar atributos de Tester';
+
+  @override
+  String get testerInfiniteTokens => 'Fichas de Combate Infinitas';
+
+  @override
+  String get testerInspirationLabel => 'Inspiração Heroica';
+
+  @override
+  String get testerDiceModeTitle => 'Rolagem do Dado d20';
+
+  @override
+  String get testerDiceRandom => 'Aleatório (1d20)';
+
+  @override
+  String get testerDiceForce20 => 'Forçar 20 (Crítico)';
+
+  @override
+  String get testerDiceForce1 => 'Forçar 1 (Falha Absurda)';
+
+  @override
+  String get testerPresetNovice => 'Iniciante (10)';
+
+  @override
+  String get testerPresetBalanced => 'Veterano (16)';
+
+  @override
+  String get testerPresetLegend => 'Lenda (22)';
+
+  @override
+  String get testerResetButton => 'Voltar aos Atributos Reais';
 }

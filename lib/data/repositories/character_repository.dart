@@ -3,6 +3,7 @@ import '../../core/game/attributes.dart';
 import '../../core/game/class_resolver.dart';
 import '../../core/game/progression.dart';
 import '../../core/game/xp_event.dart';
+import '../../core/game/xp_rules.dart';
 import '../database.dart';
 
 final class CharacterState {
@@ -42,6 +43,53 @@ final class CharacterState {
       attributeProgressions: progs,
       totalXpMap: defaultMap,
       inspirationCount: 0,
+    );
+  }
+
+  /// Builds an in-memory sandbox [CharacterState] for Tester Mode from custom
+  /// attribute scores (`8..30`), without mutating `xp_ledger`.
+  factory CharacterState.fromOverrideScores({
+    required Map<Attribute, int> scores,
+    required int inspirationCount,
+    CharacterClass? selectedClass,
+  }) {
+    final xpMap = <Attribute, double>{
+      for (final a in Attribute.values)
+        a: Progression.xpForAttributeScore(
+          (scores[a] ?? XpRules.baseAttributeScore).clamp(8, 30),
+        ),
+    };
+    final totalXp = xpMap.values.fold<double>(0.0, (sum, v) => sum + v);
+    final progressions = <Attribute, AttributeProgression>{
+      for (final a in Attribute.values)
+        a: () {
+          final targetScore =
+              (scores[a] ?? XpRules.baseAttributeScore).clamp(8, 30);
+          final xp = xpMap[a] ?? 0.0;
+          return AttributeProgression(
+            attribute: a,
+            score: targetScore,
+            modifier: Progression.calculateModifier(targetScore),
+            currentXp: xp,
+            xpForNextPoint: Progression.xpCostForScore(targetScore),
+            progressPercent: 0.0,
+          );
+        }(),
+    };
+    final emergent = ClassResolver.resolveClass(xpMap);
+    final unlocked = ClassResolver.unlockedClasses(xpMap);
+    final effective = ClassResolver.effectiveClass(
+      attributeXpMap: xpMap,
+      selectedClass: selectedClass,
+    );
+    return CharacterState(
+      levelInfo: Progression.calculateLevel(totalXp),
+      characterClass: effective,
+      emergentClass: emergent,
+      unlockedClasses: unlocked,
+      attributeProgressions: progressions,
+      totalXpMap: xpMap,
+      inspirationCount: inspirationCount,
     );
   }
 }

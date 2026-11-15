@@ -87,6 +87,18 @@ abstract final class XpRules {
   static const double tournamentBetweenRoundHpRecovery = 0.35;
   static const double tournamentBetweenRoundFocusRecovery = 0.50;
 
+  /// Damage multiplier on a Natural 20 (or forced critical hit).
+  static const double combatCriticalMultiplier = 2.0;
+
+  /// Fraction of max HP lost by the hero on a Natural 1 (Critical Fumble).
+  static const double combatFumbleSelfDamageFraction = 0.06;
+
+  /// Dungeon room attribute check rewards and trap penalties.
+  static const double dungeonCheckBlessingHpRecovery = 0.15;
+  static const double dungeonCheckBlessingFocusRecovery = 0.25;
+  static const double dungeonCheckTrapDamageFraction = 0.12;
+  static const double dungeonBypassHpFraction = 0.05;
+
   // --- Weekly consistency (see weekly_progress.dart) ---
   /// Default weekly goal: training days per week.
   static const int weeklyGoalDefault = 3;

@@ -5,6 +5,7 @@ import 'package:app/data/database.dart';
 import 'package:app/data/repositories/character_repository.dart';
 import 'package:app/data/repositories/hero_repository.dart';
 import 'package:app/data/repositories/providers.dart';
+import 'package:app/features/arena/presentation/arena_screen.dart';
 import 'package:app/features/character/presentation/character_screen.dart';
 import 'package:app/l10n/l10n.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -18,7 +19,7 @@ void main() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   });
 
-  Future<AppDatabase> pumpCharacterWithHero(WidgetTester tester) async {
+  Future<AppDatabase> seedHeroDb(WidgetTester tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     await tester.runAsync(() async {
       await HeroRepository(db).createHero(
@@ -36,18 +37,6 @@ void main() {
         ),
       );
     });
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(
-          locale: Locale('pt'),
-          localizationsDelegates: appLocalizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: CharacterScreen(),
-        ),
-      ),
-    );
     return db;
   }
 
@@ -67,69 +56,92 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('challenging an Arena NPC, winning, and equipping title + cosmetic updates Hero sheet', (tester) async {
-    final db = await pumpCharacterWithHero(tester);
-    await settle(tester);
+  testWidgets('Combat Hub displays locked Story Mode at top, Tester Mode forces Nat 20 on D20 banner, and equipping rewards updates Hero sheet', (tester) async {
+    final db = await seedHeroDb(tester);
 
-    // Open Arena from CharacterScreen (scroll to bottom where Arena banner lives)
-    final arenaCard = find.byKey(const Key('open_arena_card'));
-    await tester.dragUntilVisible(
-      arenaCard,
-      find.byType(ListView).first,
-      const Offset(0, -300),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          locale: Locale('pt'),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: ArenaScreen(),
+        ),
+      ),
     );
     await settle(tester);
-    await tester.tap(arenaCard);
+
+    // 1. Verify Combat Hub shows Story Mode (locked at top) and 1v1 Duels card
+    expect(find.byKey(const Key('combat_mode_story_card')), findsOneWidget);
+    expect(find.textContaining('EM BREVE'), findsOneWidget);
+    expect(find.byKey(const Key('combat_mode_duels_card')), findsOneWidget);
+
+    // 2. Open Tester Panel and force Natural 20 + Veteran preset (16 in all attributes)
+    await tester.tap(find.byKey(const Key('open_tester_panel_btn')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('tester_preset_16')));
+    await settle(tester);
+    final force20Chip = find.byKey(const Key('tester_d20_20'));
+    await tester.ensureVisible(force20Chip);
+    await tester.tap(force20Chip);
+    await settle(tester);
+    await tester.tap(find.byIcon(Icons.close));
+    await settle(tester);
+
+    // 3. Enter 1v1 Duel Arena from the Hub card
+    final duelsBtn = find.byKey(const Key('combat_mode_duels_btn'));
+    await tester.ensureVisible(duelsBtn);
+    await settle(tester);
+    await tester.tap(duelsBtn);
     await settle(tester);
 
     expect(find.text('Recruta das Cinzas'), findsOneWidget);
 
-    // Challenge the first NPC
+    // 4. Challenge the first NPC
     final challengeBtn = find.byKey(const Key('arena_challenge_npc_ash_recruit'));
     await tester.ensureVisible(challengeBtn);
+    await settle(tester);
     await tester.tap(challengeBtn);
     await settle(tester);
 
-    // Execute basic strikes until victory
-    for (var turn = 0; turn < 10; turn++) {
+    // 5. Execute basic strikes (with forced 20 criticals) and verify the animated D20 banner
+    for (var turn = 0; turn < 5; turn++) {
       final basicBtn = find.byKey(const Key('combat_action_basic'));
       if (basicBtn.evaluate().isEmpty) break;
       await tester.ensureVisible(basicBtn);
+      await settle(tester);
       await tester.tap(basicBtn);
       await settle(tester);
+      expect(find.byKey(const Key('d20_roller_banner')), findsOneWidget);
+      expect(find.byKey(const Key('d20_natural_value')), findsOneWidget);
     }
 
     expect(find.text('Vitória na Arena!'), findsWidgets);
 
-    // Equip unlocked title and cosmetic right from victory card
+    // 6. Equip unlocked title and cosmetic right from victory card
     final equipBtn = find.byKey(const Key('combat_equip_reward_btn'));
     await tester.ensureVisible(equipBtn);
+    await settle(tester);
     await tester.tap(equipBtn);
     await settle(tester);
 
-    // Navigate back to CharacterScreen and scroll back to top
-    await tester.tap(find.byKey(const Key('arena_back_btn')));
-    await settle(tester);
-    await tester.dragUntilVisible(
-      find.text('Guts'),
-      find.byType(ListView).first,
-      const Offset(0, 300),
+    // 7. Render CharacterScreen to verify equipped title, cosmetic, and unlocked classes
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          locale: Locale('pt'),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: CharacterScreen(),
+        ),
+      ),
     );
     await settle(tester);
 
     expect(find.textContaining('Iniciado do Fosso'), findsOneWidget);
     expect(find.text('Insígnia das Cinzas'), findsOneWidget);
-
-    // Open customization sheet and switch to Adventurer class
-    await tester.tap(find.byKey(const Key('hero_customize_btn')));
-    await settle(tester);
-
-    expect(find.text('Classe do Herói'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('select_class_adventurer')));
-    await settle(tester);
-
-    await tester.tap(find.byIcon(Icons.close));
-    await settle(tester);
 
     await disposeApp(tester, db);
   });

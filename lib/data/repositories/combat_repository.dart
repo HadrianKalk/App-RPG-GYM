@@ -38,24 +38,32 @@ final class ArenaState {
   int get tournamentsWonCount =>
       TournamentCatalog.tournaments.where((t) => isDefeated(t.id)).length;
 
-  /// Whether [opponentId] (or tournament id) has been defeated at least once.
+  /// Number of distinct Dungeons conquered at least once.
+  int get dungeonsCompletedCount =>
+      DungeonCatalog.dungeons.where((d) => isDefeated(d.id)).length;
+
+  /// Whether [opponentId] (or tournament/dungeon id) has been defeated at least once.
   bool isDefeated(String opponentId) =>
       (victoriesByOpponent[opponentId] ?? 0) > 0;
 
-  /// All unlocked combat title ids (`title_*`) from Arena and Tournaments.
+  /// All unlocked combat title ids (`title_*`) from Arena, Tournaments, and Dungeons.
   Set<String> get unlockedTitleIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.titleId,
         for (final t in TournamentCatalog.tournaments)
           if (isDefeated(t.id)) t.reward.titleId,
+        for (final d in DungeonCatalog.dungeons)
+          if (isDefeated(d.id)) d.reward.titleId,
       };
 
-  /// All unlocked combat cosmetic ids (`cosmetic_*`) from Arena and Tournaments.
+  /// All unlocked combat cosmetic ids (`cosmetic_*`) from Arena, Tournaments, and Dungeons.
   Set<String> get unlockedCosmeticIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.cosmeticId,
         for (final t in TournamentCatalog.tournaments)
           if (isDefeated(t.id)) t.reward.cosmeticId,
+        for (final d in DungeonCatalog.dungeons)
+          if (isDefeated(d.id)) d.reward.cosmeticId,
       };
 }
 
@@ -239,6 +247,51 @@ class CombatRepository {
     await _db.into(_db.arenaProgress).insertOnConflictUpdate(
           ArenaProgressCompanion.insert(
             opponentId: tournament.id,
+            victories: Value(prevVictories + 1),
+            lastDefeatedAt: timestamp,
+          ),
+        );
+
+    return prevVictories == 0;
+  }
+
+  /// Records the end of a multi-room Dungeon expedition.
+  ///
+  /// - Never grants XP (Decision #40).
+  /// - Deducts 1 Inspiration via append-only ledger if [spentInspiration] is `true`.
+  /// - On dungeon Boss victory, increments the dungeon's completion count and
+  ///   returns `true` when this is the first time conquering [dungeon].
+  Future<bool> finishDungeon({
+    required DungeonDefinition dungeon,
+    required bool victory,
+    required bool spentInspiration,
+    DateTime? now,
+  }) async {
+    final timestamp = now ?? DateTime.now();
+
+    if (spentInspiration) {
+      await _characterRepo.addXp(
+        XpEvent(
+          id: _nextId(timestamp),
+          attribute: Attribute.charisma,
+          amount: 0.0,
+          source: XpSource.inspirationSpend,
+          timestamp: timestamp,
+          description: 'Heroic Inspiration spent in Dungeon (${dungeon.id})',
+        ),
+      );
+    }
+
+    if (!victory) return false;
+
+    final existing = await (_db.select(_db.arenaProgress)
+          ..where((t) => t.opponentId.equals(dungeon.id)))
+        .getSingleOrNull();
+    final prevVictories = existing?.victories ?? 0;
+
+    await _db.into(_db.arenaProgress).insertOnConflictUpdate(
+          ArenaProgressCompanion.insert(
+            opponentId: dungeon.id,
             victories: Value(prevVictories + 1),
             lastDefeatedAt: timestamp,
           ),

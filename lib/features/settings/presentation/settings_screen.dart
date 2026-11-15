@@ -12,6 +12,7 @@ import '../../../core/game/xp_rules.dart';
 import '../../../data/repositories/providers.dart';
 import '../data/settings_providers.dart';
 import '../domain/app_settings.dart';
+import 'tester_panel_sheet.dart';
 
 /// User preferences: language and display font, plus the About section.
 class SettingsScreen extends ConsumerWidget {
@@ -73,6 +74,28 @@ class SettingsScreen extends ConsumerWidget {
           const _WeeklyGoalTile(),
           const SizedBox(height: 10),
           const _WaterGoalTile(),
+          const SizedBox(height: 20),
+          _SectionTitle(l10n.testerButtonLabel),
+          PixelFrame(
+            key: const Key('settings_open_tester_btn'),
+            onTap: () => showTesterPanelSheet(context),
+            child: Row(
+              children: [
+                const PixelIcon(PixelIcons.swords, size: 22, color: AppTheme.emberGold),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.testerSheetTitle, style: Theme.of(context).textTheme.titleMedium),
+                      Text(l10n.testerSheetSubtitle, style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: AppTheme.darkAsh),
+              ],
+            ),
+          ),
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsAbout),
           PixelFrame(

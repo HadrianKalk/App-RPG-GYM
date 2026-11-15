@@ -144,3 +144,31 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Fichas de entrada da Arena (`ArenaTokenRules`): 2 entradas grátis/dia + 1
       por treino concluído + 1 por missão diária cumprida + 1 por hábito de
       saúde (meta de água ou check-in de dieta).
+43. **Rolagem `1d20 + Atributo + Proficiência` vs Classe de Armadura (`CA/AC`) e Classe de Dificuldade (`CD/DC`):**
+    - Todo ataque do herói (`basicStrike`, `classSkill`) e toda provação de sala
+      de masmorra rola `1d20 + mod(Atributo) + Bônus de Proficiência` contra a
+      `CA` do oponente (ou `CD` da sala).
+    - **20 Natural (ou Inspiração Heroica):** acerto crítico automático (`2.0×`
+      de dano) com destaque dourado no dado d20 animado.
+    - **1 Natural (Falha Absurda / *Critical Fumble*):** erro automático e o
+      herói abre a guarda, sofrendo `6%` do PV máximo como dano de recuo.
+    - **Acerto (`total >= CA`):** tanto a chance de acerto quanto o multiplicador
+      de precisão do dano escalam com `d20 + mod(Atributo)`.
+44. **Aba exclusiva de Combate (`PixelNavBar`) + Central de Modos + Dungeons (Etapa 5D):**
+    - O combate vive na 5ª aba da barra inferior (`/combat`), mantendo a aba do
+      Herói limpa e dedicada à ficha.
+    - A Central de Combate apresenta 4 retângulos de seleção empilhados:
+      1. **Modo História · Crônicas da Forja** (no topo, em destaque, bloqueado
+         com badge `EM BREVE · FASE 2`);
+      2. **Arena de Duelos (1v1)**;
+      3. **Torneios da Forja (Gauntlet)**;
+      4. **Masmorras Profundas (Dungeons — `DungeonCatalog`)**: 3 masmorras de
+         múltiplas salas que testam todos os 6 atributos no d20 antes do Chefe
+         final, concedendo títulos e cosméticos exclusivos (zero XP).
+45. **Modo Tester / Sandbox (`TesterModeState` / `TesterPanelSheet`):**
+    - Pode ser ativado por `--dart-define=TESTER_MODE=true` ou diretamente pelo
+      botão **Modo Tester** na Central de Combate e nas Configurações.
+    - Sobrescreve os 6 atributos (`8..30`), fichas de combate infinitas,
+      Inspiração e permite forçar `20` (Crítico) ou `1` (Falha Absurda) no d20
+      em memória (`CharacterState.fromOverrideScores`), sem jamais violar a
+      imutabilidade do `xp_ledger`.

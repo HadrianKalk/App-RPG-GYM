@@ -1885,6 +1885,350 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Campeão do Torneio!'**
   String get tournamentVictoryTitle;
+
+  /// No description provided for @navCombat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Combate'**
+  String get navCombat;
+
+  /// No description provided for @combatHubTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Central de Combate'**
+  String get combatHubTitle;
+
+  /// No description provided for @combatHubSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ponha seus atributos reais à prova em duelos, torneios e masmorras (sem ganho de XP — recompensas de prestígio).'**
+  String get combatHubSubtitle;
+
+  /// No description provided for @combatBackToHub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar aos Modos'**
+  String get combatBackToHub;
+
+  /// No description provided for @combatModeStoryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo História · Crônicas da Forja'**
+  String get combatModeStoryTitle;
+
+  /// No description provided for @combatModeStoryBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'EM BREVE · FASE 2'**
+  String get combatModeStoryBadge;
+
+  /// No description provided for @combatModeStoryDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Campanha narrativa sombria conduzida pelo Mestre de Jogo. Suas escolhas, sua origem e o nível real dos seus 6 atributos abrirão caminhos, diálogos e provações únicas.'**
+  String get combatModeStoryDescription;
+
+  /// No description provided for @combatModeDuelsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arena de Duelos (1v1)'**
+  String get combatModeDuelsTitle;
+
+  /// No description provided for @combatModeDuelsDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Duelos táticos 1v1 por turnos contra os campeões da Forja. Role o d20 + seu atributo principal contra a Classe de Armadura (CA) do inimigo, use sua habilidade de classe e conquiste títulos e cosméticos exclusivos.'**
+  String get combatModeDuelsDescription;
+
+  /// No description provided for @combatModeDuelsButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar na Arena 1v1'**
+  String get combatModeDuelsButton;
+
+  /// No description provided for @combatModeTournamentsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Torneios da Forja (Gauntlet)'**
+  String get combatModeTournamentsTitle;
+
+  /// No description provided for @combatModeTournamentsBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Torneios: {won}/{total}'**
+  String combatModeTournamentsBadge(int won, int total);
+
+  /// No description provided for @combatModeTournamentsDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chaves eliminatórias de múltiplas rodadas em sequência. Os adversários escalam de poder a cada liga e seu herói recupera apenas parte do PV (+35%) e Foco (+50%) entre as lutas.'**
+  String get combatModeTournamentsDescription;
+
+  /// No description provided for @combatModeTournamentsButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver Chaves de Torneio'**
+  String get combatModeTournamentsButton;
+
+  /// No description provided for @combatModeDungeonsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Masmorras Profundas (Dungeons)'**
+  String get combatModeDungeonsTitle;
+
+  /// No description provided for @combatModeDungeonsBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'Masmorras: {completed}/{total}'**
+  String combatModeDungeonsBadge(int completed, int total);
+
+  /// No description provided for @combatModeDungeonsDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Explore salas perigosas com armadilhas, enigmas arcanos e provações que testam seus 6 atributos no d20 antes de enfrentar o Chefe da masmorra.'**
+  String get combatModeDungeonsDescription;
+
+  /// No description provided for @combatModeDungeonsButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Explorar Masmorras'**
+  String get combatModeDungeonsButton;
+
+  /// No description provided for @combatArmorClassLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'CA {ac}'**
+  String combatArmorClassLabel(int ac);
+
+  /// No description provided for @combatD20CritTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'20 NATURAL! ACERTO CRÍTICO (2× DANO)!'**
+  String get combatD20CritTitle;
+
+  /// No description provided for @combatD20FumbleTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 NATURAL! FALHA ABSURDA!'**
+  String get combatD20FumbleTitle;
+
+  /// No description provided for @combatD20HitTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'ACERTOU! (Total {total} vs CA {ac})'**
+  String combatD20HitTitle(int total, int ac);
+
+  /// No description provided for @combatD20MissTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'ERROU! (Total {total} vs CA {ac})'**
+  String combatD20MissTitle(int total, int ac);
+
+  /// No description provided for @combatD20Formula.
+  ///
+  /// In pt, this message translates to:
+  /// **'d20 ({roll}) + {attr} ({mod}) + Prof (+{prof}) = {total} vs {targetLabel} {target}'**
+  String combatD20Formula(
+    int roll,
+    String attr,
+    String mod,
+    int prof,
+    int total,
+    String targetLabel,
+    int target,
+  );
+
+  /// No description provided for @combatLogHeroFumble.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: FALHA ABSURDA (1 no d20)! Você abriu a guarda e sofreu {dmg} de dano!'**
+  String combatLogHeroFumble(int turn, int dmg);
+
+  /// No description provided for @dungeonEnterButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Explorar Masmorra (1 ficha)'**
+  String get dungeonEnterButton;
+
+  /// No description provided for @dungeonRoomsBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'{rooms} salas + Chefe'**
+  String dungeonRoomsBadge(int rooms);
+
+  /// No description provided for @dungeonRoomProgress.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sala {current}/{total}'**
+  String dungeonRoomProgress(int current, int total);
+
+  /// No description provided for @dungeonDifficultyLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'CD {dc}'**
+  String dungeonDifficultyLabel(int dc);
+
+  /// No description provided for @dungeonRoomCheckButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rolar d20 + {attr} (CD {dc})'**
+  String dungeonRoomCheckButton(String attr, int dc);
+
+  /// No description provided for @dungeonRoomBypassButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contornar com Cautela (-5% PV, -3 Foco)'**
+  String get dungeonRoomBypassButton;
+
+  /// No description provided for @dungeonRoomBlessingTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Provação Superada!'**
+  String get dungeonRoomBlessingTitle;
+
+  /// No description provided for @dungeonRoomBlessingBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seu domínio de {attr} abriu caminho! Você recuperou +{hp} PV, +Foco e ganhou +1 Benção para o Chefe.'**
+  String dungeonRoomBlessingBody(String attr, int hp);
+
+  /// No description provided for @dungeonRoomTrapTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Armadilha Acionada!'**
+  String get dungeonRoomTrapTitle;
+
+  /// No description provided for @dungeonRoomTrapBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A provação cobrou seu preço: você sofreu {dmg} de dano ao atravessar a sala.'**
+  String dungeonRoomTrapBody(int dmg);
+
+  /// No description provided for @dungeonRoomBypassTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Passagem Cautelosa'**
+  String get dungeonRoomBypassTitle;
+
+  /// No description provided for @dungeonRoomBypassBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você contornou o perigo pelo caminho longo, gastando {dmg} PV e 3 de Foco.'**
+  String dungeonRoomBypassBody(int dmg);
+
+  /// No description provided for @dungeonNextRoomButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avançar para a Sala {next}'**
+  String dungeonNextRoomButton(int next);
+
+  /// No description provided for @dungeonEnterBossButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enfrentar o Chefe da Masmorra'**
+  String get dungeonEnterBossButton;
+
+  /// No description provided for @dungeonVictoryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Masmorra Conquistada!'**
+  String get dungeonVictoryTitle;
+
+  /// No description provided for @heroDungeonLockedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conquiste {dungeon} para desbloquear'**
+  String heroDungeonLockedHint(String dungeon);
+
+  /// No description provided for @testerButtonLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo Tester'**
+  String get testerButtonLabel;
+
+  /// No description provided for @testerActiveBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'TESTER ATIVO'**
+  String get testerActiveBadge;
+
+  /// No description provided for @testerSheetTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Painel de Tester (Sandbox)'**
+  String get testerSheetTitle;
+
+  /// No description provided for @testerSheetSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Edite atributos, fichas e o dado d20 em memória para testar combates e classes sem alterar seu histórico real de XP.'**
+  String get testerSheetSubtitle;
+
+  /// No description provided for @testerEnableSwitch.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ativar atributos de Tester'**
+  String get testerEnableSwitch;
+
+  /// No description provided for @testerInfiniteTokens.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fichas de Combate Infinitas'**
+  String get testerInfiniteTokens;
+
+  /// No description provided for @testerInspirationLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Inspiração Heroica'**
+  String get testerInspirationLabel;
+
+  /// No description provided for @testerDiceModeTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rolagem do Dado d20'**
+  String get testerDiceModeTitle;
+
+  /// No description provided for @testerDiceRandom.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aleatório (1d20)'**
+  String get testerDiceRandom;
+
+  /// No description provided for @testerDiceForce20.
+  ///
+  /// In pt, this message translates to:
+  /// **'Forçar 20 (Crítico)'**
+  String get testerDiceForce20;
+
+  /// No description provided for @testerDiceForce1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Forçar 1 (Falha Absurda)'**
+  String get testerDiceForce1;
+
+  /// No description provided for @testerPresetNovice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Iniciante (10)'**
+  String get testerPresetNovice;
+
+  /// No description provided for @testerPresetBalanced.
+  ///
+  /// In pt, this message translates to:
+  /// **'Veterano (16)'**
+  String get testerPresetBalanced;
+
+  /// No description provided for @testerPresetLegend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lenda (22)'**
+  String get testerPresetLegend;
+
+  /// No description provided for @testerResetButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar aos Atributos Reais'**
+  String get testerResetButton;
 }
 
 class _AppLocalizationsDelegate

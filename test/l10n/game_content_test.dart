@@ -43,6 +43,16 @@ void main() {
         'combatTitle.${t.reward.titleId}',
         'combatCosmetic.${t.reward.cosmeticId}',
       ],
+      for (final d in DungeonCatalog.dungeons) ...[
+        'dungeon.${d.id}.name',
+        'dungeon.${d.id}.lore',
+        'combatTitle.${d.reward.titleId}',
+        'combatCosmetic.${d.reward.cosmeticId}',
+        for (final r in d.rooms) ...[
+          'dungeonRoom.${r.id}.name',
+          'dungeonRoom.${r.id}.description',
+        ],
+      ],
     ];
     for (final lang in GameText.supportedLanguages) {
       final text = GameText(lang);

@@ -209,6 +209,16 @@ class HeroCustomizationSheet extends ConsumerWidget {
                 accentColor: AppTheme.emberGold,
                 onTap: () => heroRepo.setEquippedTitle(t.reward.titleId),
               ),
+            for (final d in DungeonCatalog.dungeons)
+              _RewardOptionTile(
+                tileKey: Key('equip_title_${d.reward.titleId}'),
+                label: game.combatTitle(d.reward.titleId),
+                lockedHint: l10n.heroDungeonLockedHint(game.dungeonName(d.id)),
+                unlocked: unlockedTitles.contains(d.reward.titleId),
+                equipped: hero?.equippedTitleId == d.reward.titleId,
+                accentColor: AppTheme.emberGold,
+                onTap: () => heroRepo.setEquippedTitle(d.reward.titleId),
+              ),
             const SizedBox(height: 14),
 
             // --- Hero Cosmetics Section -------------------------------------
@@ -253,6 +263,16 @@ class HeroCustomizationSheet extends ConsumerWidget {
                 equipped: hero?.equippedCosmeticId == t.reward.cosmeticId,
                 accentColor: AppTheme.attributeColor(Attribute.charisma),
                 onTap: () => heroRepo.setEquippedCosmetic(t.reward.cosmeticId),
+              ),
+            for (final d in DungeonCatalog.dungeons)
+              _RewardOptionTile(
+                tileKey: Key('equip_cosmetic_${d.reward.cosmeticId}'),
+                label: game.combatCosmetic(d.reward.cosmeticId),
+                lockedHint: l10n.heroDungeonLockedHint(game.dungeonName(d.id)),
+                unlocked: unlockedCosmetics.contains(d.reward.cosmeticId),
+                equipped: hero?.equippedCosmeticId == d.reward.cosmeticId,
+                accentColor: AppTheme.attributeColor(Attribute.charisma),
+                onTap: () => heroRepo.setEquippedCosmetic(d.reward.cosmeticId),
               ),
           ],
         );

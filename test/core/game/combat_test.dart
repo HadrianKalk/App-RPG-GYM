@@ -424,4 +424,117 @@ void main() {
       expect(round2.encounter.opponent.id, 'npc_iron_sentinel');
     });
   });
+
+  group('D20 Roll Mechanics, Critical Hit (20) & Critical Fumble (1)', () {
+    test('Natural 20 guarantees criticalHit (2x damage), Natural 1 causes criticalFumble, and d20 + Attribute scales hit & damage', () {
+      final hero = CombatStats.fromHero(
+        level: 4,
+        characterClass: CharacterClass.warrior,
+        attributeScores: {for (final a in Attribute.values) a: 14},
+      );
+      final inquisitor = ArenaCatalog.byId('npc_blood_inquisitor')!;
+      final start = CombatEngine.start(hero: hero, opponent: inquisitor);
+
+      // 1. Natural 20 -> Critical Hit (2x damage)
+      final on20 = CombatEngine.executeTurn(
+        start,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+        forcedD20: 20,
+      );
+      expect(on20.lastRoll, isNotNull);
+      expect(on20.lastRoll!.naturalRoll, 20);
+      expect(on20.lastRoll!.outcome, D20Outcome.criticalHit);
+      final critDmg = on20.log
+          .firstWhere((e) => e.kind == CombatLogKind.heroBasicStrike)
+          .damage;
+
+      // 2. Normal Hit (roll 15) vs Lower Hit (roll 10) -> 15 deals more damage than 10
+      final on15 = CombatEngine.executeTurn(
+        start,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+        forcedD20: 15,
+      );
+      final on10 = CombatEngine.executeTurn(
+        start,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+        forcedD20: 10,
+      );
+      final dmg15 = on15.log
+          .firstWhere((e) => e.kind == CombatLogKind.heroBasicStrike)
+          .damage;
+      final dmg10 = on10.log
+          .firstWhere((e) => e.kind == CombatLogKind.heroBasicStrike)
+          .damage;
+      expect(critDmg, greaterThan(dmg15));
+      expect(dmg15, greaterThan(dmg10));
+
+      // 3. Low roll below AC (roll 2 + bonus 4 = 6 < AC 14) -> Miss!
+      final onMiss = CombatEngine.executeTurn(
+        start,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+        forcedD20: 2,
+      );
+      expect(onMiss.lastRoll!.outcome, D20Outcome.miss);
+      expect(onMiss.enemyHp, inquisitor.maxHp);
+
+      // 4. Natural 1 -> Critical Fumble (0 enemy damage + self recoil damage)
+      final on1 = CombatEngine.executeTurn(
+        start,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.0), // hero dodges enemy follow-up so we isolate fumble damage
+        forcedD20: 1,
+      );
+      expect(on1.lastRoll!.naturalRoll, 1);
+      expect(on1.lastRoll!.outcome, D20Outcome.criticalFumble);
+      expect(on1.enemyHp, inquisitor.maxHp);
+      expect(on1.heroHp, lessThan(hero.maxHp));
+      expect(
+        on1.log.any((e) => e.kind == CombatLogKind.heroCriticalFumble),
+        isTrue,
+      );
+    });
+  });
+
+  group('DungeonCatalog & Multi-Room Exploration (Step 5D)', () {
+    test('Dungeon rooms test 6 attributes with d20 checks and transition into the Boss fight', () {
+      final crypt = DungeonCatalog.byId('dungeon_sunken_crypt')!;
+      final hero = CombatStats.fromHero(
+        level: 5,
+        characterClass: CharacterClass.warrior,
+        attributeScores: {for (final a in Attribute.values) a: 14},
+      );
+
+      var run = CombatEngine.startDungeon(hero: hero, dungeon: crypt);
+      expect(run.inBossPhase, isFalse);
+      expect(run.currentRoomNumber, 1);
+
+      // Room 1: pass check with d20 = 18 -> Blessing (+1)
+      run = CombatEngine.resolveDungeonRoom(run, forcedD20: 18);
+      expect(run.roomResolved, isTrue);
+      expect(run.lastRoomRoll!.isHit, isTrue);
+      expect(run.blessingsEarned, 1);
+      run = CombatEngine.advanceDungeon(run);
+      expect(run.currentRoomNumber, 2);
+
+      // Room 2: fail check with d20 = 2 -> Trap damage
+      final hpBeforeTrap = run.heroHp;
+      run = CombatEngine.resolveDungeonRoom(run, forcedD20: 2);
+      expect(run.lastRoomRoll!.isHit, isFalse);
+      expect(run.heroHp, lessThan(hpBeforeTrap));
+      run = CombatEngine.advanceDungeon(run);
+      expect(run.currentRoomNumber, 3);
+
+      // Room 3: cautious bypass -> advances to Boss Phase carrying earned blessings!
+      run = CombatEngine.bypassDungeonRoom(run);
+      expect(run.lastRoomBypassed, isTrue);
+      run = CombatEngine.advanceDungeon(run);
+      expect(run.inBossPhase, isTrue);
+      expect(run.bossEncounter, isNotNull);
+      expect(run.bossEncounter!.heroBuffTurns, 1);
+    });
+  });
 }
