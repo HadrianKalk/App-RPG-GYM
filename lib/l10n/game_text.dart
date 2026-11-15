@@ -1,6 +1,7 @@
 import '../core/game/attributes.dart';
 import '../core/game/class_resolver.dart';
 import '../core/game/exercise_taxonomy.dart';
+import '../core/game/hero_appearance.dart';
 import '../core/game/hero_profile.dart';
 import '../core/game/routine.dart';
 import 'content/game_content_en.dart';
@@ -121,4 +122,19 @@ class GameText {
       t('dungeonRoom.$roomId.description');
   String combatTitle(String titleId) => t('combatTitle.$titleId');
   String combatCosmetic(String cosmeticId) => t('combatCosmetic.$cosmeticId');
+
+  // --- Hero Paper-Doll Appearance -------------------------------------------
+  String appearancePreset(HeroAppearancePreset p) =>
+      t('appearance.preset.${p.name}');
+  String skinTone(SkinTone s) => t('appearance.skin.${s.name}');
+  String eyeStyle(EyeStyle e) => t('appearance.eye.${e.name}');
+  String eyeColor(EyeColor c) => t('appearance.eyeColor.${c.name}');
+  String hairStyle(HairStyle h) => t('appearance.hair.${h.name}');
+  String hairColor(HairColor c) => t('appearance.hairColor.${c.name}');
+  String beardStyle(BeardStyle b) => t('appearance.beard.${b.name}');
+  String torsoStyle(TorsoStyle s) => t('appearance.torso.${s.name}');
+  String legsStyle(LegsStyle s) => t('appearance.legs.${s.name}');
+  String bootsStyle(BootsStyle s) => t('appearance.boots.${s.name}');
+  String backStyle(BackStyle s) => t('appearance.back.${s.name}');
+  String outfitTint(OutfitTint o) => t('appearance.tint.${o.name}');
 }

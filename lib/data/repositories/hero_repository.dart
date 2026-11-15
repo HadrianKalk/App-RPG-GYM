@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/game/activity_catalog.dart';
 import '../../core/game/class_resolver.dart';
+import '../../core/game/hero_appearance.dart';
 import '../../core/game/hero_profile.dart';
 import '../../core/game/weekly_progress.dart';
 import '../../core/game/xp_rules.dart';
@@ -29,6 +30,7 @@ class HeroRepository {
     String? oath,
     String? customOriginName,
     String? customOriginStory,
+    HeroAppearance appearance = HeroAppearance.defaultAppearance,
   }) async {
     final error = HeroProfile.validateName(name);
     if (error != null) throw ArgumentError(error);
@@ -51,6 +53,7 @@ class HeroRepository {
             createdAt: DateTime.now(),
             customOriginName: Value(isCustom ? clean(customOriginName) : null),
             customOriginStory: Value(isCustom ? clean(customOriginStory) : null),
+            appearance: Value(appearance.encode()),
           ),
         );
   }
@@ -93,6 +96,11 @@ class HeroRepository {
       (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
           .write(HeroesCompanion(selectedClass: Value(selectedClass)));
 
+  /// Persists the hero's modular Paper-Doll [appearance].
+  Future<void> setAppearance(HeroAppearance appearance) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(appearance: Value(appearance.encode())));
+
   HeroProfile _toProfile(HeroRow row) => HeroProfile(
         name: row.name,
         form: row.form,
@@ -106,5 +114,6 @@ class HeroRepository {
         equippedTitleId: row.equippedTitleId,
         equippedCosmeticId: row.equippedCosmeticId,
         selectedClass: row.selectedClass,
+        appearance: HeroAppearance.decode(row.appearance),
       );
 }

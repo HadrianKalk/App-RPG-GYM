@@ -6,9 +6,12 @@ import '../../../app/theme.dart';
 import '../../../app/ui/pixel_button.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/pixel_sprite.dart';
 import '../../../l10n/l10n.dart';
+import '../../../core/game/hero_appearance.dart';
 import '../../../core/game/hero_profile.dart';
 import '../../../data/repositories/providers.dart';
+import '../../character/presentation/hero_customization_sheet.dart';
 
 /// Hero creation: prologue → name → origin → oath.
 ///
@@ -31,6 +34,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _step = 0;
   HeroForm _form = HeroForm.masculine;
   HeroOrigin? _origin;
+  HeroAppearance _appearance = HeroAppearance.defaultAppearance;
   final _originNameController = TextEditingController();
   final _originStoryController = TextEditingController();
   bool _saving = false;
@@ -89,6 +93,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             customOriginName: _originNameController.text,
             customOriginStory: _originStoryController.text,
             oath: _oathController.text,
+            appearance: _appearance,
           );
       // The router watches the hero and redirects by itself.
     } catch (e) {
@@ -116,8 +121,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   _NameStep(
                     controller: _nameController,
                     form: _form,
+                    appearance: _appearance,
                     errorText: _nameErrorText(context),
                     onFormChanged: (f) => setState(() => _form = f),
+                    onAppearanceChanged: (a) => setState(() => _appearance = a),
                     onNameChanged: (_) => setState(() => _nameError = null),
                     onSubmitted: _next,
                   ),
@@ -133,6 +140,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     name: _nameController.text.trim(),
                     form: _form,
                     origin: _origin,
+                    appearance: _appearance,
+                    onAppearanceChanged: (a) => setState(() => _appearance = a),
                     customOriginName: _originNameController.text.trim(),
                   ),
                 ],
@@ -293,24 +302,32 @@ class _NameStep extends StatelessWidget {
   const _NameStep({
     required this.controller,
     required this.form,
+    required this.appearance,
     required this.errorText,
     required this.onFormChanged,
+    required this.onAppearanceChanged,
     required this.onNameChanged,
     required this.onSubmitted,
   });
 
   final TextEditingController controller;
   final HeroForm form;
+  final HeroAppearance appearance;
   final String? errorText;
   final ValueChanged<HeroForm> onFormChanged;
+  final ValueChanged<HeroAppearance> onAppearanceChanged;
   final ValueChanged<String> onNameChanged;
   final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final game = context.game;
+    final display = DisplayFont.from(context);
+
     return _StepScaffold(
-      title: context.l10n.onbNameTitle,
-      subtitle: context.l10n.onbNameSubtitle,
+      title: l10n.onbNameTitle,
+      subtitle: l10n.onbNameSubtitle,
       children: [
         TextField(
           controller: controller,
@@ -321,7 +338,7 @@ class _NameStep extends StatelessWidget {
           onChanged: onNameChanged,
           onSubmitted: (_) => onSubmitted(),
           decoration: InputDecoration(
-            labelText: context.l10n.onbNameLabel,
+            labelText: l10n.onbNameLabel,
             errorText: errorText,
             filled: true,
             fillColor: AppTheme.castIron,
@@ -334,14 +351,14 @@ class _NameStep extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Text(context.l10n.onbFormQuestion, style: Theme.of(context).textTheme.bodyMedium),
+        Text(l10n.onbFormQuestion, style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           children: [
             for (final f in HeroForm.values)
               ChoiceChip(
-                label: Text('${context.game.heroFormLabel(f)} · ${context.game.heroFormTitle(f)}'),
+                label: Text('${game.heroFormLabel(f)} · ${game.heroFormTitle(f)}'),
                 selected: form == f,
                 onSelected: (_) => onFormChanged(f),
                 selectedColor: AppTheme.emberGold,
@@ -354,6 +371,90 @@ class _NameStep extends StatelessWidget {
                 showCheckmark: false,
               ),
           ],
+        ),
+        const SizedBox(height: 20),
+        PixelFrame(
+          color: AppTheme.castIron,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.obsidianBlack,
+                      border: Border.all(color: AppTheme.emberGold, width: 2),
+                    ),
+                    child: HeroAvatar(appearance: appearance, pixelSize: 2.8),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.appearancePresetsTitle,
+                          style: display.style(20, color: AppTheme.emberGold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${game.hairStyle(appearance.hairStyle)} · ${game.torsoStyle(appearance.torsoStyle)}',
+                          style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
+                        ),
+                        const SizedBox(height: 8),
+                        PixelButton(
+                          key: const Key('onb_open_appearance_btn'),
+                          label: l10n.appearanceCustomizeButton,
+                          variant: PixelButtonVariant.secondary,
+                          onPressed: () => showOnboardingAppearanceSheet(
+                            context: context,
+                            initialAppearance: appearance,
+                            onChanged: onAppearanceChanged,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final preset in HeroAppearancePreset.values)
+                    InkWell(
+                      key: Key('onb_preset_${preset.name}'),
+                      onTap: () => onAppearanceChanged(HeroAppearance.fromPreset(preset)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: appearance == HeroAppearance.fromPreset(preset)
+                              ? AppTheme.emberGold
+                              : AppTheme.obsidianBlack,
+                          border: Border.all(
+                            color: appearance == HeroAppearance.fromPreset(preset)
+                                ? AppTheme.emberGold
+                                : AppTheme.ironBorder,
+                          ),
+                        ),
+                        child: Text(
+                          game.appearancePreset(preset),
+                          style: TextStyle(
+                            color: appearance == HeroAppearance.fromPreset(preset)
+                                ? AppTheme.obsidianBlack
+                                : AppTheme.ashWhite,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -467,6 +568,8 @@ class _OathStep extends StatelessWidget {
     required this.name,
     required this.form,
     required this.origin,
+    required this.appearance,
+    required this.onAppearanceChanged,
     this.customOriginName = '',
   });
 
@@ -474,6 +577,8 @@ class _OathStep extends StatelessWidget {
   final String name;
   final HeroForm form;
   final HeroOrigin? origin;
+  final HeroAppearance appearance;
+  final ValueChanged<HeroAppearance> onAppearanceChanged;
   final String customOriginName;
 
   /// Origin label for the summary (typed name for custom origins).
@@ -515,19 +620,42 @@ class _OathStep extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppTheme.emberGold.withValues(alpha: 0.5)),
           ),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name.isEmpty ? '—' : name, style: textTheme.titleLarge?.copyWith(color: AppTheme.emberGold)),
-              const SizedBox(height: 4),
-              Text(
-                context.l10n.onbSummaryLine(context.game.heroFormTitle(form), _originLabel(context)),
-                style: textTheme.bodyMedium,
+              GestureDetector(
+                onTap: () => showOnboardingAppearanceSheet(
+                  context: context,
+                  initialAppearance: appearance,
+                  onChanged: onAppearanceChanged,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.obsidianBlack,
+                    border: Border.all(color: AppTheme.emberGold, width: 2),
+                  ),
+                  child: HeroAvatar(appearance: appearance, pixelSize: 2.5),
+                ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                context.l10n.onbSummaryNote,
-                style: textTheme.bodySmall?.copyWith(color: AppTheme.dullSilver, height: 1.4),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name.isEmpty ? '—' : name, style: textTheme.titleLarge?.copyWith(color: AppTheme.emberGold)),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.l10n.onbSummaryLine(context.game.heroFormTitle(form), _originLabel(context)),
+                      style: textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      context.l10n.onbSummaryNote,
+                      style: textTheme.bodySmall?.copyWith(color: AppTheme.dullSilver, height: 1.4),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

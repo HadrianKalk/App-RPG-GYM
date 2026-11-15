@@ -2,10 +2,10 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Combate D20 (Crítico 20 / Falha Absurda 1 + Animação) + Aba Central de Combate + Etapa 5D (Dungeons) + Modo Tester
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 6A: Sistema Paper-Doll Customizável 16-bit (28×36 px) + Arquétipos Pré-Prontos + Sprites dos Oponentes
 
 ## Fase atual
-**Fase 1 — MVP offline concluído**; pronto para iniciar a Fase 2 (Narrador IA & Modo História).
+**Fase 1 — MVP offline concluído**; executando **Etapa 6 (Arte, Animações e Sons)** antes da Fase 2 (Narrador IA & Modo História).
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
@@ -19,12 +19,12 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   - 6 NPCs da Arena (`ArenaCatalog`), **4 Torneios (`TournamentCatalog`)** e
     **3 Masmorras multi-salas (`DungeonCatalog`)** testando os 6 atributos
     (zero XP; recompensas de títulos e cosméticos).
-- Persistência Drift/SQLite (schema v8): exercícios (seed 64 pt-BR + en com guia
+- Persistência Drift/SQLite (schema v9): exercícios (seed 64 pt-BR + en com guia
   passo a passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária
   (água, dieta, sono), progresso de Arena, Torneios e Dungeons (`arena_progress`),
   fichas diárias (`daily_arena_logs`), classe selecionada (`heroes.selected_class`),
-  título/cosmético equipados no herói, livro-razão de XP (incluindo
-  `inspirationSpend`), missões.
+  aparência Paper-Doll (`heroes.appearance`), título/cosmético equipados no herói,
+  livro-razão de XP (incluindo `inspirationSpend`), missões.
 - Telas (5 abas na `PixelNavBar`):
   1. **Herói** (ficha limpa, seletor de classe desbloqueada, títulos e cosméticos);
   2. **Treino** (estilo Hevy, timer de descanso, botão "?" de execução);
@@ -36,7 +36,12 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - **Modo Tester / Sandbox (`TesterPanelSheet`):** edição ao vivo dos 6 atributos
   (8–30), presets rápidos, fichas infinitas e forçar rolagem `20` ou `1` no d20
   sem tocar no `xp_ledger`.
-- 112 testes passando; `flutter analyze` limpo.
+- **Etapa 6A — Sistema Paper-Doll 16-bit (`28×36 px`, `HeroAppearance` + `HeroPaperDoll`):**
+  customização modular em camadas (tom de pele, olhos/cicatriz, cor dos olhos,
+  cabelo/elmo, cor do cabelo, barba, camisa/peitoral, calças/grevas,
+  calçados/botas, capa/arma nas costas e paleta de cores) + 7 arquétipos
+  pré-prontos + sprites 16-bit exclusivos para os oponentes (`OpponentAvatar`).
+- 116 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (concluído)
 - [x] Criação do herói (onboarding).
@@ -70,7 +75,15 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       d20, 5ª aba dedicada de **Combate** com retângulos de seleção (Modo
       História bloqueado no topo, Duelos 1v1, Torneios e Dungeons com 3
       masmorras testando os 6 atributos) e **Painel de Tester (Sandbox)**.
-- [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
+- [x] **Etapa 6A — Arte Paper-Doll 16-bit (`28×36 px`) + Sprites de Oponentes:**
+      compositor em camadas sombreadas (estilo Berserk Action-RPG), 11 categorias
+      customizáveis, 7 arquétipos pré-prontos, editor no Onboarding e na Ficha
+      do Herói, e avatares para todos os NPCs/Chefes.
+- [ ] **Etapa 6B — Animações de Combate e UI:** respiração *idle*, avanço de
+      ataque (*lunge*), flash/shake de dano e números flutuantes de dano/crítico.
+- [ ] **Etapa 6C — Efeitos Sonoros Dark Fantasy Retro:** síntese procedural WAV
+      offline (`SoundService`) para dado d20, golpes, crítico, falha, concluir
+      série e subir de nível + toggle nas configurações.
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).

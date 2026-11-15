@@ -1366,4 +1366,49 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get testerResetButton => 'Voltar aos Atributos Reais';
+
+  @override
+  String get appearanceTabLook => 'Aparência (Visual)';
+
+  @override
+  String get appearanceTabHonors => 'Classe & Títulos';
+
+  @override
+  String get appearancePresetsTitle => 'Arquétipos Pré-Prontos';
+
+  @override
+  String get appearanceSkinTitle => 'Tom de Pele';
+
+  @override
+  String get appearanceEyesTitle => 'Olhos & Cicatriz';
+
+  @override
+  String get appearanceEyeColorTitle => 'Cor dos Olhos';
+
+  @override
+  String get appearanceHairTitle => 'Cabelo / Elmo';
+
+  @override
+  String get appearanceHairColorTitle => 'Cor do Cabelo';
+
+  @override
+  String get appearanceBeardTitle => 'Barba';
+
+  @override
+  String get appearanceTorsoTitle => 'Camisa / Peitoral';
+
+  @override
+  String get appearanceLegsTitle => 'Calças / Grevas';
+
+  @override
+  String get appearanceBootsTitle => 'Calçado / Botas';
+
+  @override
+  String get appearanceBackTitle => 'Capa & Arma nas Costas';
+
+  @override
+  String get appearanceTintTitle => 'Paleta da Armadura / Roupa';
+
+  @override
+  String get appearanceCustomizeButton => 'Editar Aparência do Herói';
 }

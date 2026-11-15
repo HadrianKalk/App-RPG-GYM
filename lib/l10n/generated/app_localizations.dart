@@ -2229,6 +2229,96 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Voltar aos Atributos Reais'**
   String get testerResetButton;
+
+  /// No description provided for @appearanceTabLook.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aparência (Visual)'**
+  String get appearanceTabLook;
+
+  /// No description provided for @appearanceTabHonors.
+  ///
+  /// In pt, this message translates to:
+  /// **'Classe & Títulos'**
+  String get appearanceTabHonors;
+
+  /// No description provided for @appearancePresetsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquétipos Pré-Prontos'**
+  String get appearancePresetsTitle;
+
+  /// No description provided for @appearanceSkinTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tom de Pele'**
+  String get appearanceSkinTitle;
+
+  /// No description provided for @appearanceEyesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Olhos & Cicatriz'**
+  String get appearanceEyesTitle;
+
+  /// No description provided for @appearanceEyeColorTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor dos Olhos'**
+  String get appearanceEyeColorTitle;
+
+  /// No description provided for @appearanceHairTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cabelo / Elmo'**
+  String get appearanceHairTitle;
+
+  /// No description provided for @appearanceHairColorTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor do Cabelo'**
+  String get appearanceHairColorTitle;
+
+  /// No description provided for @appearanceBeardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Barba'**
+  String get appearanceBeardTitle;
+
+  /// No description provided for @appearanceTorsoTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Camisa / Peitoral'**
+  String get appearanceTorsoTitle;
+
+  /// No description provided for @appearanceLegsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calças / Grevas'**
+  String get appearanceLegsTitle;
+
+  /// No description provided for @appearanceBootsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calçado / Botas'**
+  String get appearanceBootsTitle;
+
+  /// No description provided for @appearanceBackTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Capa & Arma nas Costas'**
+  String get appearanceBackTitle;
+
+  /// No description provided for @appearanceTintTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Paleta da Armadura / Roupa'**
+  String get appearanceTintTitle;
+
+  /// No description provided for @appearanceCustomizeButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar Aparência do Herói'**
+  String get appearanceCustomizeButton;
 }
 
 class _AppLocalizationsDelegate

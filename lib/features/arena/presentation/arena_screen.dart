@@ -11,6 +11,7 @@ import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
 import '../../../core/game/attributes.dart';
 import '../../../core/game/combat.dart';
+import '../../../core/game/hero_appearance.dart';
 import '../../../data/repositories/character_repository.dart';
 import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
@@ -372,6 +373,9 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
                 tournamentRun: _tournamentRun,
                 dungeonRun: _dungeonRun,
                 heroName: hero?.name ?? l10n.navHero,
+                heroAppearance:
+                    hero?.appearance ?? HeroAppearance.defaultAppearance,
+                equippedCosmeticId: hero?.equippedCosmeticId,
                 firstUnlock: _firstUnlockOnLastVictory,
                 rollSeed: _rollAnimationCounter,
                 busy: _busy,
@@ -942,6 +946,18 @@ class _OpponentCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: AppTheme.obsidianBlack,
+                  border: Border.all(
+                    color: defeated ? AppTheme.emberGold : AppTheme.ironBorder,
+                    width: 2,
+                  ),
+                ),
+                child: OpponentAvatar(opponentId: npc.id, pixelSize: 2.0),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1462,6 +1478,8 @@ class _ActiveCombatView extends StatelessWidget {
     required this.tournamentRun,
     required this.dungeonRun,
     required this.heroName,
+    required this.heroAppearance,
+    required this.equippedCosmeticId,
     required this.firstUnlock,
     required this.rollSeed,
     required this.busy,
@@ -1475,6 +1493,8 @@ class _ActiveCombatView extends StatelessWidget {
   final TournamentRun? tournamentRun;
   final DungeonRun? dungeonRun;
   final String heroName;
+  final HeroAppearance heroAppearance;
+  final String? equippedCosmeticId;
   final bool firstUnlock;
   final int rollSeed;
   final bool busy;
@@ -1566,32 +1586,50 @@ class _ActiveCombatView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: AppTheme.obsidianBlack,
+                      border: Border.all(color: AppTheme.bloodCrimson, width: 2),
+                    ),
+                    child: OpponentAvatar(opponentId: npc.id, pixelSize: 2.3),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      game.arenaNpcName(npc.id),
-                      style: display.style(26, color: AppTheme.emberGold),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          game.arenaNpcName(npc.id),
+                          style: display.style(26, color: AppTheme.emberGold),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            if (tournamentRun != null)
+                              PixelTag(
+                                text: l10n.tournamentRoundProgress(
+                                  tournamentRun!.currentRoundNumber,
+                                  tournamentRun!.totalRounds,
+                                ),
+                                color: AppTheme.emberGold,
+                              ),
+                            PixelTag(
+                              text: l10n.combatArmorClassLabel(npc.armorClass),
+                              color: AppTheme.emberGold,
+                            ),
+                            PixelTag(
+                              text: l10n.combatTurnLabel(encounter.turn),
+                              color: AppTheme.dullSilver,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  if (tournamentRun != null) ...[
-                    PixelTag(
-                      text: l10n.tournamentRoundProgress(
-                        tournamentRun!.currentRoundNumber,
-                        tournamentRun!.totalRounds,
-                      ),
-                      color: AppTheme.emberGold,
-                    ),
-                    const SizedBox(width: 6),
-                  ],
-                  PixelTag(
-                    text: l10n.combatArmorClassLabel(npc.armorClass),
-                    color: AppTheme.emberGold,
-                  ),
-                  const SizedBox(width: 6),
-                  PixelTag(
-                    text: l10n.combatTurnLabel(encounter.turn),
-                    color: AppTheme.dullSilver,
                   ),
                 ],
               ),
@@ -1650,10 +1688,17 @@ class _ActiveCombatView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const PixelSprite(
-                    rows: HeroSprites.idle,
-                    palette: HeroSprites.palette,
-                    pixelSize: 3,
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: AppTheme.obsidianBlack,
+                      border: Border.all(color: AppTheme.emberGold, width: 2),
+                    ),
+                    child: HeroAvatar(
+                      appearance: heroAppearance,
+                      equippedCosmeticId: equippedCosmeticId,
+                      pixelSize: 2.3,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

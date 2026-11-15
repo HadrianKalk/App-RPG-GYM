@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme.dart';
@@ -6,7 +7,9 @@ import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
 import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/segmented_bar.dart';
+import '../../../core/game/hero_appearance.dart';
 import '../../../core/game/weekly_progress.dart';
+import '../../../data/repositories/providers.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../l10n/l10n.dart';
 import 'workout_format.dart';
@@ -26,7 +29,7 @@ class _RewardLine {
 
 /// "Workout Complete!" — every XP gain is listed with its reason, revealed
 /// one line at a time, then level/attribute/week highlights.
-class WorkoutCompleteScreen extends StatefulWidget {
+class WorkoutCompleteScreen extends ConsumerStatefulWidget {
   const WorkoutCompleteScreen({super.key, required this.summary, required this.exerciseNames});
 
   final WorkoutSummary summary;
@@ -35,10 +38,10 @@ class WorkoutCompleteScreen extends StatefulWidget {
   final Map<String, String> exerciseNames;
 
   @override
-  State<WorkoutCompleteScreen> createState() => _WorkoutCompleteScreenState();
+  ConsumerState<WorkoutCompleteScreen> createState() => _WorkoutCompleteScreenState();
 }
 
-class _WorkoutCompleteScreenState extends State<WorkoutCompleteScreen> with TickerProviderStateMixin {
+class _WorkoutCompleteScreenState extends ConsumerState<WorkoutCompleteScreen> with TickerProviderStateMixin {
   /// Delay between two reward lines.
   static const _lineDelay = Duration(milliseconds: 420);
 
@@ -144,6 +147,7 @@ class _WorkoutCompleteScreenState extends State<WorkoutCompleteScreen> with Tick
     final s = widget.summary;
     final lines = _lines(context);
     final weekDone = s.weeklyGoal > 0 && s.trainingDay >= s.weeklyGoal;
+    final hero = ref.watch(heroStreamProvider).valueOrNull;
 
     return Scaffold(
       body: SafeArea(
@@ -166,7 +170,12 @@ class _WorkoutCompleteScreenState extends State<WorkoutCompleteScreen> with Tick
                         ),
                       ],
                     ),
-                    child: const PixelSprite(rows: HeroSprites.flex, palette: HeroSprites.palette, pixelSize: 7),
+                    child: HeroAvatar(
+                      appearance: hero?.appearance ?? HeroAppearance.defaultAppearance,
+                      equippedCosmeticId: hero?.equippedCosmeticId,
+                      pose: HeroPose.flex,
+                      pixelSize: 4.2,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

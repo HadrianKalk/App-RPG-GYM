@@ -1193,5 +1193,20 @@
   "testerPresetNovice": "Iniciante (10)",
   "testerPresetBalanced": "Veterano (16)",
   "testerPresetLegend": "Lenda (22)",
-  "testerResetButton": "Voltar aos Atributos Reais"
+  "testerResetButton": "Voltar aos Atributos Reais",
+  "appearanceTabLook": "Aparência (Visual)",
+  "appearanceTabHonors": "Classe & Títulos",
+  "appearancePresetsTitle": "Arquétipos Pré-Prontos",
+  "appearanceSkinTitle": "Tom de Pele",
+  "appearanceEyesTitle": "Olhos & Cicatriz",
+  "appearanceEyeColorTitle": "Cor dos Olhos",
+  "appearanceHairTitle": "Cabelo / Elmo",
+  "appearanceHairColorTitle": "Cor do Cabelo",
+  "appearanceBeardTitle": "Barba",
+  "appearanceTorsoTitle": "Camisa / Peitoral",
+  "appearanceLegsTitle": "Calças / Grevas",
+  "appearanceBootsTitle": "Calçado / Botas",
+  "appearanceBackTitle": "Capa & Arma nas Costas",
+  "appearanceTintTitle": "Paleta da Armadura / Roupa",
+  "appearanceCustomizeButton": "Editar Aparência do Herói"
 }

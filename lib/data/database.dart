@@ -136,6 +136,9 @@ class Heroes extends Table {
   /// Player-selected class when unlocked (`null` = emergent class, schema v8).
   TextColumn get selectedClass => textEnum<CharacterClass>().nullable()();
 
+  /// Encoded modular Paper-Doll appearance (`HeroAppearance.encode()`, schema v9).
+  TextColumn get appearance => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -222,7 +225,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -287,6 +290,10 @@ class AppDatabase extends _$AppDatabase {
           // v8: Player-selectable class among unlocked classes (Decision #41).
           if (from < 8) {
             await m.addColumn(heroes, heroes.selectedClass);
+          }
+          // v9: Modular Paper-Doll hero appearance (Decision #44).
+          if (from < 9) {
+            await m.addColumn(heroes, heroes.appearance);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).

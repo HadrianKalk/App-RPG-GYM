@@ -3,6 +3,33 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 6A: Sistema Paper-Doll Customizável 16-bit (28×36 px) + Arquétipos Pré-Prontos + Sprites dos Oponentes
+- **Modelo Puro de Aparência (`lib/core/game/hero_appearance.dart`, `hero_profile.dart`):**
+  - `HeroAppearance`: modelo modular Paper-Doll em Dart puro com rampas de 3 tons
+    (*highlight*, *base*, *shadow*) para 11 categorias: `SkinTone` (6), `EyeStyle`
+    (5, incluindo cicatriz de 1 olho), `EyeColor` (6), `HairStyle` (8, incluindo
+    espetado à la Guts, mecha branca, capuz e elmo), `HairColor` (6), `BeardStyle`
+    (5), `TorsoStyle` (6 camisas/armaduras), `LegsStyle` (6 calças/grevas),
+    `BootsStyle` (6 botas/calçados), `BackStyle` (6 capas e armas nas costas,
+    incluindo Espadão + Capa) e `OutfitTint` (6 paletas), mais **7 arquétipos
+    pré-prontos (`HeroAppearancePreset`)**.
+- **Compositor de Sprites 16-bit `28×36` (`lib/app/ui/pixel_sprite.dart`):**
+  - `HeroPaperDoll`, `HeroAvatar` e `OpponentAvatar`: compõem as camadas de trás
+    para frente com contorno escuro (`#0F0F12`), sombreamento de 3 tons, poses
+    `idle` e `flex`, aura de cosmético equipado e sprites exclusivos para os
+    oponentes da Arena, Torneios e Chefes de Masmorra (`OpponentSprites`).
+- **Persistência (Schema v9) e UI (`database.dart`, `hero_repository.dart`, `hero_customization_sheet.dart`, `onboarding_screen.dart`, `character_screen.dart`, `arena_screen.dart`, `workout_complete_screen.dart`):**
+  - Coluna `heroes.appearance` com migração automática `v8 -> v9`.
+  - Editor visual completo com preview ao vivo (alternando pose *idle* / *flex*)
+    em `HeroCustomizationSheet` (aba **Aparência (Visual)** e aba **Classe &
+    Títulos**) e direto no **Onboarding** durante a criação do herói.
+  - Traduções completas em pt-BR e inglês (`game_content_pt.dart`,
+    `game_content_en.dart`, `app_pt.arb`, `app_en.arb`).
+- **Testes:** 116 testes passando (`test/core/game/hero_appearance_test.dart` +
+  suíte completa), `flutter analyze` limpo.
+- **Próximo:** Etapa 6B — Animações de Combate e UI (respiração *idle*, avanço de
+  golpe, *hit shake/flash* e números flutuantes de dano/crítico).
+
 ## 2026-11-15 — Gemini (Antigravity) — Combate D20 (Crítico 20 / Falha Absurda 1 + Animação) + Aba Central de Combate + Etapa 5D (Dungeons) + Modo Tester
 - **Rolagem D20 + Atributo + Proficiência vs CA/CD (`combat.dart`, `xp_rules.dart`, `d20_roller_widget.dart`):**
   - `D20RollResult` e `D20Outcome`: todo ataque do herói e teste de masmorra rola

@@ -353,5 +353,20 @@
   "testerPresetNovice": "Novice (10)",
   "testerPresetBalanced": "Veteran (16)",
   "testerPresetLegend": "Legend (22)",
-  "testerResetButton": "Restore Real Attributes"
+  "testerResetButton": "Restore Real Attributes",
+  "appearanceTabLook": "Appearance (Look)",
+  "appearanceTabHonors": "Class & Titles",
+  "appearancePresetsTitle": "Pre-Made Archetypes",
+  "appearanceSkinTitle": "Skin Tone",
+  "appearanceEyesTitle": "Eyes & Scar",
+  "appearanceEyeColorTitle": "Eye Color",
+  "appearanceHairTitle": "Hair / Helm",
+  "appearanceHairColorTitle": "Hair Color",
+  "appearanceBeardTitle": "Beard",
+  "appearanceTorsoTitle": "Shirt / Chest Armor",
+  "appearanceLegsTitle": "Pants / Greaves",
+  "appearanceBootsTitle": "Footwear / Boots",
+  "appearanceBackTitle": "Cape & Back Weapon",
+  "appearanceTintTitle": "Armor / Outfit Palette",
+  "appearanceCustomizeButton": "Edit Hero Appearance"
 }

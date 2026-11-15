@@ -10,6 +10,7 @@ import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
 import '../../../core/game/attributes.dart';
+import '../../../core/game/hero_appearance.dart';
 import '../../../core/game/hero_profile.dart';
 import '../../../core/game/progression.dart';
 import '../../../data/repositories/character_repository.dart';
@@ -76,13 +77,22 @@ class _HeroSheet extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.obsidianBlack,
-                      border: Border.all(color: AppTheme.emberGold, width: 3),
+                  GestureDetector(
+                    key: const Key('hero_avatar_frame'),
+                    onTap: () => showHeroCustomizationSheet(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.obsidianBlack,
+                        border: Border.all(color: AppTheme.emberGold, width: 3),
+                      ),
+                      child: HeroAvatar(
+                        appearance:
+                            hero?.appearance ?? HeroAppearance.defaultAppearance,
+                        equippedCosmeticId: equippedCosmetic,
+                        pixelSize: 3.1,
+                      ),
                     ),
-                    child: const PixelSprite(rows: HeroSprites.idle, palette: HeroSprites.palette, pixelSize: 4),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

@@ -1551,6 +1551,17 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<CharacterClass?>($HeroesTable.$converterselectedClassn);
+  static const VerificationMeta _appearanceMeta = const VerificationMeta(
+    'appearance',
+  );
+  @override
+  late final GeneratedColumn<String> appearance = GeneratedColumn<String>(
+    'appearance',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1566,6 +1577,7 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     equippedTitleId,
     equippedCosmeticId,
     selectedClass,
+    appearance,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1655,6 +1667,12 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         ),
       );
     }
+    if (data.containsKey('appearance')) {
+      context.handle(
+        _appearanceMeta,
+        appearance.isAcceptableOrUnknown(data['appearance']!, _appearanceMeta),
+      );
+    }
     return context;
   }
 
@@ -1722,6 +1740,10 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
           data['${effectivePrefix}selected_class'],
         ),
       ),
+      appearance: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}appearance'],
+      ),
     );
   }
 
@@ -1768,6 +1790,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
 
   /// Player-selected class when unlocked (`null` = emergent class, schema v8).
   final CharacterClass? selectedClass;
+
+  /// Encoded modular Paper-Doll appearance (`HeroAppearance.encode()`, schema v9).
+  final String? appearance;
   const HeroRow({
     required this.id,
     required this.name,
@@ -1782,6 +1807,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     this.equippedTitleId,
     this.equippedCosmeticId,
     this.selectedClass,
+    this.appearance,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1819,6 +1845,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
         $HeroesTable.$converterselectedClassn.toSql(selectedClass),
       );
     }
+    if (!nullToAbsent || appearance != null) {
+      map['appearance'] = Variable<String>(appearance);
+    }
     return map;
   }
 
@@ -1847,6 +1876,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       selectedClass: selectedClass == null && nullToAbsent
           ? const Value.absent()
           : Value(selectedClass),
+      appearance: appearance == null && nullToAbsent
+          ? const Value.absent()
+          : Value(appearance),
     );
   }
 
@@ -1879,6 +1911,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       selectedClass: $HeroesTable.$converterselectedClassn.fromJson(
         serializer.fromJson<String?>(json['selectedClass']),
       ),
+      appearance: serializer.fromJson<String?>(json['appearance']),
     );
   }
   @override
@@ -1904,6 +1937,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       'selectedClass': serializer.toJson<String?>(
         $HeroesTable.$converterselectedClassn.toJson(selectedClass),
       ),
+      'appearance': serializer.toJson<String?>(appearance),
     };
   }
 
@@ -1921,6 +1955,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     Value<String?> equippedTitleId = const Value.absent(),
     Value<String?> equippedCosmeticId = const Value.absent(),
     Value<CharacterClass?> selectedClass = const Value.absent(),
+    Value<String?> appearance = const Value.absent(),
   }) => HeroRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1945,6 +1980,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     selectedClass: selectedClass.present
         ? selectedClass.value
         : this.selectedClass,
+    appearance: appearance.present ? appearance.value : this.appearance,
   );
   HeroRow copyWithCompanion(HeroesCompanion data) {
     return HeroRow(
@@ -1975,6 +2011,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       selectedClass: data.selectedClass.present
           ? data.selectedClass.value
           : this.selectedClass,
+      appearance: data.appearance.present
+          ? data.appearance.value
+          : this.appearance,
     );
   }
 
@@ -1993,7 +2032,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ..write('waterGoalCups: $waterGoalCups, ')
           ..write('equippedTitleId: $equippedTitleId, ')
           ..write('equippedCosmeticId: $equippedCosmeticId, ')
-          ..write('selectedClass: $selectedClass')
+          ..write('selectedClass: $selectedClass, ')
+          ..write('appearance: $appearance')
           ..write(')'))
         .toString();
   }
@@ -2013,6 +2053,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     equippedTitleId,
     equippedCosmeticId,
     selectedClass,
+    appearance,
   );
   @override
   bool operator ==(Object other) =>
@@ -2030,7 +2071,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           other.waterGoalCups == this.waterGoalCups &&
           other.equippedTitleId == this.equippedTitleId &&
           other.equippedCosmeticId == this.equippedCosmeticId &&
-          other.selectedClass == this.selectedClass);
+          other.selectedClass == this.selectedClass &&
+          other.appearance == this.appearance);
 }
 
 class HeroesCompanion extends UpdateCompanion<HeroRow> {
@@ -2047,6 +2089,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
   final Value<String?> equippedTitleId;
   final Value<String?> equippedCosmeticId;
   final Value<CharacterClass?> selectedClass;
+  final Value<String?> appearance;
   const HeroesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2061,6 +2104,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.equippedTitleId = const Value.absent(),
     this.equippedCosmeticId = const Value.absent(),
     this.selectedClass = const Value.absent(),
+    this.appearance = const Value.absent(),
   });
   HeroesCompanion.insert({
     this.id = const Value.absent(),
@@ -2076,6 +2120,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.equippedTitleId = const Value.absent(),
     this.equippedCosmeticId = const Value.absent(),
     this.selectedClass = const Value.absent(),
+    this.appearance = const Value.absent(),
   }) : name = Value(name),
        form = Value(form),
        origin = Value(origin),
@@ -2094,6 +2139,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Expression<String>? equippedTitleId,
     Expression<String>? equippedCosmeticId,
     Expression<String>? selectedClass,
+    Expression<String>? appearance,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2110,6 +2156,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       if (equippedCosmeticId != null)
         'equipped_cosmetic_id': equippedCosmeticId,
       if (selectedClass != null) 'selected_class': selectedClass,
+      if (appearance != null) 'appearance': appearance,
     });
   }
 
@@ -2127,6 +2174,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Value<String?>? equippedTitleId,
     Value<String?>? equippedCosmeticId,
     Value<CharacterClass?>? selectedClass,
+    Value<String?>? appearance,
   }) {
     return HeroesCompanion(
       id: id ?? this.id,
@@ -2142,6 +2190,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       equippedTitleId: equippedTitleId ?? this.equippedTitleId,
       equippedCosmeticId: equippedCosmeticId ?? this.equippedCosmeticId,
       selectedClass: selectedClass ?? this.selectedClass,
+      appearance: appearance ?? this.appearance,
     );
   }
 
@@ -2193,6 +2242,9 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
         $HeroesTable.$converterselectedClassn.toSql(selectedClass.value),
       );
     }
+    if (appearance.present) {
+      map['appearance'] = Variable<String>(appearance.value);
+    }
     return map;
   }
 
@@ -2211,7 +2263,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
           ..write('waterGoalCups: $waterGoalCups, ')
           ..write('equippedTitleId: $equippedTitleId, ')
           ..write('equippedCosmeticId: $equippedCosmeticId, ')
-          ..write('selectedClass: $selectedClass')
+          ..write('selectedClass: $selectedClass, ')
+          ..write('appearance: $appearance')
           ..write(')'))
         .toString();
   }
@@ -7605,6 +7658,7 @@ typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
   Value<String?> equippedTitleId,
   Value<String?> equippedCosmeticId,
   Value<CharacterClass?> selectedClass,
+  Value<String?> appearance,
 });
 typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> id,
@@ -7620,6 +7674,7 @@ typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<String?> equippedTitleId,
   Value<String?> equippedCosmeticId,
   Value<CharacterClass?> selectedClass,
+  Value<String?> appearance,
 });
 
 class $$HeroesTableFilterComposer
@@ -7698,6 +7753,11 @@ class $$HeroesTableFilterComposer
     column: $table.selectedClass,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
+
+  ColumnFilters<String> get appearance => $composableBuilder(
+    column: $table.appearance,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$HeroesTableOrderingComposer
@@ -7773,6 +7833,11 @@ class $$HeroesTableOrderingComposer
     column: $table.selectedClass,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get appearance => $composableBuilder(
+    column: $table.appearance,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HeroesTableAnnotationComposer
@@ -7837,6 +7902,11 @@ class $$HeroesTableAnnotationComposer
         column: $table.selectedClass,
         builder: (column) => column,
       );
+
+  GeneratedColumn<String> get appearance => $composableBuilder(
+    column: $table.appearance,
+    builder: (column) => column,
+  );
 }
 
 class $$HeroesTableTableManager
@@ -7880,6 +7950,7 @@ class $$HeroesTableTableManager
                 Value<String?> equippedTitleId = const Value.absent(),
                 Value<String?> equippedCosmeticId = const Value.absent(),
                 Value<CharacterClass?> selectedClass = const Value.absent(),
+                Value<String?> appearance = const Value.absent(),
               }) => HeroesCompanion(
                 id: id,
                 name: name,
@@ -7894,6 +7965,7 @@ class $$HeroesTableTableManager
                 equippedTitleId: equippedTitleId,
                 equippedCosmeticId: equippedCosmeticId,
                 selectedClass: selectedClass,
+                appearance: appearance,
               ),
           createCompanionCallback:
               ({
@@ -7910,6 +7982,7 @@ class $$HeroesTableTableManager
                 Value<String?> equippedTitleId = const Value.absent(),
                 Value<String?> equippedCosmeticId = const Value.absent(),
                 Value<CharacterClass?> selectedClass = const Value.absent(),
+                Value<String?> appearance = const Value.absent(),
               }) => HeroesCompanion.insert(
                 id: id,
                 name: name,
@@ -7924,6 +7997,7 @@ class $$HeroesTableTableManager
                 equippedTitleId: equippedTitleId,
                 equippedCosmeticId: equippedCosmeticId,
                 selectedClass: selectedClass,
+                appearance: appearance,
               ),
           withReferenceMapper: (p0) => p0
               .map(

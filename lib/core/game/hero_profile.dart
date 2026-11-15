@@ -7,6 +7,7 @@
 library;
 
 import 'class_resolver.dart';
+import 'hero_appearance.dart';
 
 /// Grammatical form of address. Portuguese inflects by gender, so the
 /// narrator needs to know how to refer to the hero.
@@ -50,6 +51,7 @@ final class HeroProfile {
     this.equippedTitleId,
     this.equippedCosmeticId,
     this.selectedClass,
+    this.appearance = HeroAppearance.defaultAppearance,
   });
 
   /// Maximum hero name length.
@@ -95,6 +97,9 @@ final class HeroProfile {
 
   /// Player-chosen class among unlocked classes (`null` = automatic emergent class).
   final CharacterClass? selectedClass;
+
+  /// Modular Paper-Doll visual configuration (skin, hair, eyes, beard, armor, pants, boots, cape).
+  final HeroAppearance appearance;
 
   /// Validates a raw hero name. Returns `null` when valid, or the reason.
   static HeroNameError? validateName(String raw) =>

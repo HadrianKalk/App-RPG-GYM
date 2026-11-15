@@ -172,3 +172,21 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
       Inspiração e permite forçar `20` (Crítico) ou `1` (Falha Absurda) no d20
       em memória (`CharacterState.fromOverrideScores`), sem jamais violar a
       imutabilidade do `xp_ledger`.
+46. **Sistema Paper-Doll Customizável 16-bit (`28×36 px`) + Sprites de Oponentes (Etapa 6A):**
+    - Estilo visual adotado: **Action-RPG 16-bit intermediário (`28×36` pixels)**,
+      inspirado na referência do *Espadachim Negro (Berserk)* com contorno escuro
+      (`#0F0F12`) e sombreamento automático de 3 tons (*highlight*, *base*,
+      *shadow*) por camada.
+    - Modelo puro no motor (`lib/core/game/hero_appearance.dart`): `HeroAppearance`
+      configura independentemente `SkinTone` (6 tons), `EyeStyle` (5 estilos,
+      incluindo cicatriz de 1 olho), `EyeColor` (6 cores), `HairStyle` (8 estilos,
+      incluindo espetado com mecha branca, capuz e elmo), `HairColor` (6 cores),
+      `BeardStyle` (5 estilos), `TorsoStyle` (6 camisas/armaduras), `LegsStyle`
+      (6 calças/grevas), `BootsStyle` (6 botas/calçados), `BackStyle` (6 capas e
+      armas nas costas, incluindo Espadão + Capa) e `OutfitTint` (6 paletas),
+      além de **7 arquétipos pré-prontos (`HeroAppearancePreset`)**.
+    - Persistido em `heroes.appearance` (schema v9) no formato extensível
+      `chave=valor;...` e editável tanto no Onboarding quanto a qualquer momento
+      na Ficha do Herói (`HeroCustomizationSheet`).
+    - Oponentes da Arena, Torneios e Chefes de Masmorra possuem sprites próprios
+      em `OpponentSprites` / `OpponentAvatar`.

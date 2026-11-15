@@ -1361,4 +1361,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testerResetButton => 'Restore Real Attributes';
+
+  @override
+  String get appearanceTabLook => 'Appearance (Look)';
+
+  @override
+  String get appearanceTabHonors => 'Class & Titles';
+
+  @override
+  String get appearancePresetsTitle => 'Pre-Made Archetypes';
+
+  @override
+  String get appearanceSkinTitle => 'Skin Tone';
+
+  @override
+  String get appearanceEyesTitle => 'Eyes & Scar';
+
+  @override
+  String get appearanceEyeColorTitle => 'Eye Color';
+
+  @override
+  String get appearanceHairTitle => 'Hair / Helm';
+
+  @override
+  String get appearanceHairColorTitle => 'Hair Color';
+
+  @override
+  String get appearanceBeardTitle => 'Beard';
+
+  @override
+  String get appearanceTorsoTitle => 'Shirt / Chest Armor';
+
+  @override
+  String get appearanceLegsTitle => 'Pants / Greaves';
+
+  @override
+  String get appearanceBootsTitle => 'Footwear / Boots';
+
+  @override
+  String get appearanceBackTitle => 'Cape & Back Weapon';
+
+  @override
+  String get appearanceTintTitle => 'Armor / Outfit Palette';
+
+  @override
+  String get appearanceCustomizeButton => 'Edit Hero Appearance';
 }
