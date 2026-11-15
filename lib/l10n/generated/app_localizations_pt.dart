@@ -1092,4 +1092,63 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get combatBackToArena => 'Voltar à Arena';
+
+  @override
+  String get heroClassSection => 'Classe do Herói';
+
+  @override
+  String heroClassAuto(String className) {
+    return 'Automática (Emergente: $className)';
+  }
+
+  @override
+  String heroClassUnlockedHint(String skill) {
+    return 'Habilidade: $skill';
+  }
+
+  @override
+  String heroClassLockedHint(String attr1, String attr2, int score) {
+    return 'Requer $attr1 ≥ $score e $attr2 ≥ $score';
+  }
+
+  @override
+  String heroTournamentLockedHint(String tournament) {
+    return 'Vença o $tournament para desbloquear';
+  }
+
+  @override
+  String get arenaTabDuels => 'Duelos 1v1';
+
+  @override
+  String get arenaTabTournaments => 'Torneios';
+
+  @override
+  String tournamentRoundsBadge(int rounds) {
+    return '$rounds rodadas';
+  }
+
+  @override
+  String tournamentRoundProgress(int current, int total) {
+    return 'Rodada $current/$total';
+  }
+
+  @override
+  String get tournamentEnterButton => 'Entrar no Torneio (1 ficha)';
+
+  @override
+  String tournamentNextRoundTitle(int round) {
+    return 'Rodada $round Concluída!';
+  }
+
+  @override
+  String get tournamentNextRoundBody =>
+      'Você recupera +35% de PV e +50% de Foco antes do próximo oponente.';
+
+  @override
+  String tournamentNextRoundButton(int next) {
+    return 'Avançar para a Rodada $next';
+  }
+
+  @override
+  String get tournamentVictoryTitle => 'Campeão do Torneio!';
 }

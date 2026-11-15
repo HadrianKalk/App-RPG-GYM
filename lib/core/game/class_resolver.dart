@@ -1,4 +1,6 @@
 import 'attributes.dart';
+import 'progression.dart';
+import 'xp_rules.dart';
 
 /// The 16 possible classes: 15 combinations of the two highest attributes,
 /// plus the balanced Adventurer. Texts live in the localized game content
@@ -106,6 +108,56 @@ abstract final class ClassResolver {
     final attr2 = second.key;
 
     return _matchPair(attr1, attr2);
+  }
+
+  /// Returns all [CharacterClass]es unlocked by the hero's real-world
+  /// [attributeXpMap] (Decision #41):
+  /// - [CharacterClass.adventurer] is always unlocked;
+  /// - the natural emergent class ([resolveClass]) is always unlocked;
+  /// - any class whose [CharacterClass.primary] and [CharacterClass.secondary]
+  ///   both have score >= [XpRules.classUnlockAttributeScore] (12, i.e. +1
+  ///   D&D modifier) is unlocked.
+  static Set<CharacterClass> unlockedClasses(
+    Map<Attribute, double> attributeXpMap,
+  ) {
+    final scores = {
+      for (final a in Attribute.values)
+        a: Progression.calculateAttribute(a, attributeXpMap[a] ?? 0.0).score,
+    };
+    final emergent = resolveClass(attributeXpMap);
+    final result = <CharacterClass>{CharacterClass.adventurer, emergent};
+
+    for (final c in CharacterClass.values) {
+      final p = c.primary;
+      final s = c.secondary;
+      if (p == null || s == null) continue;
+      if ((scores[p] ?? XpRules.baseAttributeScore) >=
+              XpRules.classUnlockAttributeScore &&
+          (scores[s] ?? XpRules.baseAttributeScore) >=
+              XpRules.classUnlockAttributeScore) {
+        result.add(c);
+      }
+    }
+    return result;
+  }
+
+  /// True when [target] is unlocked for the given [attributeXpMap].
+  static bool isUnlocked(
+    CharacterClass target,
+    Map<Attribute, double> attributeXpMap,
+  ) =>
+      unlockedClasses(attributeXpMap).contains(target);
+
+  /// Returns the hero's active class: [selectedClass] when provided and
+  /// unlocked by [attributeXpMap], otherwise the emergent [resolveClass].
+  static CharacterClass effectiveClass({
+    required Map<Attribute, double> attributeXpMap,
+    CharacterClass? selectedClass,
+  }) {
+    if (selectedClass != null && isUnlocked(selectedClass, attributeXpMap)) {
+      return selectedClass;
+    }
+    return resolveClass(attributeXpMap);
   }
 
   static CharacterClass _matchPair(Attribute a, Attribute b) {

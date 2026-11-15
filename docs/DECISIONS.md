@@ -114,16 +114,20 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Nenhum modo de combate concede XP. Toda evolução numérica (nível e
       atributos) vem exclusivamente de hábitos e esforço no mundo real.
     - Recompensas dos modos de combate: **itens cosméticos e títulos**.
-    - Pilares planejados: **Arena** (duelos 1v1 contra NPCs), **Torneios**
-      (chaves com múltiplos adversários escalando conforme o nível do torneio)
-      e **Dungeon** (exploração por salas/nós usando todos os 6 atributos).
-41. **Seleção de classe com pré-requisito de atributos (backlog):**
-    - Em níveis mais altos, quando múltiplos atributos estiverem bem evoluídos,
-      o jogador poderá escolher/alternar livremente entre as classes que já
-      desbloqueou.
-    - Regra de coerência mantida: uma classe só é desbloqueada quando o jogador
-      possui os atributos reais compatíveis com ela (não é possível ser Mago
-      treinando apenas Força).
+    - Pilares: **Arena** (duelos 1v1 contra NPCs), **Torneios** (chaves de
+      múltiplos adversários com fator de escala `statScale` de `0.85×` a `1.30×`
+      conforme o nível do torneio e recuperação parcial de `+35% PV` e `+50% Foco`
+      entre rodadas) e **Dungeon** (exploração por salas/nós usando todos os 6
+      atributos).
+41. **Seleção de classe com pré-requisito de atributos (`ClassResolver`):**
+    - `Aventureiro` e a classe emergente natural (`resolveClass`) estão sempre
+      desbloqueados.
+    - Qualquer uma das 15 classes híbridas é desbloqueada assim que seus dois
+      atributos (`primary` e `secondary`) atingem pelo menos pontuação **12**
+      (modificador **+1** no D&D 5e).
+    - O jogador pode alternar livremente entre suas classes desbloqueadas (ou
+      manter no modo Automático/Emergente) na ficha do herói, alterando também
+      sua habilidade assinada na Arena e nos Torneios.
 42. **Motor de Combate Tático em Turnos e Habilidades Inspiradas no D&D 5e (`combat.dart`):**
     - Combate 1v1 em turnos onde todos os 6 atributos têm função clara:
       - **FOR**: poder de golpe físico e penetração de guarda;

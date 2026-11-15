@@ -32,22 +32,30 @@ final class ArenaState {
 
   /// Number of distinct Arena opponents defeated at least once.
   int get defeatedChampionsCount =>
-      victoriesByOpponent.values.where((v) => v > 0).length;
+      ArenaCatalog.opponents.where((npc) => isDefeated(npc.id)).length;
 
-  /// Whether [opponentId] has been defeated at least once.
+  /// Number of distinct Tournaments conquered at least once.
+  int get tournamentsWonCount =>
+      TournamentCatalog.tournaments.where((t) => isDefeated(t.id)).length;
+
+  /// Whether [opponentId] (or tournament id) has been defeated at least once.
   bool isDefeated(String opponentId) =>
       (victoriesByOpponent[opponentId] ?? 0) > 0;
 
-  /// All unlocked combat title ids (`title_*`).
+  /// All unlocked combat title ids (`title_*`) from Arena and Tournaments.
   Set<String> get unlockedTitleIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.titleId,
+        for (final t in TournamentCatalog.tournaments)
+          if (isDefeated(t.id)) t.reward.titleId,
       };
 
-  /// All unlocked combat cosmetic ids (`cosmetic_*`).
+  /// All unlocked combat cosmetic ids (`cosmetic_*`) from Arena and Tournaments.
   Set<String> get unlockedCosmeticIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.cosmeticId,
+        for (final t in TournamentCatalog.tournaments)
+          if (isDefeated(t.id)) t.reward.cosmeticId,
       };
 }
 
@@ -186,6 +194,51 @@ class CombatRepository {
     await _db.into(_db.arenaProgress).insertOnConflictUpdate(
           ArenaProgressCompanion.insert(
             opponentId: opponent.id,
+            victories: Value(prevVictories + 1),
+            lastDefeatedAt: timestamp,
+          ),
+        );
+
+    return prevVictories == 0;
+  }
+
+  /// Records the end of a multi-round Tournament.
+  ///
+  /// - Never grants XP (Decision #40).
+  /// - Deducts 1 Inspiration via append-only ledger if [spentInspiration] is `true`.
+  /// - On tournament victory, increments the tournament's completion count and
+  ///   returns `true` when this is the first time conquering [tournament].
+  Future<bool> finishTournament({
+    required TournamentDefinition tournament,
+    required bool victory,
+    required bool spentInspiration,
+    DateTime? now,
+  }) async {
+    final timestamp = now ?? DateTime.now();
+
+    if (spentInspiration) {
+      await _characterRepo.addXp(
+        XpEvent(
+          id: _nextId(timestamp),
+          attribute: Attribute.charisma,
+          amount: 0.0,
+          source: XpSource.inspirationSpend,
+          timestamp: timestamp,
+          description: 'Heroic Inspiration spent in Tournament (${tournament.id})',
+        ),
+      );
+    }
+
+    if (!victory) return false;
+
+    final existing = await (_db.select(_db.arenaProgress)
+          ..where((t) => t.opponentId.equals(tournament.id)))
+        .getSingleOrNull();
+    final prevVictories = existing?.victories ?? 0;
+
+    await _db.into(_db.arenaProgress).insertOnConflictUpdate(
+          ArenaProgressCompanion.insert(
+            opponentId: tournament.id,
             victories: Value(prevVictories + 1),
             lastDefeatedAt: timestamp,
           ),

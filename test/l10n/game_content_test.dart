@@ -37,6 +37,12 @@ void main() {
         'combatTitle.${npc.reward.titleId}',
         'combatCosmetic.${npc.reward.cosmeticId}',
       ],
+      for (final t in TournamentCatalog.tournaments) ...[
+        'tournament.${t.id}.name',
+        'tournament.${t.id}.lore',
+        'combatTitle.${t.reward.titleId}',
+        'combatCosmetic.${t.reward.cosmeticId}',
+      ],
     ];
     for (final lang in GameText.supportedLanguages) {
       final text = GameText(lang);

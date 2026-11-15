@@ -334,4 +334,22 @@ const Map<String, String> gameContentPt = {
   'combatCosmetic.cosmetic_crimson_halo': 'Aura Carmesim',
   'combatCosmetic.cosmetic_runic_aura': 'Selo Rúnico Arcano',
   'combatCosmetic.cosmetic_ember_crown': 'Coroa de Brasa Dourada',
+
+  // --- Combat: Forge Tournaments & Prestige Rewards -------------------------
+  'tournament.tournament_bronze.name': 'Torneio das Cinzas',
+  'tournament.tournament_bronze.lore': 'Chave de 3 rodadas com adversários ajustados (0.85×) para provar sua constância inicial.',
+  'tournament.tournament_silver.name': 'Torneio de Ferro Fundido',
+  'tournament.tournament_silver.lore': 'Chave oficial de 3 combatentes em força total (1.00×) sem descanso completo entre lutas.',
+  'tournament.tournament_crimson.name': 'Torneio Carmesim',
+  'tournament.tournament_crimson.lore': 'Desafio avançado de 3 rodadas com oponentes fortalecidos (1.15×) na arena superior.',
+  'tournament.tournament_obsidian.name': 'Grande Torneio de Obsidiana',
+  'tournament.tournament_obsidian.lore': 'O campeonato supremo de 4 rodadas com lendas da forja em poder máximo (1.30×).',
+  'combatTitle.title_bronze_gladiator': 'Gladiador de Bronze',
+  'combatTitle.title_iron_champion': 'Campeão de Ferro',
+  'combatTitle.title_crimson_warlord': 'Senhor da Guerra Carmesim',
+  'combatTitle.title_grand_monarch': 'Monarca da Forja',
+  'combatCosmetic.cosmetic_bronze_laurel': 'Laurel de Bronze',
+  'combatCosmetic.cosmetic_steel_crest': 'Brasão de Aço Forjado',
+  'combatCosmetic.cosmetic_blood_mantle': 'Manto de Sangue Real',
+  'combatCosmetic.cosmetic_obsidian_wings': 'Asas de Obsidiana',
 };

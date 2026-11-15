@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 5B: Persistência + Tela da Arena 1v1 + Títulos e Cosméticos no Herói
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 5C: Seleção de Classe Desbloqueada + Torneios da Forja
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
@@ -10,26 +10,29 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
   unificados por atributo (treinos e atividades, bônus isentos), progressão de
-  atributos (base 10) e níveis 1–20, 15 classes emergentes + Aventureiro,
+  atributos (base 10) e níveis 1–20, 15 classes emergentes + Aventureiro com
+  **desbloqueio e seleção de classe por atributo ≥ 12 (`ClassResolver`)**,
   missões diárias determinísticas, Inspiração e **motor de combate tático em
-  turnos (`combat.dart`)** com 16 habilidades de classe inspiradas no D&D 5e e
-  6 NPCs da Arena (recompensas: títulos e cosméticos, zero XP).
-- Persistência Drift/SQLite (schema v7): exercícios (seed 64 pt-BR + en com guia
+  turnos (`combat.dart`)** com 16 habilidades de classe inspiradas no D&D 5e,
+  6 NPCs da Arena e **4 Torneios (Gauntlet)** com escalonamento de atributos
+  (`0.85×` a `1.30×`) e recuperação parcial entre rodadas (zero XP).
+- Persistência Drift/SQLite (schema v8): exercícios (seed 64 pt-BR + en com guia
   passo a passo), treinos, séries, PRs (1RM Epley), atividades, saúde diária
-  (água, dieta, sono), progresso da Arena (`arena_progress`), fichas diárias
-  da Arena (`daily_arena_logs`), título/cosmético equipados no herói, livro-razão
-  de XP (incluindo `inspirationSpend`), missões.
-- Telas: Herói (com título/cosmético equipados, seletor `HeroCustomizationSheet`
-  e acesso à **Arena da Forja**), Arena 1v1 (`ArenaScreen`), Treino (estilo
-  Hevy, timer de descanso, botão "?" de execução), Atividades (Pomodoro,
-  hidratação, nutrição, sono, catálogo CAR/DES/SAB/INT/CON e atividade
-  personalizada), Missões.
+  (água, dieta, sono), progresso da Arena e Torneios (`arena_progress`), fichas
+  diárias (`daily_arena_logs`), classe selecionada (`heroes.selected_class`),
+  título/cosmético equipados no herói, livro-razão de XP (incluindo
+  `inspirationSpend`), missões.
+- Telas: Herói (com seletor de classe desbloqueada, título/cosmético equipados
+  via `HeroCustomizationSheet` e acesso à **Arena da Forja**), Arena & Torneios
+  (`ArenaScreen`), Treino (estilo Hevy, timer de descanso, botão "?" de
+  execução), Atividades (Pomodoro, hidratação, nutrição, sono, catálogo
+  CAR/DES/SAB/INT/CON e atividade personalizada), Missões.
 - Criação do herói; missões automáticas; Inspiração derivada do livro-razão.
 - Visual pixel art, pt-BR + inglês, configurações e créditos.
 - Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
   por tempo, recordes calculados ao finalizar.
 - Histórico, calendário, recordes, sequência semanal e tela de recompensas.
-- 107 testes passando; `flutter analyze` limpo.
+- 110 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
@@ -55,11 +58,12 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       usadas no dia (schema v7) + `CombatRepository` + Tela da Arena 1v1
       (`ArenaScreen`) + seletor de título/cosmético na ficha do herói
       (`HeroCustomizationSheet`).
-- [ ] **Etapa 5C (futuro):** Torneios (sequência de oponentes com escalonamento)
-      e Dungeon (exploração por salas com testes dos 6 atributos).
+- [x] **Etapa 5C:** seleção de classe desbloqueada (Decisão #41, schema v8) +
+      Modo **Torneios da Forja** (`TournamentCatalog`, 4 chaves escalonadas com
+      títulos e cosméticos de prestígio).
+- [ ] **Etapa 5D (futuro):** Modo **Dungeon** (exploração por salas/nós com
+      testes dos 6 atributos e encontros de combate).
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
-- [ ] (Backlog) **Seleção de classe desbloqueada**: permitir trocar entre classes
-      cujos pré-requisitos de atributos o herói já cumpriu (Decisão #41).
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).

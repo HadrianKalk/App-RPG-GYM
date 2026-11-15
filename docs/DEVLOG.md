@@ -3,6 +3,28 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 5C: Seleção de Classe Desbloqueada + Torneios da Forja
+- **Seleção de Classe Desbloqueada (`class_resolver.dart`, `xp_rules.dart`, `database.dart` schema v8):**
+  - `ClassResolver.unlockedClasses` e `effectiveClass`: desbloqueia `Aventureiro`,
+    a classe emergente natural e qualquer classe híbrida cujos dois atributos
+    (`primary` e `secondary`) tenham atingido pontuação **≥ 12** (modificador +1
+    no D&D 5e). Impede escolher classes sem treinar seus atributos reais
+    (Decisão #41).
+  - Coluna `heroes.selected_class` (schema v8) e seção **Classe do Herói** em
+    `HeroCustomizationSheet` exibindo todas as 16 classes (com a habilidade D&D
+    5e quando desbloqueada ou os requisitos de atributos quando bloqueada).
+- **Modo Torneios da Forja (`combat.dart`, `combat_repository.dart`, `arena_screen.dart`):**
+  - `TournamentCatalog`: 4 torneios escalonados (*Torneio das Cinzas* `0.85×`,
+    *Torneio de Ferro Fundido* `1.00×`, *Torneio Carmesim* `1.15×` e *Grande
+    Torneio de Obsidiana* `1.30×`), com 3 a 4 rodadas consecutivas e
+    recuperação parcial entre lutas (`+35% PV` e `+50% Foco`).
+  - 4 novos títulos e 4 novos cosméticos de prestígio traduzidos em pt-BR e en
+    (zero XP concedido, Decisão #40).
+  - Aba **Torneios** em `ArenaScreen` com progressão de rodadas ao vivo.
+- **Testes:** 110 testes passando, `flutter analyze` limpo.
+- **Próximo:** Etapa 5D — Modo Dungeon (exploração por salas/nós usando os 6
+  atributos + combates).
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 5B: Persistência + Tela da Arena 1v1 + Títulos e Cosméticos no Herói
 - **Banco (Schema v7, `database.dart`, `database.g.dart`):**
   - Colunas `heroes.equipped_title_id` e `heroes.equipped_cosmetic_id`.

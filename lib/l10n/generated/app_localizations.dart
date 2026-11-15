@@ -1801,6 +1801,90 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Voltar à Arena'**
   String get combatBackToArena;
+
+  /// No description provided for @heroClassSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Classe do Herói'**
+  String get heroClassSection;
+
+  /// No description provided for @heroClassAuto.
+  ///
+  /// In pt, this message translates to:
+  /// **'Automática (Emergente: {className})'**
+  String heroClassAuto(String className);
+
+  /// No description provided for @heroClassUnlockedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Habilidade: {skill}'**
+  String heroClassUnlockedHint(String skill);
+
+  /// No description provided for @heroClassLockedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Requer {attr1} ≥ {score} e {attr2} ≥ {score}'**
+  String heroClassLockedHint(String attr1, String attr2, int score);
+
+  /// No description provided for @heroTournamentLockedHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vença o {tournament} para desbloquear'**
+  String heroTournamentLockedHint(String tournament);
+
+  /// No description provided for @arenaTabDuels.
+  ///
+  /// In pt, this message translates to:
+  /// **'Duelos 1v1'**
+  String get arenaTabDuels;
+
+  /// No description provided for @arenaTabTournaments.
+  ///
+  /// In pt, this message translates to:
+  /// **'Torneios'**
+  String get arenaTabTournaments;
+
+  /// No description provided for @tournamentRoundsBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'{rounds} rodadas'**
+  String tournamentRoundsBadge(int rounds);
+
+  /// No description provided for @tournamentRoundProgress.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rodada {current}/{total}'**
+  String tournamentRoundProgress(int current, int total);
+
+  /// No description provided for @tournamentEnterButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar no Torneio (1 ficha)'**
+  String get tournamentEnterButton;
+
+  /// No description provided for @tournamentNextRoundTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rodada {round} Concluída!'**
+  String tournamentNextRoundTitle(int round);
+
+  /// No description provided for @tournamentNextRoundBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você recupera +35% de PV e +50% de Foco antes do próximo oponente.'**
+  String get tournamentNextRoundBody;
+
+  /// No description provided for @tournamentNextRoundButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avançar para a Rodada {next}'**
+  String tournamentNextRoundButton(int next);
+
+  /// No description provided for @tournamentVictoryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Campeão do Torneio!'**
+  String get tournamentVictoryTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:app/core/game/activity_catalog.dart';
 import 'package:app/core/game/attributes.dart';
+import 'package:app/core/game/class_resolver.dart';
 import 'package:app/core/game/combat.dart';
 import 'package:app/core/game/hero_profile.dart';
 import 'package:app/core/game/quest_progress.dart';
@@ -578,6 +579,48 @@ void main() {
       final profile = await heroRepo.watchHero().first;
       expect(profile!.equippedTitleId, recruit.reward.titleId);
       expect(profile.equippedCosmeticId, recruit.reward.cosmeticId);
+    });
+
+    test('finishTournament unlocks tournament prestige rewards and selectedClass switches among unlocked classes (step 5C)', () async {
+      await heroRepo.createHero(
+        name: 'Casca',
+        form: HeroForm.feminine,
+        origin: HeroOrigin.soldier,
+      );
+
+      // Level up STR, DEX, and INT to score >= 12 (1200 XP each)
+      for (final attr in [Attribute.strength, Attribute.dexterity, Attribute.intelligence]) {
+        await charRepo.addXp(
+          XpEvent(
+            id: 'xp_${attr.name}',
+            attribute: attr,
+            amount: 1200,
+            source: XpSource.workoutSet,
+            timestamp: DateTime.now(),
+          ),
+        );
+      }
+
+      // Select Rogue (DEX + INT, unlocked!)
+      await heroRepo.setSelectedClass(CharacterClass.rogue);
+      final stateRogue = await charRepo.watchCharacter().first;
+      expect(stateRogue.characterClass, CharacterClass.rogue);
+      expect(stateRogue.unlockedClasses.contains(CharacterClass.rogue), isTrue);
+      expect(stateRogue.unlockedClasses.contains(CharacterClass.mage), isFalse);
+
+      // Win Bronze Tournament -> unlocks Bronze Gladiator title & Laurel cosmetic
+      final bronze = TournamentCatalog.tournaments.first;
+      final firstWin = await combatRepo.finishTournament(
+        tournament: bronze,
+        victory: true,
+        spentInspiration: false,
+      );
+      expect(firstWin, isTrue);
+
+      final arena = await combatRepo.getArenaState();
+      expect(arena.tournamentsWonCount, 1);
+      expect(arena.unlockedTitleIds.contains(bronze.reward.titleId), isTrue);
+      expect(arena.unlockedCosmeticIds.contains(bronze.reward.cosmeticId), isTrue);
     });
   });
 }

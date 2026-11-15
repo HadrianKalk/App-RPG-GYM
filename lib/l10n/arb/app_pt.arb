@@ -904,5 +904,84 @@
   "combatUnlockedReward": "Recompensas Desbloqueadas!",
   "combatAlreadyUnlocked": "Recompensas deste campeão já estão na sua coleção.",
   "combatEquipNow": "Equipar agora",
-  "combatBackToArena": "Voltar à Arena"
+  "combatBackToArena": "Voltar à Arena",
+  "heroClassSection": "Classe do Herói",
+  "heroClassAuto": "Automática (Emergente: {className})",
+  "@heroClassAuto": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  "heroClassUnlockedHint": "Habilidade: {skill}",
+  "@heroClassUnlockedHint": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "heroClassLockedHint": "Requer {attr1} ≥ {score} e {attr2} ≥ {score}",
+  "@heroClassLockedHint": {
+    "placeholders": {
+      "attr1": {
+        "type": "String"
+      },
+      "attr2": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "heroTournamentLockedHint": "Vença o {tournament} para desbloquear",
+  "@heroTournamentLockedHint": {
+    "placeholders": {
+      "tournament": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaTabDuels": "Duelos 1v1",
+  "arenaTabTournaments": "Torneios",
+  "tournamentRoundsBadge": "{rounds} rodadas",
+  "@tournamentRoundsBadge": {
+    "placeholders": {
+      "rounds": {
+        "type": "int"
+      }
+    }
+  },
+  "tournamentRoundProgress": "Rodada {current}/{total}",
+  "@tournamentRoundProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tournamentEnterButton": "Entrar no Torneio (1 ficha)",
+  "tournamentNextRoundTitle": "Rodada {round} Concluída!",
+  "@tournamentNextRoundTitle": {
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "tournamentNextRoundBody": "Você recupera +35% de PV e +50% de Foco antes do próximo oponente.",
+  "tournamentNextRoundButton": "Avançar para a Rodada {next}",
+  "@tournamentNextRoundButton": {
+    "placeholders": {
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "tournamentVictoryTitle": "Campeão do Torneio!"
 }

@@ -1543,6 +1543,15 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         requiredDuringInsert: false,
       );
   @override
+  late final GeneratedColumnWithTypeConverter<CharacterClass?, String>
+  selectedClass = GeneratedColumn<String>(
+    'selected_class',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<CharacterClass?>($HeroesTable.$converterselectedClassn);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
@@ -1556,6 +1565,7 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     waterGoalCups,
     equippedTitleId,
     equippedCosmeticId,
+    selectedClass,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1706,6 +1716,12 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         DriftSqlType.string,
         data['${effectivePrefix}equipped_cosmetic_id'],
       ),
+      selectedClass: $HeroesTable.$converterselectedClassn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}selected_class'],
+        ),
+      ),
     );
   }
 
@@ -1718,6 +1734,14 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
       const EnumNameConverter<HeroForm>(HeroForm.values);
   static JsonTypeConverter2<HeroOrigin, String, String> $converterorigin =
       const EnumNameConverter<HeroOrigin>(HeroOrigin.values);
+  static JsonTypeConverter2<CharacterClass, String, String>
+  $converterselectedClass = const EnumNameConverter<CharacterClass>(
+    CharacterClass.values,
+  );
+  static JsonTypeConverter2<CharacterClass?, String?, String?>
+  $converterselectedClassn = JsonTypeConverter2.asNullable(
+    $converterselectedClass,
+  );
 }
 
 class HeroRow extends DataClass implements Insertable<HeroRow> {
@@ -1741,6 +1765,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
   /// Currently equipped combat title id and cosmetic id (schema v7).
   final String? equippedTitleId;
   final String? equippedCosmeticId;
+
+  /// Player-selected class when unlocked (`null` = emergent class, schema v8).
+  final CharacterClass? selectedClass;
   const HeroRow({
     required this.id,
     required this.name,
@@ -1754,6 +1781,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     required this.waterGoalCups,
     this.equippedTitleId,
     this.equippedCosmeticId,
+    this.selectedClass,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1786,6 +1814,11 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     if (!nullToAbsent || equippedCosmeticId != null) {
       map['equipped_cosmetic_id'] = Variable<String>(equippedCosmeticId);
     }
+    if (!nullToAbsent || selectedClass != null) {
+      map['selected_class'] = Variable<String>(
+        $HeroesTable.$converterselectedClassn.toSql(selectedClass),
+      );
+    }
     return map;
   }
 
@@ -1811,6 +1844,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       equippedCosmeticId: equippedCosmeticId == null && nullToAbsent
           ? const Value.absent()
           : Value(equippedCosmeticId),
+      selectedClass: selectedClass == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedClass),
     );
   }
 
@@ -1840,6 +1876,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       equippedCosmeticId: serializer.fromJson<String?>(
         json['equippedCosmeticId'],
       ),
+      selectedClass: $HeroesTable.$converterselectedClassn.fromJson(
+        serializer.fromJson<String?>(json['selectedClass']),
+      ),
     );
   }
   @override
@@ -1862,6 +1901,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       'waterGoalCups': serializer.toJson<int>(waterGoalCups),
       'equippedTitleId': serializer.toJson<String?>(equippedTitleId),
       'equippedCosmeticId': serializer.toJson<String?>(equippedCosmeticId),
+      'selectedClass': serializer.toJson<String?>(
+        $HeroesTable.$converterselectedClassn.toJson(selectedClass),
+      ),
     };
   }
 
@@ -1878,6 +1920,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     int? waterGoalCups,
     Value<String?> equippedTitleId = const Value.absent(),
     Value<String?> equippedCosmeticId = const Value.absent(),
+    Value<CharacterClass?> selectedClass = const Value.absent(),
   }) => HeroRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1899,6 +1942,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     equippedCosmeticId: equippedCosmeticId.present
         ? equippedCosmeticId.value
         : this.equippedCosmeticId,
+    selectedClass: selectedClass.present
+        ? selectedClass.value
+        : this.selectedClass,
   );
   HeroRow copyWithCompanion(HeroesCompanion data) {
     return HeroRow(
@@ -1926,6 +1972,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       equippedCosmeticId: data.equippedCosmeticId.present
           ? data.equippedCosmeticId.value
           : this.equippedCosmeticId,
+      selectedClass: data.selectedClass.present
+          ? data.selectedClass.value
+          : this.selectedClass,
     );
   }
 
@@ -1943,7 +1992,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ..write('weeklyGoal: $weeklyGoal, ')
           ..write('waterGoalCups: $waterGoalCups, ')
           ..write('equippedTitleId: $equippedTitleId, ')
-          ..write('equippedCosmeticId: $equippedCosmeticId')
+          ..write('equippedCosmeticId: $equippedCosmeticId, ')
+          ..write('selectedClass: $selectedClass')
           ..write(')'))
         .toString();
   }
@@ -1962,6 +2012,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     waterGoalCups,
     equippedTitleId,
     equippedCosmeticId,
+    selectedClass,
   );
   @override
   bool operator ==(Object other) =>
@@ -1978,7 +2029,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           other.weeklyGoal == this.weeklyGoal &&
           other.waterGoalCups == this.waterGoalCups &&
           other.equippedTitleId == this.equippedTitleId &&
-          other.equippedCosmeticId == this.equippedCosmeticId);
+          other.equippedCosmeticId == this.equippedCosmeticId &&
+          other.selectedClass == this.selectedClass);
 }
 
 class HeroesCompanion extends UpdateCompanion<HeroRow> {
@@ -1994,6 +2046,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
   final Value<int> waterGoalCups;
   final Value<String?> equippedTitleId;
   final Value<String?> equippedCosmeticId;
+  final Value<CharacterClass?> selectedClass;
   const HeroesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2007,6 +2060,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.waterGoalCups = const Value.absent(),
     this.equippedTitleId = const Value.absent(),
     this.equippedCosmeticId = const Value.absent(),
+    this.selectedClass = const Value.absent(),
   });
   HeroesCompanion.insert({
     this.id = const Value.absent(),
@@ -2021,6 +2075,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.waterGoalCups = const Value.absent(),
     this.equippedTitleId = const Value.absent(),
     this.equippedCosmeticId = const Value.absent(),
+    this.selectedClass = const Value.absent(),
   }) : name = Value(name),
        form = Value(form),
        origin = Value(origin),
@@ -2038,6 +2093,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Expression<int>? waterGoalCups,
     Expression<String>? equippedTitleId,
     Expression<String>? equippedCosmeticId,
+    Expression<String>? selectedClass,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2053,6 +2109,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       if (equippedTitleId != null) 'equipped_title_id': equippedTitleId,
       if (equippedCosmeticId != null)
         'equipped_cosmetic_id': equippedCosmeticId,
+      if (selectedClass != null) 'selected_class': selectedClass,
     });
   }
 
@@ -2069,6 +2126,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Value<int>? waterGoalCups,
     Value<String?>? equippedTitleId,
     Value<String?>? equippedCosmeticId,
+    Value<CharacterClass?>? selectedClass,
   }) {
     return HeroesCompanion(
       id: id ?? this.id,
@@ -2083,6 +2141,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       waterGoalCups: waterGoalCups ?? this.waterGoalCups,
       equippedTitleId: equippedTitleId ?? this.equippedTitleId,
       equippedCosmeticId: equippedCosmeticId ?? this.equippedCosmeticId,
+      selectedClass: selectedClass ?? this.selectedClass,
     );
   }
 
@@ -2129,6 +2188,11 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     if (equippedCosmeticId.present) {
       map['equipped_cosmetic_id'] = Variable<String>(equippedCosmeticId.value);
     }
+    if (selectedClass.present) {
+      map['selected_class'] = Variable<String>(
+        $HeroesTable.$converterselectedClassn.toSql(selectedClass.value),
+      );
+    }
     return map;
   }
 
@@ -2146,7 +2210,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
           ..write('weeklyGoal: $weeklyGoal, ')
           ..write('waterGoalCups: $waterGoalCups, ')
           ..write('equippedTitleId: $equippedTitleId, ')
-          ..write('equippedCosmeticId: $equippedCosmeticId')
+          ..write('equippedCosmeticId: $equippedCosmeticId, ')
+          ..write('selectedClass: $selectedClass')
           ..write(')'))
         .toString();
   }
@@ -7539,6 +7604,7 @@ typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
   Value<int> waterGoalCups,
   Value<String?> equippedTitleId,
   Value<String?> equippedCosmeticId,
+  Value<CharacterClass?> selectedClass,
 });
 typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> id,
@@ -7553,6 +7619,7 @@ typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> waterGoalCups,
   Value<String?> equippedTitleId,
   Value<String?> equippedCosmeticId,
+  Value<CharacterClass?> selectedClass,
 });
 
 class $$HeroesTableFilterComposer
@@ -7625,6 +7692,12 @@ class $$HeroesTableFilterComposer
     column: $table.equippedCosmeticId,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<CharacterClass?, CharacterClass, String>
+  get selectedClass => $composableBuilder(
+    column: $table.selectedClass,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 }
 
 class $$HeroesTableOrderingComposer
@@ -7695,6 +7768,11 @@ class $$HeroesTableOrderingComposer
     column: $table.equippedCosmeticId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get selectedClass => $composableBuilder(
+    column: $table.selectedClass,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HeroesTableAnnotationComposer
@@ -7753,6 +7831,12 @@ class $$HeroesTableAnnotationComposer
     column: $table.equippedCosmeticId,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<CharacterClass?, String> get selectedClass =>
+      $composableBuilder(
+        column: $table.selectedClass,
+        builder: (column) => column,
+      );
 }
 
 class $$HeroesTableTableManager
@@ -7795,6 +7879,7 @@ class $$HeroesTableTableManager
                 Value<int> waterGoalCups = const Value.absent(),
                 Value<String?> equippedTitleId = const Value.absent(),
                 Value<String?> equippedCosmeticId = const Value.absent(),
+                Value<CharacterClass?> selectedClass = const Value.absent(),
               }) => HeroesCompanion(
                 id: id,
                 name: name,
@@ -7808,6 +7893,7 @@ class $$HeroesTableTableManager
                 waterGoalCups: waterGoalCups,
                 equippedTitleId: equippedTitleId,
                 equippedCosmeticId: equippedCosmeticId,
+                selectedClass: selectedClass,
               ),
           createCompanionCallback:
               ({
@@ -7823,6 +7909,7 @@ class $$HeroesTableTableManager
                 Value<int> waterGoalCups = const Value.absent(),
                 Value<String?> equippedTitleId = const Value.absent(),
                 Value<String?> equippedCosmeticId = const Value.absent(),
+                Value<CharacterClass?> selectedClass = const Value.absent(),
               }) => HeroesCompanion.insert(
                 id: id,
                 name: name,
@@ -7836,6 +7923,7 @@ class $$HeroesTableTableManager
                 waterGoalCups: waterGoalCups,
                 equippedTitleId: equippedTitleId,
                 equippedCosmeticId: equippedCosmeticId,
+                selectedClass: selectedClass,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/game/activity_catalog.dart';
+import '../../core/game/class_resolver.dart';
 import '../../core/game/hero_profile.dart';
 import '../../core/game/weekly_progress.dart';
 import '../../core/game/xp_rules.dart';
@@ -87,6 +88,11 @@ class HeroRepository {
       (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
           .write(HeroesCompanion(equippedCosmeticId: Value(cosmeticId)));
 
+  /// Sets the hero's chosen class (`null` returns to automatic emergent class).
+  Future<void> setSelectedClass(CharacterClass? selectedClass) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(selectedClass: Value(selectedClass)));
+
   HeroProfile _toProfile(HeroRow row) => HeroProfile(
         name: row.name,
         form: row.form,
@@ -99,5 +105,6 @@ class HeroRepository {
         waterGoalCups: row.waterGoalCups,
         equippedTitleId: row.equippedTitleId,
         equippedCosmeticId: row.equippedCosmeticId,
+        selectedClass: row.selectedClass,
       );
 }

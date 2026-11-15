@@ -334,4 +334,22 @@ const Map<String, String> gameContentEn = {
   'combatCosmetic.cosmetic_crimson_halo': 'Crimson Halo',
   'combatCosmetic.cosmetic_runic_aura': 'Arcane Runic Seal',
   'combatCosmetic.cosmetic_ember_crown': 'Golden Ember Crown',
+
+  // --- Combat: Forge Tournaments & Prestige Rewards -------------------------
+  'tournament.tournament_bronze.name': 'Ash Pit Tournament',
+  'tournament.tournament_bronze.lore': '3-round bracket with scaled-down foes (0.85×) to test your early discipline.',
+  'tournament.tournament_silver.name': 'Cast-Iron Tournament',
+  'tournament.tournament_silver.lore': 'Official 3-round gauntlet at full strength (1.00×) with partial recovery between rounds.',
+  'tournament.tournament_crimson.name': 'Crimson Tournament',
+  'tournament.tournament_crimson.lore': 'High-tier 3-round gauntlet against empowered challengers (1.15×).',
+  'tournament.tournament_obsidian.name': 'Grand Obsidian Tournament',
+  'tournament.tournament_obsidian.lore': 'Supreme 4-round championship against legends of the forge at peak power (1.30×).',
+  'combatTitle.title_bronze_gladiator': 'Bronze Gladiator',
+  'combatTitle.title_iron_champion': 'Cast-Iron Champion',
+  'combatTitle.title_crimson_warlord': 'Crimson Warlord',
+  'combatTitle.title_grand_monarch': 'Forge Monarch',
+  'combatCosmetic.cosmetic_bronze_laurel': 'Bronze Laurel',
+  'combatCosmetic.cosmetic_steel_crest': 'Forged Steel Crest',
+  'combatCosmetic.cosmetic_blood_mantle': 'Royal Blood Mantle',
+  'combatCosmetic.cosmetic_obsidian_wings': 'Obsidian Wings',
 };

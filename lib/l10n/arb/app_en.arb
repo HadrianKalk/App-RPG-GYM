@@ -283,5 +283,19 @@
   "combatUnlockedReward": "Rewards Unlocked!",
   "combatAlreadyUnlocked": "This champion's rewards are already in your collection.",
   "combatEquipNow": "Equip now",
-  "combatBackToArena": "Back to Arena"
+  "combatBackToArena": "Back to Arena",
+  "heroClassSection": "Hero Class",
+  "heroClassAuto": "Automatic (Emergent: {className})",
+  "heroClassUnlockedHint": "Skill: {skill}",
+  "heroClassLockedHint": "Requires {attr1} ≥ {score} and {attr2} ≥ {score}",
+  "heroTournamentLockedHint": "Win {tournament} to unlock",
+  "arenaTabDuels": "1v1 Duels",
+  "arenaTabTournaments": "Tournaments",
+  "tournamentRoundsBadge": "{rounds} rounds",
+  "tournamentRoundProgress": "Round {current}/{total}",
+  "tournamentEnterButton": "Enter Tournament (1 token)",
+  "tournamentNextRoundTitle": "Round {round} Cleared!",
+  "tournamentNextRoundBody": "You recover +35% HP and +50% Focus before the next challenger.",
+  "tournamentNextRoundButton": "Advance to Round {next}",
+  "tournamentVictoryTitle": "Tournament Champion!"
 }

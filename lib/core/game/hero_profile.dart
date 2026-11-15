@@ -6,6 +6,8 @@
 /// `heroForm.<enumName>.*` and `origin.<enumName>.*`.
 library;
 
+import 'class_resolver.dart';
+
 /// Grammatical form of address. Portuguese inflects by gender, so the
 /// narrator needs to know how to refer to the hero.
 enum HeroForm { masculine, feminine, neutral }
@@ -47,6 +49,7 @@ final class HeroProfile {
     this.waterGoalCups = 8,
     this.equippedTitleId,
     this.equippedCosmeticId,
+    this.selectedClass,
   });
 
   /// Maximum hero name length.
@@ -89,6 +92,9 @@ final class HeroProfile {
 
   /// Currently equipped combat cosmetic id (`combatCosmetic.<id>`), if any.
   final String? equippedCosmeticId;
+
+  /// Player-chosen class among unlocked classes (`null` = automatic emergent class).
+  final CharacterClass? selectedClass;
 
   /// Validates a raw hero name. Returns `null` when valid, or the reason.
   static HeroNameError? validateName(String raw) =>

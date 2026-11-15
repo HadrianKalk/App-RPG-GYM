@@ -72,12 +72,20 @@ abstract final class XpRules {
   static const int activityMinMinutes = 1;
   static const int activityMaxMinutes = 240;
 
-  // --- Arena & Combat (Stage 5A — zero XP, cosmetic/title rewards only) ---
+  // --- Arena & Combat (Stage 5 — zero XP, cosmetic/title rewards only) ---
   /// Free Arena entries granted every day even before logging a workout.
   static const int arenaFreeDailyEntries = 2;
 
   /// Maximum turns before an Arena duel ends by exhaustion (prevents infinite loops).
   static const int combatMaxTurns = 30;
+
+  /// Attribute score required in BOTH primary and secondary attributes of a
+  /// class to unlock it for manual selection (Decision #41; score 12 = +1 mod).
+  static const int classUnlockAttributeScore = 12;
+
+  /// Fraction of max HP and max Focus restored between Tournament rounds.
+  static const double tournamentBetweenRoundHpRecovery = 0.35;
+  static const double tournamentBetweenRoundFocusRecovery = 0.50;
 
   // --- Weekly consistency (see weekly_progress.dart) ---
   /// Default weekly goal: training days per week.

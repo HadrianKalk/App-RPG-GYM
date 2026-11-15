@@ -337,4 +337,91 @@ void main() {
       expect(state.log.last.kind, CombatLogKind.defeat);
     });
   });
+
+  group('ClassResolver.unlockedClasses & effectiveClass (Decision #41)', () {
+    test('unlocks classes whose primary and secondary attributes reach score >= 12, and never unlocks untrained classes', () {
+      // 1200 XP in STR, DEX, and INT -> score >= 12 in STR, DEX, INT; 0 XP in WIS/CHA/CON -> score 10
+      final xpMap = <Attribute, double>{
+        Attribute.strength: 1200,
+        Attribute.dexterity: 1200,
+        Attribute.intelligence: 1200,
+        Attribute.constitution: 0,
+        Attribute.wisdom: 0,
+        Attribute.charisma: 0,
+      };
+
+      final unlocked = ClassResolver.unlockedClasses(xpMap);
+      expect(unlocked.contains(CharacterClass.adventurer), isTrue);
+      expect(unlocked.contains(CharacterClass.warrior), isTrue); // STR + DEX
+      expect(unlocked.contains(CharacterClass.eldritchKnight), isTrue); // STR + INT
+      expect(unlocked.contains(CharacterClass.rogue), isTrue); // DEX + INT
+
+      // Mage requires INT + WIS >= 12, but WIS is 10 -> must remain locked!
+      expect(unlocked.contains(CharacterClass.mage), isFalse);
+      expect(
+        ClassResolver.effectiveClass(
+          attributeXpMap: xpMap,
+          selectedClass: CharacterClass.rogue,
+        ),
+        CharacterClass.rogue,
+      );
+      expect(
+        ClassResolver.effectiveClass(
+          attributeXpMap: xpMap,
+          selectedClass: CharacterClass.mage, // locked -> falls back to emergent
+        ),
+        ClassResolver.resolveClass(xpMap),
+      );
+    });
+  });
+
+  group('TournamentCatalog & Gauntlet progression (Step 5C)', () {
+    test('TournamentCatalog scales opponents according to statScale and advances rounds with partial recovery', () {
+      final bronze = TournamentCatalog.byId('tournament_bronze')!;
+      final obsidian = TournamentCatalog.byId('tournament_obsidian')!;
+      expect(bronze.statScale, lessThan(1.0));
+      expect(obsidian.statScale, greaterThan(1.0));
+
+      final baseRecruit = ArenaCatalog.byId('npc_ash_recruit')!;
+      final scaledRecruit = bronze.scaledOpponents.first;
+      expect(scaledRecruit.maxHp, lessThan(baseRecruit.maxHp));
+
+      final hero = CombatStats.fromHero(
+        level: 10,
+        characterClass: CharacterClass.warrior,
+        attributeScores: {for (final a in Attribute.values) a: 16},
+      );
+      var run = CombatEngine.startTournament(
+        hero: hero,
+        tournament: bronze,
+        availableInspiration: 1,
+      );
+      expect(run.currentRoundNumber, 1);
+      expect(run.totalRounds, 3);
+
+      // Clear round 1
+      var enc = run.encounter;
+      while (enc.status == CombatStatus.ongoing) {
+        enc = CombatEngine.executeTurn(
+          enc,
+          CombatAction.basicStrike,
+          random: _FixedRandom(0.99),
+        );
+      }
+      run = TournamentRun(
+        tournament: run.tournament,
+        rounds: run.rounds,
+        roundIndex: run.roundIndex,
+        encounter: enc,
+      );
+      expect(run.isRoundVictory, isTrue);
+      expect(run.isTournamentVictory, isFalse);
+
+      // Advance to round 2 -> HP & Focus recover partially
+      final round2 = CombatEngine.advanceTournamentRound(run);
+      expect(round2.currentRoundNumber, 2);
+      expect(round2.encounter.status, CombatStatus.ongoing);
+      expect(round2.encounter.opponent.id, 'npc_iron_sentinel');
+    });
+  });
 }

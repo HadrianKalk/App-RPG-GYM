@@ -1088,4 +1088,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get combatBackToArena => 'Back to Arena';
+
+  @override
+  String get heroClassSection => 'Hero Class';
+
+  @override
+  String heroClassAuto(String className) {
+    return 'Automatic (Emergent: $className)';
+  }
+
+  @override
+  String heroClassUnlockedHint(String skill) {
+    return 'Skill: $skill';
+  }
+
+  @override
+  String heroClassLockedHint(String attr1, String attr2, int score) {
+    return 'Requires $attr1 ≥ $score and $attr2 ≥ $score';
+  }
+
+  @override
+  String heroTournamentLockedHint(String tournament) {
+    return 'Win $tournament to unlock';
+  }
+
+  @override
+  String get arenaTabDuels => '1v1 Duels';
+
+  @override
+  String get arenaTabTournaments => 'Tournaments';
+
+  @override
+  String tournamentRoundsBadge(int rounds) {
+    return '$rounds rounds';
+  }
+
+  @override
+  String tournamentRoundProgress(int current, int total) {
+    return 'Round $current/$total';
+  }
+
+  @override
+  String get tournamentEnterButton => 'Enter Tournament (1 token)';
+
+  @override
+  String tournamentNextRoundTitle(int round) {
+    return 'Round $round Cleared!';
+  }
+
+  @override
+  String get tournamentNextRoundBody =>
+      'You recover +35% HP and +50% Focus before the next challenger.';
+
+  @override
+  String tournamentNextRoundButton(int next) {
+    return 'Advance to Round $next';
+  }
+
+  @override
+  String get tournamentVictoryTitle => 'Tournament Champion!';
 }

@@ -15,7 +15,7 @@ import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
 
-/// 1v1 Forge Arena screen: NPC challenger roster and turn-based combat arena.
+/// Forge Arena screen: 1v1 NPC duels and multi-round Tournaments (Gauntlet).
 ///
 /// Combats never grant XP (Decision #40); victories unlock titles and cosmetics.
 class ArenaScreen extends ConsumerStatefulWidget {
@@ -27,8 +27,21 @@ class ArenaScreen extends ConsumerStatefulWidget {
 
 class _ArenaScreenState extends ConsumerState<ArenaScreen> {
   CombatEncounter? _encounter;
+  TournamentRun? _tournamentRun;
+  bool _showTournamentsTab = false;
   bool _firstUnlockOnLastVictory = false;
   bool _busy = false;
+
+  CombatStats _buildHeroStats(CharacterState char) {
+    return CombatStats.fromHero(
+      level: char.levelInfo.level,
+      characterClass: char.characterClass,
+      attributeScores: {
+        for (final entry in char.attributeProgressions.entries)
+          entry.key: entry.value.score,
+      },
+    );
+  }
 
   Future<void> _startChallenge(
     ArenaOpponent opponent,
@@ -48,24 +61,52 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
         return;
       }
 
-      final heroStats = CombatStats.fromHero(
-        level: char.levelInfo.level,
-        characterClass: char.characterClass,
-        attributeScores: {
-          for (final entry in char.attributeProgressions.entries)
-            entry.key: entry.value.score,
-        },
-      );
-
       final started = CombatEngine.start(
-        hero: heroStats,
+        hero: _buildHeroStats(char),
         opponent: opponent,
         availableInspiration: char.inspirationCount,
       );
 
       if (mounted) {
         setState(() {
+          _tournamentRun = null;
           _encounter = started;
+          _firstUnlockOnLastVictory = false;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _startTournament(
+    TournamentDefinition tournament,
+    CharacterState char,
+  ) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final consumed =
+          await ref.read(combatRepositoryProvider).consumeDailyEntry();
+      if (!consumed) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.arenaNoTokens)),
+          );
+        }
+        return;
+      }
+
+      final run = CombatEngine.startTournament(
+        hero: _buildHeroStats(char),
+        tournament: tournament,
+        availableInspiration: char.inspirationCount,
+      );
+
+      if (mounted) {
+        setState(() {
+          _tournamentRun = run;
+          _encounter = run.encounter;
           _firstUnlockOnLastVictory = false;
         });
       }
@@ -83,6 +124,42 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     }
 
     final next = CombatEngine.executeTurn(current, action);
+    final activeRun = _tournamentRun;
+
+    if (activeRun != null) {
+      final updatedRun = TournamentRun(
+        tournament: activeRun.tournament,
+        rounds: activeRun.rounds,
+        roundIndex: activeRun.roundIndex,
+        encounter: next,
+      );
+      setState(() {
+        _tournamentRun = updatedRun;
+        _encounter = next;
+      });
+
+      // Only finalize tournament when defeated or when the FINAL round is won.
+      if (next.status == CombatStatus.defeat ||
+          updatedRun.isTournamentVictory) {
+        setState(() => _busy = true);
+        try {
+          final firstUnlock = await ref
+              .read(combatRepositoryProvider)
+              .finishTournament(
+                tournament: updatedRun.tournament,
+                victory: updatedRun.isTournamentVictory,
+                spentInspiration: next.inspirationUsed,
+              );
+          if (mounted) {
+            setState(() => _firstUnlockOnLastVictory = firstUnlock);
+          }
+        } finally {
+          if (mounted) setState(() => _busy = false);
+        }
+      }
+      return;
+    }
+
     setState(() => _encounter = next);
 
     if (next.status != CombatStatus.ongoing) {
@@ -103,12 +180,25 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     }
   }
 
+  void _advanceTournamentRound() {
+    final run = _tournamentRun;
+    if (run == null || !run.isRoundVictory) return;
+    final nextRun = CombatEngine.advanceTournamentRound(run);
+    setState(() {
+      _tournamentRun = nextRun;
+      _encounter = nextRun.encounter;
+    });
+  }
+
   Future<void> _equipReward(CombatReward reward) async {
     final heroRepo = ref.read(heroRepositoryProvider);
     await heroRepo.setEquippedTitle(reward.titleId);
     await heroRepo.setEquippedCosmetic(reward.cosmeticId);
     if (mounted) {
-      setState(() => _encounter = null);
+      setState(() {
+        _encounter = null;
+        _tournamentRun = null;
+      });
     }
   }
 
@@ -138,19 +228,28 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
             if (_encounter != null) {
               return _ActiveCombatView(
                 encounter: _encounter!,
+                tournamentRun: _tournamentRun,
                 heroName: hero?.name ?? l10n.navHero,
                 firstUnlock: _firstUnlockOnLastVictory,
                 busy: _busy,
                 onAction: _executeAction,
+                onNextTournamentRound: _advanceTournamentRound,
                 onEquipReward: () => _equipReward(_encounter!.opponent.reward),
-                onBackToRoster: () => setState(() => _encounter = null),
+                onBackToRoster: () => setState(() {
+                  _encounter = null;
+                  _tournamentRun = null;
+                }),
               );
             }
             return _ArenaRosterView(
               arena: arena,
               char: char,
               busy: _busy,
+              showTournamentsTab: _showTournamentsTab,
+              onSelectTab: (tournaments) =>
+                  setState(() => _showTournamentsTab = tournaments),
               onChallenge: (npc) => _startChallenge(npc, char),
+              onEnterTournament: (t) => _startTournament(t, char),
             );
           },
         ),
@@ -164,13 +263,19 @@ class _ArenaRosterView extends StatelessWidget {
     required this.arena,
     required this.char,
     required this.busy,
+    required this.showTournamentsTab,
+    required this.onSelectTab,
     required this.onChallenge,
+    required this.onEnterTournament,
   });
 
   final ArenaState arena;
   final CharacterState char;
   final bool busy;
+  final bool showTournamentsTab;
+  final ValueChanged<bool> onSelectTab;
   final ValueChanged<ArenaOpponent> onChallenge;
+  final ValueChanged<TournamentDefinition> onEnterTournament;
 
   @override
   Widget build(BuildContext context) {
@@ -242,17 +347,58 @@ class _ArenaRosterView extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 10),
+
+        // --- Mode Switcher: 1v1 Duels vs Tournaments -----------------------
+        Row(
+          children: [
+            Expanded(
+              child: PixelButton(
+                key: const Key('arena_tab_duels'),
+                label: l10n.arenaTabDuels,
+                variant: !showTournamentsTab
+                    ? PixelButtonVariant.primary
+                    : PixelButtonVariant.secondary,
+                onPressed: () => onSelectTab(false),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: PixelButton(
+                key: const Key('arena_tab_tournaments'),
+                label: l10n.arenaTabTournaments,
+                variant: showTournamentsTab
+                    ? PixelButtonVariant.primary
+                    : PixelButtonVariant.secondary,
+                onPressed: () => onSelectTab(true),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        for (final npc in ArenaCatalog.opponents) ...[
-          _OpponentCard(
-            npc: npc,
-            victories: arena.victoriesByOpponent[npc.id] ?? 0,
-            canChallenge: hasTokens && !busy,
-            game: game,
-            onChallenge: () => onChallenge(npc),
-          ),
-          const SizedBox(height: 10),
-        ],
+
+        if (!showTournamentsTab)
+          for (final npc in ArenaCatalog.opponents) ...[
+            _OpponentCard(
+              npc: npc,
+              victories: arena.victoriesByOpponent[npc.id] ?? 0,
+              canChallenge: hasTokens && !busy,
+              game: game,
+              onChallenge: () => onChallenge(npc),
+            ),
+            const SizedBox(height: 10),
+          ]
+        else
+          for (final t in TournamentCatalog.tournaments) ...[
+            _TournamentCard(
+              tournament: t,
+              victories: arena.victoriesByOpponent[t.id] ?? 0,
+              canEnter: hasTokens && !busy,
+              game: game,
+              onEnter: () => onEnterTournament(t),
+            ),
+            const SizedBox(height: 10),
+          ],
       ],
     );
   }
@@ -360,22 +506,133 @@ class _OpponentCard extends StatelessWidget {
   }
 }
 
+class _TournamentCard extends StatelessWidget {
+  const _TournamentCard({
+    required this.tournament,
+    required this.victories,
+    required this.canEnter,
+    required this.game,
+    required this.onEnter,
+  });
+
+  final TournamentDefinition tournament;
+  final int victories;
+  final bool canEnter;
+  final GameText game;
+  final VoidCallback onEnter;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final won = victories > 0;
+    final rosterLine = tournament.opponentIds
+        .map(game.arenaNpcName)
+        .join(' → ');
+
+    return PixelFrame(
+      highlight: won,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      game.tournamentName(tournament.id),
+                      style: display.style(
+                        24,
+                        color: won ? AppTheme.emberGold : AppTheme.ashWhite,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      game.tournamentLore(tournament.id),
+                      style: const TextStyle(
+                        color: AppTheme.dullSilver,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  PixelTag(
+                    text: l10n.arenaRecommendedLevel(
+                      tournament.recommendedLevel,
+                    ),
+                    color: AppTheme.emberGold,
+                  ),
+                  const SizedBox(height: 4),
+                  PixelTag(
+                    text: l10n.tournamentRoundsBadge(
+                      tournament.opponentIds.length,
+                    ),
+                    color: AppTheme.dullSilver,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            rosterLine,
+            style: const TextStyle(color: AppTheme.darkAsh, fontSize: 11),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.arenaRewardLabel(
+              game.combatTitle(tournament.reward.titleId),
+              game.combatCosmetic(tournament.reward.cosmeticId),
+            ),
+            style: const TextStyle(
+              color: AppTheme.emberGold,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          PixelButton(
+            key: Key('tournament_enter_${tournament.id}'),
+            label: l10n.tournamentEnterButton,
+            variant: won
+                ? PixelButtonVariant.secondary
+                : PixelButtonVariant.primary,
+            onPressed: canEnter ? onEnter : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ActiveCombatView extends StatelessWidget {
   const _ActiveCombatView({
     required this.encounter,
+    required this.tournamentRun,
     required this.heroName,
     required this.firstUnlock,
     required this.busy,
     required this.onAction,
+    required this.onNextTournamentRound,
     required this.onEquipReward,
     required this.onBackToRoster,
   });
 
   final CombatEncounter encounter;
+  final TournamentRun? tournamentRun;
   final String heroName;
   final bool firstUnlock;
   final bool busy;
   final ValueChanged<CombatAction> onAction;
+  final VoidCallback onNextTournamentRound;
   final VoidCallback onEquipReward;
   final VoidCallback onBackToRoster;
 
@@ -437,6 +694,7 @@ class _ActiveCombatView extends StatelessWidget {
     final npc = encounter.opponent;
     final skill = encounter.skill;
     final ongoing = encounter.status == CombatStatus.ongoing;
+    final isRoundVictory = tournamentRun != null && tournamentRun!.isRoundVictory;
 
     final skillLabel = encounter.heroSkillCooldown > 0
         ? l10n.combatActionSkillCooldown(
@@ -466,6 +724,16 @@ class _ActiveCombatView extends StatelessWidget {
                       style: display.style(26, color: AppTheme.emberGold),
                     ),
                   ),
+                  if (tournamentRun != null) ...[
+                    PixelTag(
+                      text: l10n.tournamentRoundProgress(
+                        tournamentRun!.currentRoundNumber,
+                        tournamentRun!.totalRounds,
+                      ),
+                      color: AppTheme.emberGold,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
                   PixelTag(
                     text: l10n.combatTurnLabel(encounter.turn),
                     color: AppTheme.dullSilver,
@@ -638,6 +906,37 @@ class _ActiveCombatView extends StatelessWidget {
                 ? () => onAction(CombatAction.heroicInspiration)
                 : null,
           ),
+        ] else if (isRoundVictory) ...[
+          PixelFrame(
+            highlight: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.tournamentNextRoundTitle(
+                    tournamentRun!.currentRoundNumber,
+                  ),
+                  style: display.style(28, color: AppTheme.emberGold),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l10n.tournamentNextRoundBody,
+                  style: const TextStyle(
+                    color: AppTheme.ashWhite,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                PixelButton(
+                  key: const Key('tournament_next_round_btn'),
+                  label: l10n.tournamentNextRoundButton(
+                    tournamentRun!.currentRoundNumber + 1,
+                  ),
+                  onPressed: busy ? null : onNextTournamentRound,
+                ),
+              ],
+            ),
+          ),
         ] else if (encounter.status == CombatStatus.victory) ...[
           PixelFrame(
             highlight: true,
@@ -645,7 +944,9 @@ class _ActiveCombatView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.combatVictoryTitle,
+                  tournamentRun != null
+                      ? l10n.tournamentVictoryTitle
+                      : l10n.combatVictoryTitle,
                   style: display.style(30, color: AppTheme.emberGold),
                 ),
                 const SizedBox(height: 4),

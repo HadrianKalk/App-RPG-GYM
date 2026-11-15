@@ -120,6 +120,17 @@ void main() {
     expect(find.textContaining('Iniciado do Fosso'), findsOneWidget);
     expect(find.text('Insígnia das Cinzas'), findsOneWidget);
 
+    // Open customization sheet and switch to Adventurer class
+    await tester.tap(find.byKey(const Key('hero_customize_btn')));
+    await settle(tester);
+
+    expect(find.text('Classe do Herói'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('select_class_adventurer')));
+    await settle(tester);
+
+    await tester.tap(find.byIcon(Icons.close));
+    await settle(tester);
+
     await disposeApp(tester, db);
   });
 }

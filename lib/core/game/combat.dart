@@ -409,6 +409,147 @@ abstract final class ArenaCatalog {
   }
 }
 
+/// Multi-round Tournament (Gauntlet) bracket definition.
+///
+/// Opponents scale up or down according to [statScale] so early tournaments
+/// are accessible and high-tier tournaments challenge end-game heroes.
+/// Never grants XP (Decision #40); awards a prestige [reward] upon winning
+/// all rounds.
+final class TournamentDefinition {
+  const TournamentDefinition({
+    required this.id,
+    required this.recommendedLevel,
+    required this.statScale,
+    required this.opponentIds,
+    required this.reward,
+  });
+
+  final String id;
+  final int recommendedLevel;
+
+  /// Multiplier applied to each opponent's HP, attack, and defense.
+  final double statScale;
+
+  /// Ordered list of [ArenaOpponent.id]s fought sequentially in this bracket.
+  final List<String> opponentIds;
+
+  /// Prestige title and cosmetic unlocked when all rounds are cleared.
+  final CombatReward reward;
+
+  /// Builds the scaled sequence of opponents for this tournament.
+  List<ArenaOpponent> get scaledOpponents => [
+        for (final npcId in opponentIds)
+          if (ArenaCatalog.byId(npcId) case final base?)
+            ArenaOpponent(
+              id: base.id,
+              recommendedLevel: recommendedLevel,
+              maxHp: math.max(10, (base.maxHp * statScale).round()),
+              attack: math.max(2, (base.attack * statScale).round()),
+              defense: math.max(0, (base.defense * statScale).round()),
+              initiative: base.initiative,
+              dodgeChance: base.dodgeChance,
+              reward: reward,
+            ),
+      ];
+}
+
+/// Catalog of Forge Tournaments.
+abstract final class TournamentCatalog {
+  static const List<TournamentDefinition> tournaments = [
+    TournamentDefinition(
+      id: 'tournament_bronze',
+      recommendedLevel: 3,
+      statScale: 0.85,
+      opponentIds: [
+        'npc_ash_recruit',
+        'npc_iron_sentinel',
+        'npc_shadow_duelist',
+      ],
+      reward: CombatReward(
+        titleId: 'title_bronze_gladiator',
+        cosmeticId: 'cosmetic_bronze_laurel',
+      ),
+    ),
+    TournamentDefinition(
+      id: 'tournament_silver',
+      recommendedLevel: 7,
+      statScale: 1.00,
+      opponentIds: [
+        'npc_iron_sentinel',
+        'npc_shadow_duelist',
+        'npc_blood_inquisitor',
+      ],
+      reward: CombatReward(
+        titleId: 'title_iron_champion',
+        cosmeticId: 'cosmetic_steel_crest',
+      ),
+    ),
+    TournamentDefinition(
+      id: 'tournament_crimson',
+      recommendedLevel: 12,
+      statScale: 1.15,
+      opponentIds: [
+        'npc_shadow_duelist',
+        'npc_blood_inquisitor',
+        'npc_hollow_archmage',
+      ],
+      reward: CombatReward(
+        titleId: 'title_crimson_warlord',
+        cosmeticId: 'cosmetic_blood_mantle',
+      ),
+    ),
+    TournamentDefinition(
+      id: 'tournament_obsidian',
+      recommendedLevel: 16,
+      statScale: 1.30,
+      opponentIds: [
+        'npc_blood_inquisitor',
+        'npc_hollow_archmage',
+        'npc_forge_colossus',
+        'npc_forge_colossus',
+      ],
+      reward: CombatReward(
+        titleId: 'title_grand_monarch',
+        cosmeticId: 'cosmetic_obsidian_wings',
+      ),
+    ),
+  ];
+
+  static TournamentDefinition? byId(String id) {
+    for (final t in tournaments) {
+      if (t.id == id) return t;
+    }
+    return null;
+  }
+}
+
+/// Active multi-round Tournament state.
+final class TournamentRun {
+  const TournamentRun({
+    required this.tournament,
+    required this.rounds,
+    required this.roundIndex,
+    required this.encounter,
+  });
+
+  final TournamentDefinition tournament;
+  final List<ArenaOpponent> rounds;
+  final int roundIndex;
+  final CombatEncounter encounter;
+
+  int get currentRoundNumber => roundIndex + 1;
+  int get totalRounds => rounds.length;
+  bool get hasNextRound => roundIndex + 1 < rounds.length;
+
+  /// True when the current round was won and another opponent awaits.
+  bool get isRoundVictory =>
+      encounter.status == CombatStatus.victory && hasNextRound;
+
+  /// True when the final round of the tournament has been won.
+  bool get isTournamentVictory =>
+      encounter.status == CombatStatus.victory && !hasNextRound;
+}
+
 /// Derived combat numbers of the hero from their real-world D&D attributes.
 ///
 /// Every attribute has a clear role:
@@ -888,6 +1029,67 @@ abstract final class CombatEngine {
       inspirationUsed: inspirationUsed,
       status: defeated ? CombatStatus.defeat : CombatStatus.ongoing,
       log: log,
+    );
+  }
+
+  /// Starts a multi-round [tournament] run at round 1.
+  static TournamentRun startTournament({
+    required CombatStats hero,
+    required TournamentDefinition tournament,
+    int availableInspiration = 0,
+  }) {
+    final rounds = tournament.scaledOpponents;
+    return TournamentRun(
+      tournament: tournament,
+      rounds: rounds,
+      roundIndex: 0,
+      encounter: start(
+        hero: hero,
+        opponent: rounds.first,
+        availableInspiration: availableInspiration,
+      ),
+    );
+  }
+
+  /// Advances a [TournamentRun] to the next opponent after a round victory,
+  /// restoring a portion of the hero's HP and Focus.
+  static TournamentRun advanceTournamentRound(TournamentRun run) {
+    if (!run.isRoundVictory) return run;
+    final nextIndex = run.roundIndex + 1;
+    final nextOpponent = run.rounds[nextIndex];
+    final prev = run.encounter;
+    final hpGain =
+        (prev.hero.maxHp * XpRules.tournamentBetweenRoundHpRecovery).round();
+    final focusGain =
+        (prev.hero.maxFocus * XpRules.tournamentBetweenRoundFocusRecovery)
+            .round();
+
+    final restoredHp = math.min<int>(prev.hero.maxHp, prev.heroHp + hpGain);
+    final restoredFocus =
+        math.min<int>(prev.hero.maxFocus, prev.heroFocus + focusGain);
+
+    return TournamentRun(
+      tournament: run.tournament,
+      rounds: run.rounds,
+      roundIndex: nextIndex,
+      encounter: CombatEncounter(
+        hero: prev.hero,
+        opponent: nextOpponent,
+        turn: 1,
+        heroHp: restoredHp,
+        heroFocus: restoredFocus,
+        enemyHp: nextOpponent.maxHp,
+        heroSkillCooldown: 0,
+        heroBuffTurns: 0,
+        heroDefending: false,
+        enemyWeakenTurns: 0,
+        enemyStunned: false,
+        enemyIntent: EnemyIntent.strike,
+        availableInspiration: prev.availableInspiration,
+        inspirationUsed: prev.inspirationUsed,
+        status: CombatStatus.ongoing,
+        log: const [],
+      ),
     );
   }
 }

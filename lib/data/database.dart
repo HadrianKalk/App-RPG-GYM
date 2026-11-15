@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import '../core/game/activity_catalog.dart';
 import '../core/game/attributes.dart';
+import '../core/game/class_resolver.dart';
 import '../core/game/exercise_taxonomy.dart';
 import '../core/game/hero_profile.dart';
 import '../core/game/xp_event.dart';
@@ -132,6 +133,9 @@ class Heroes extends Table {
   TextColumn get equippedTitleId => text().nullable()();
   TextColumn get equippedCosmeticId => text().nullable()();
 
+  /// Player-selected class when unlocked (`null` = emergent class, schema v8).
+  TextColumn get selectedClass => textEnum<CharacterClass>().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -218,7 +222,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -279,6 +283,10 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(heroes, heroes.equippedCosmeticId);
             await m.createTable(arenaProgress);
             await m.createTable(dailyArenaLogs);
+          }
+          // v8: Player-selectable class among unlocked classes (Decision #41).
+          if (from < 8) {
+            await m.addColumn(heroes, heroes.selectedClass);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).
