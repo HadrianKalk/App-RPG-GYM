@@ -17,7 +17,7 @@ ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
   calendário mensal, recordes e evolução por exercício (gráfico de barras pixel).
 - **Configurações:** meta semanal (1–7 dias).
 - Schema **v5** (`heroes.weekly_goal`); `XpSource.weeklyBonus`.
-- Testes: 79.
+- Testes: 77.
 - **Próximo:** Etapa 4 (atividades genéricas + saúde em CON). Usuário
   propôs uma **arena de combate de treino** — proposta enviada, aguardando
   decisões (ver STATUS).

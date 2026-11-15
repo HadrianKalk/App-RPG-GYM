@@ -20,7 +20,7 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
   por tempo, recordes calculados ao finalizar.
 - Histórico, calendário, recordes, sequência semanal e tela de recompensas.
-- 79 testes passando; `flutter analyze` limpo.
+- 77 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
