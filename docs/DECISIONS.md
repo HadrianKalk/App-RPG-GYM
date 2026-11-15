@@ -77,3 +77,13 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     exercício; sem histórico, usa a meta da rotina.
 31. **Origem personalizada** do herói: opção "Origem própria" com nome
     (obrigatório, até 32) e história (opcional, até 240). Só narrativa.
+32. **Meta semanal conta DIAS de treino**, não sessões (evita farm com vários
+    treinos curtos no mesmo dia). Bônus semanais só no **primeiro treino de
+    cada dia**; a tela de recompensas explica quando não houve bônus.
+    Semanas começam na segunda-feira (ISO).
+33. **Meta semanal fica no herói** (tabela `heroes.weekly_goal`, 1–7, padrão 3),
+    não nas preferências: é estado de jogo que afeta XP.
+34. **Bônus semanal no livro-razão** (`XpSource.weeklyBonus`) é dividido
+    entre os atributos treinados naquele treino, na proporção do XP das séries.
+35. **Chama da Constância** conta a semana atual a partir do momento em que a
+    meta é batida; semana em andamento nunca quebra a sequência.

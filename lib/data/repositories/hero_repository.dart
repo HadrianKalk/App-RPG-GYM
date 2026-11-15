@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../core/game/hero_profile.dart';
+import '../../core/game/weekly_progress.dart';
+import '../../core/game/xp_rules.dart';
 import '../database.dart';
 
 /// Persists the hero profile (single row).
@@ -51,6 +53,18 @@ class HeroRepository {
         );
   }
 
+  /// Changes the weekly goal (clamped to the allowed range). Affects only
+  /// future bonuses.
+  Future<void> setWeeklyGoal(int goal) =>
+      (_db.update(_db.heroes)..where((t) => t.id.equals(_heroId)))
+          .write(HeroesCompanion(weeklyGoal: Value(WeeklyProgress.clampGoal(goal))));
+
+  /// Current weekly goal (default when no hero exists yet).
+  Future<int> weeklyGoal() async {
+    final row = await (_db.select(_db.heroes)..where((t) => t.id.equals(_heroId))).getSingleOrNull();
+    return row?.weeklyGoal ?? XpRules.weeklyGoalDefault;
+  }
+
   HeroProfile _toProfile(HeroRow row) => HeroProfile(
         name: row.name,
         form: row.form,
@@ -59,5 +73,6 @@ class HeroRepository {
         createdAt: row.createdAt,
         customOriginName: row.customOriginName,
         customOriginStory: row.customOriginStory,
+        weeklyGoal: row.weeklyGoal,
       );
 }

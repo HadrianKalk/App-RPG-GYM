@@ -6,6 +6,7 @@ import 'activity_repository.dart';
 import 'quest_repository.dart';
 import 'hero_repository.dart';
 import 'routine_repository.dart';
+import 'history_repository.dart';
 import '../../core/game/routine.dart';
 import '../../core/game/hero_profile.dart';
 
@@ -23,7 +24,13 @@ final characterRepositoryProvider = Provider<CharacterRepository>((ref) {
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final charRepo = ref.watch(characterRepositoryProvider);
-  final repo = WorkoutRepository(db, charRepo, ref.watch(questRepositoryProvider));
+  final repo = WorkoutRepository(
+    db,
+    charRepo,
+    ref.watch(questRepositoryProvider),
+    ref.watch(heroRepositoryProvider),
+    ref.watch(historyRepositoryProvider),
+  );
   repo.syncCatalog();
   return repo;
 });
@@ -66,4 +73,23 @@ final routineRepositoryProvider = Provider<RoutineRepository>((ref) {
 /// User-created routines (templates come from `RoutineRepository.templates`).
 final customRoutinesProvider = StreamProvider<List<Routine>>((ref) {
   return ref.watch(routineRepositoryProvider).watchCustomRoutines();
+});
+
+final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
+  return HistoryRepository(ref.watch(databaseProvider));
+});
+
+/// Finished workouts, newest first.
+final finishedSessionsProvider = StreamProvider<List<SessionOverview>>((ref) {
+  return ref.watch(historyRepositoryProvider).watchFinishedSessions();
+});
+
+/// Distinct training days (calendar, week strip, streak).
+final trainingDaysProvider = StreamProvider<Set<DateTime>>((ref) {
+  return ref.watch(historyRepositoryProvider).watchTrainingDays();
+});
+
+/// Personal records with their exercise.
+final recordsProvider = StreamProvider<List<(PersonalRecord, Exercise)>>((ref) {
+  return ref.watch(historyRepositoryProvider).watchRecords();
 });

@@ -7,6 +7,8 @@ import '../../../app/theme.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
 import '../../../l10n/l10n.dart';
+import '../../../core/game/xp_rules.dart';
+import '../../../data/repositories/providers.dart';
 import '../data/settings_providers.dart';
 import '../domain/app_settings.dart';
 
@@ -65,6 +67,9 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ],
           ),
+          const SizedBox(height: 20),
+          _SectionTitle(l10n.settingsTraining),
+          const _WeeklyGoalTile(),
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsAbout),
           PixelFrame(
@@ -178,6 +183,52 @@ class _FontCard extends StatelessWidget {
           Text(label, style: font.style(26, color: selected ? AppTheme.emberGold : AppTheme.ashWhite)),
           const SizedBox(height: 6),
           Text(preview, style: font.style(17, color: AppTheme.dullSilver)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Weekly goal stepper (stored on the hero: it changes game rewards).
+class _WeeklyGoalTile extends ConsumerWidget {
+  const _WeeklyGoalTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final goal = ref.watch(heroStreamProvider).valueOrNull?.weeklyGoal ?? XpRules.weeklyGoalDefault;
+    final repo = ref.read(heroRepositoryProvider);
+
+    Widget btn(IconData icon, VoidCallback? onTap) => InkWell(
+          onTap: onTap,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(border: Border.all(color: AppTheme.ironBorder, width: 2)),
+            child: Icon(icon, size: 18, color: onTap == null ? AppTheme.forgedSteel : AppTheme.emberGold),
+          ),
+        );
+
+    return PixelFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const PixelIcon(PixelIcons.flame, size: 20, color: AppTheme.emberOrange),
+              const SizedBox(width: 10),
+              Expanded(child: Text(l10n.settingsWeeklyGoal, style: Theme.of(context).textTheme.titleMedium)),
+              btn(Icons.remove, goal > XpRules.weeklyGoalMin ? () => repo.setWeeklyGoal(goal - 1) : null),
+              SizedBox(
+                width: 76,
+                child: Text(l10n.settingsWeeklyGoalValue(goal), textAlign: TextAlign.center, style: display.style(20, color: AppTheme.emberGold)),
+              ),
+              btn(Icons.add, goal < XpRules.weeklyGoalMax ? () => repo.setWeeklyGoal(goal + 1) : null),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(l10n.settingsWeeklyGoalHint, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12)),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-﻿import 'package:drift/drift.dart';
+import 'package:drift/drift.dart';
 import '../../core/game/quest_generator.dart';
 import '../../core/game/quest_progress.dart';
 import '../../core/game/xp_event.dart';
@@ -71,8 +71,11 @@ class QuestRepository {
   ///
   /// Garante antes que as missões do dia existam, para que um treino feito
   /// antes de abrir a aba Missões não seja perdido.
-  Future<void> applyCredit(QuestCredit credit) async {
-    if (credit.isEmpty) return;
+  ///
+  /// Returns the quests completed by this credit (for the rewards screen).
+  Future<List<DailyQuestsTableData>> applyCredit(QuestCredit credit) async {
+    if (credit.isEmpty) return const [];
+    final completedNow = <DailyQuestsTableData>[];
 
     await ensureTodayQuests();
 
@@ -101,6 +104,7 @@ class QuestRepository {
       );
 
       if (completed) {
+        completedNow.add(q);
         await _characterRepo.addXp(
           XpEvent(
             id: 'quest_reward_${q.id}',
@@ -108,11 +112,12 @@ class QuestRepository {
             amount: q.bonusXp,
             source: XpSource.dailyQuest,
             timestamp: DateTime.now(),
-            description: 'Missão Cumprida: ${q.title} (+${q.bonusXp.toInt()} XP)',
+            description: 'quest:${q.id}',
           ),
         );
       }
     }
+    return completedNow;
   }
 
   String _getTodayDateStr() {

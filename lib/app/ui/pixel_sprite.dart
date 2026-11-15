@@ -74,4 +74,26 @@ abstract final class HeroSprites {
     '.....SS..SS.....',
     '....DDD..DDD....',
   ];
+
+  /// Victory pose (both arms flexed) used on the rewards screen.
+  static const flex = [
+    '......HHHH......',
+    '.....HHHHHH.....',
+    '.....HFFFFH.....',
+    '.FF..FKFFKF..FF.',
+    '.FF..FFFFFF..FF.',
+    '.FF...FRRF...FF.',
+    '.FFDDSSSSSSDDFF.',
+    '..FFSSDDDDSSFF..',
+    '...DSSSRRSSSD...',
+    '...DSSSRRSSSD...',
+    '.....SSSSSS.....',
+    '.....SDDDDS.....',
+    '.....SSSSSS.....',
+    '.....DD..DD.....',
+    '.....SS..SS.....',
+    '.....SS..SS.....',
+    '.....SS..SS.....',
+    '....DDD..DDD....',
+  ];
 }

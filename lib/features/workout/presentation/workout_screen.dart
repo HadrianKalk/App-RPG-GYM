@@ -11,6 +11,7 @@ import '../../../core/game/routine.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
+import '../../history/presentation/history_screen.dart';
 import 'active_workout_screen.dart';
 import 'routine_editor_screen.dart';
 import 'workout_format.dart';
@@ -52,6 +53,28 @@ class WorkoutScreen extends ConsumerWidget {
                   icon: const Icon(Icons.play_arrow),
                   onPressed: () => startWorkout(context, ref, title: l10n.workoutDefaultTitle),
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          PixelFrame(
+            onTap: () => Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute(builder: (_) => const HistoryScreen()),
+            ),
+            child: Row(
+              children: [
+                const PixelIcon(PixelIcons.trophy, size: 24, color: AppTheme.emberGold),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.historyOpen, style: display.style(21)),
+                      Text(l10n.historyOpenSubtitle, style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: AppTheme.emberGold, size: 28),
               ],
             ),
           ),

@@ -1,6 +1,6 @@
-﻿import 'attributes.dart';
+import 'attributes.dart';
 
-/// Tipo de atividade ou conquista que originou o XP.
+/// What produced an XP entry. Stored by name: only APPEND new values.
 enum XpSource {
   workoutSet,
   personalRecord,
@@ -9,6 +9,9 @@ enum XpSource {
   activity,
   dailyQuest,
   penaltyAtrophy,
+
+  /// Weekly consistency bonuses (goal met, beyond duty, flame).
+  weeklyBonus,
 }
 
 /// Representa uma transação imutável no "Livro-Razão" de XP do herói.

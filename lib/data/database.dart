@@ -121,6 +121,9 @@ class Heroes extends Table {
   TextColumn get customOriginName => text().nullable()();
   TextColumn get customOriginStory => text().nullable()();
 
+  /// Training days per week the player aims for (schema v5).
+  IntColumn get weeklyGoal => integer().withDefault(const Constant(3))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -168,7 +171,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -213,6 +216,10 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(workoutSets, workoutSets.durationSeconds);
             await m.addColumn(heroes, heroes.customOriginName);
             await m.addColumn(heroes, heroes.customOriginStory);
+          }
+          // v5: weekly goal (consistency bonuses).
+          if (from < 5) {
+            await m.addColumn(heroes, heroes.weeklyGoal);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).

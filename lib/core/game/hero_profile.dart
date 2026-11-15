@@ -43,6 +43,7 @@ final class HeroProfile {
     this.oath,
     this.customOriginName,
     this.customOriginStory,
+    this.weeklyGoal = 3,
   });
 
   /// Maximum hero name length.
@@ -73,6 +74,9 @@ final class HeroProfile {
 
   /// Optional origin story typed by the player (only when [origin] is custom).
   final String? customOriginStory;
+
+  /// Training days per week the player aims for (consistency bonuses).
+  final int weeklyGoal;
 
   /// Validates a raw hero name. Returns `null` when valid, or the reason.
   static HeroNameError? validateName(String raw) =>

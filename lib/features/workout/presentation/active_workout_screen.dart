@@ -17,6 +17,7 @@ import '../../../data/repositories/workout_repository.dart';
 import '../../../l10n/l10n.dart';
 import '../application/active_workout_controller.dart';
 import 'exercise_picker_sheet.dart';
+import 'workout_complete_screen.dart';
 import 'workout_format.dart';
 
 /// Workout in progress (Hevy-style table of sets).
@@ -147,55 +148,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
-  /// Temporary summary; step 3 replaces it with the full rewards screen.
+  /// Shows the full rewards screen ("Workout Complete!").
   Future<void> _showSummary(WorkoutSummary summary) {
-    final l10n = context.l10n;
     final game = context.game;
-    final display = DisplayFont.from(context);
     final names = {for (final g in _controller.exercises) g.exercise.id: game.exerciseName(g.exercise.id, g.exercise.name)};
-
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.workoutDoneTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.workoutDuration(WorkoutFormat.duration(summary.duration.inSeconds))),
-            Text(l10n.workoutSetsDone(summary.completedSets)),
-            const SizedBox(height: 8),
-            Text(l10n.xpGain(summary.totalXp.toStringAsFixed(0)), style: display.style(34, color: AppTheme.emberGold)),
-            if (summary.records.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(l10n.workoutRecordsTitle, style: display.style(20)),
-              for (final r in summary.records)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Row(
-                    children: [
-                      const PixelIcon(PixelIcons.trophy, size: 14, color: AppTheme.emberGold),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '${l10n.workoutRecordLine(names[r.exerciseId] ?? r.exerciseId, WorkoutFormat.weight(r.weightKg), r.reps)}'
-                          '${r.bonusXp > 0 ? '  ${l10n.xpGain(r.bonusXp.toStringAsFixed(0))}' : '  (${l10n.workoutBaseline})'}',
-                          style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-            const SizedBox(height: 10),
-            Text(l10n.workoutDoneFlavor, style: const TextStyle(color: AppTheme.ashWhite)),
-          ],
-        ),
-        actions: [
-          PixelButton(label: l10n.workoutDoneButton, expand: false, onPressed: () => Navigator.of(ctx).pop()),
-        ],
-      ),
+    return Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => WorkoutCompleteScreen(summary: summary, exerciseNames: names)),
     );
   }
 

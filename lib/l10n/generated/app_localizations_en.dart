@@ -577,4 +577,200 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setComplete => 'Complete set';
+
+  @override
+  String rewardsSetsLine(int count) {
+    return 'Working sets ($count)';
+  }
+
+  @override
+  String rewardsRecordLine(String name, String weight) {
+    return 'Personal Record · $name $weight kg';
+  }
+
+  @override
+  String rewardsQuestLine(String title) {
+    return 'Quest: $title';
+  }
+
+  @override
+  String bonusGoalMet(int day, int goal) {
+    return 'Weekly goal met ($day/$goal)';
+  }
+
+  @override
+  String bonusBeyondDuty(int day) {
+    return 'Beyond Duty · training day $day';
+  }
+
+  @override
+  String bonusFlame(int weeks) {
+    return 'Flame of Constancy · $weeks weeks';
+  }
+
+  @override
+  String bonusFlameReason(int percent) {
+    return '+$percent% on this week\'s bonuses';
+  }
+
+  @override
+  String get bonusWeekLabel => 'Week';
+
+  @override
+  String get rewardsTotal => 'Total';
+
+  @override
+  String rewardsLevelUp(int level) {
+    return 'Level $level reached!';
+  }
+
+  @override
+  String rewardsAttributeUp(String attribute, int score) {
+    return '$attribute rose to $score!';
+  }
+
+  @override
+  String rewardsWeekProgress(int day, int goal) {
+    return '$day/$goal training days this week';
+  }
+
+  @override
+  String get rewardsWeekDone => 'Weekly goal smashed!';
+
+  @override
+  String get rewardsNoWeeklyBonus =>
+      'You already trained today: weekly bonuses count one workout per day.';
+
+  @override
+  String get commonContinueShort => 'Continue';
+
+  @override
+  String get streakTitle => 'Flame of Constancy';
+
+  @override
+  String streakWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+      zero: '0 weeks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekStatus(int done, int goal) {
+    return '$done/$goal this week';
+  }
+
+  @override
+  String streakGoalHit(int done, int goal) {
+    return '$done/$goal · goal hit!';
+  }
+
+  @override
+  String get weekdayLetters => 'M,T,W,T,F,S,S';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get historyOpen => 'History & Records';
+
+  @override
+  String get historyOpenSubtitle => 'Past workouts, calendar and load progress';
+
+  @override
+  String get historyTabWorkouts => 'Workouts';
+
+  @override
+  String get historyTabCalendar => 'Calendar';
+
+  @override
+  String get historyTabRecords => 'Records';
+
+  @override
+  String get historyEmpty => 'No finished workouts yet. The forge awaits.';
+
+  @override
+  String get recordsEmpty =>
+      'No records yet. Finish a weighted workout to set your marks.';
+
+  @override
+  String historyVolume(String volume) {
+    return '$volume kg';
+  }
+
+  @override
+  String historyRecords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String calendarMonthDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count training days',
+      one: '1 training day',
+      zero: 'No training days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recordBest(String weight, int reps) {
+    return 'Best: $weight kg × $reps';
+  }
+
+  @override
+  String recordE1rm(String value) {
+    return 'Estimated 1RM: $value kg';
+  }
+
+  @override
+  String get progressTitle => 'Progress';
+
+  @override
+  String get progressChartE1rm => 'Estimated 1RM per workout (kg)';
+
+  @override
+  String get progressChartDuration => 'Best time per workout';
+
+  @override
+  String get progressChartReps => 'Most reps per workout';
+
+  @override
+  String get progressEmpty => 'No data yet.';
+
+  @override
+  String get progressSessions => 'Workouts with this exercise';
+
+  @override
+  String get settingsTraining => 'Training';
+
+  @override
+  String get settingsWeeklyGoal => 'Weekly goal';
+
+  @override
+  String get settingsWeeklyGoalHint =>
+      'Training days per week. Hitting the goal grants a bonus; each day beyond it grants more.';
+
+  @override
+  String settingsWeeklyGoalValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
 }

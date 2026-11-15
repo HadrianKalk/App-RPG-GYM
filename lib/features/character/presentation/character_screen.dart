@@ -14,6 +14,7 @@ import '../../../core/game/progression.dart';
 import '../../../data/repositories/character_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
+import 'streak_card.dart';
 
 /// Hero sheet: identity, level/XP and the six attributes.
 class CharacterScreen extends ConsumerWidget {
@@ -110,6 +111,8 @@ class _HeroSheet extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               SegmentedBar(value: level.progressPercent, segments: 24),
+              const SizedBox(height: 14),
+              const StreakCard(),
             ],
           ),
         ),

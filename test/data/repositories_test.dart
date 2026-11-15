@@ -5,9 +5,12 @@ import 'package:app/data/database.dart';
 import 'package:app/data/repositories/activity_repository.dart';
 import 'package:app/data/repositories/character_repository.dart';
 import 'package:app/data/repositories/hero_repository.dart';
+import 'package:app/data/repositories/history_repository.dart';
 import 'package:app/data/repositories/quest_repository.dart';
 import 'package:app/data/repositories/routine_repository.dart';
 import 'package:app/core/game/routine.dart';
+import 'package:app/core/game/weekly_progress.dart';
+import 'package:drift/drift.dart' as drift show Value;
 import 'package:app/core/game/xp_event.dart';
 import 'package:app/data/repositories/workout_repository.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
@@ -27,7 +30,7 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     charRepo = CharacterRepository(db);
     questRepo = QuestRepository(db, charRepo);
-    workoutRepo = WorkoutRepository(db, charRepo, questRepo);
+    workoutRepo = WorkoutRepository(db, charRepo, questRepo, HeroRepository(db), HistoryRepository(db));
     activityRepo = ActivityRepository(db, charRepo, questRepo);
     heroRepo = HeroRepository(db);
     routineRepo = RoutineRepository(db);
@@ -313,6 +316,89 @@ void main() {
         () => heroRepo.createHero(name: 'Guts', form: HeroForm.masculine, origin: HeroOrigin.custom, customOriginName: ' '),
         throwsArgumentError,
       );
+    });
+  });
+
+  group('Weekly consistency (step 3)', () {
+    /// Inserts a finished past workout with one completed set on [day].
+    Future<void> pastWorkout(DateTime day) async {
+      final id = 'past_${day.millisecondsSinceEpoch}';
+      await db.into(db.workoutSessions).insert(WorkoutSessionsCompanion.insert(
+            id: id,
+            title: 'past',
+            startedAt: day.add(const Duration(hours: 10)),
+            completedAt: drift.Value(day.add(const Duration(hours: 11))),
+          ));
+      await db.into(db.workoutSets).insert(WorkoutSetsCompanion.insert(
+            id: '${id}_s',
+            sessionId: id,
+            exerciseId: 'ex_supino_reto_barra',
+            setOrder: 1,
+            weightKg: 40,
+            reps: 10,
+            isCompleted: const drift.Value(true),
+          ));
+    }
+
+    setUp(() async {
+      await heroRepo.createHero(name: 'Guts', form: HeroForm.masculine, origin: HeroOrigin.soldier);
+      await heroRepo.setWeeklyGoal(1);
+      // Two previous weeks with the goal (1 day) met -> streak 3 with today.
+      final thisWeek = WeekCalendar.weekStart(DateTime.now());
+      await pastWorkout(WeekCalendar.addWeeks(thisWeek, -1));
+      await pastWorkout(WeekCalendar.addWeeks(thisWeek, -2));
+    });
+
+    test('first workout of the day grants goal + flame bonuses with reasons', () async {
+      final session = await workoutRepo.startWorkoutSession(title: 'Today');
+      await workoutRepo.saveWorkoutSet(
+        id: 't1', sessionId: session.id, exerciseId: 'ex_agachamento_livre_barra', setOrder: 1,
+        weightKg: 60, reps: 8, isCompleted: true,
+      );
+      final summary = await workoutRepo.completeWorkoutSession(session.id);
+
+      expect(summary.trainingDay, 1);
+      expect(summary.weeklyGoal, 1);
+      expect(summary.streakWeeks, 3);
+      expect(summary.weeklyBonuses.map((b) => b.kind), [WeeklyBonusKind.goalMet, WeeklyBonusKind.flame]);
+      expect(summary.weeklyBonuses.last.flamePercent, 20);
+      expect(summary.weeklyXp, 60); // 50 + 20% of 50
+      expect(summary.repeatedDay, isFalse);
+
+      final ledgerTotal = (await ledger(XpSource.weeklyBonus)).fold<double>(0, (a, e) => a + e.amount);
+      expect(ledgerTotal, closeTo(60, 0.001));
+      expect(summary.totalXp, summary.setXp + summary.recordXp + summary.weeklyXp + summary.questXp);
+    });
+
+    test('a second workout on the same day gets no weekly bonus', () async {
+      for (final n in [1, 2]) {
+        final session = await workoutRepo.startWorkoutSession(title: 'W$n');
+        await workoutRepo.saveWorkoutSet(
+          id: 'w$n', sessionId: session.id, exerciseId: 'ex_agachamento_livre_barra', setOrder: 1,
+          weightKg: 60, reps: 8, isCompleted: true,
+        );
+        final summary = await workoutRepo.completeWorkoutSession(session.id);
+        if (n == 2) {
+          expect(summary.weeklyBonuses, isEmpty);
+          expect(summary.repeatedDay, isTrue);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+      }
+    });
+
+    test('summary reports level and attribute increases', () async {
+      final session = await workoutRepo.startWorkoutSession(title: 'Big');
+      // 80 sets x 4 XP = 320 XP of STR (+ weekly bonus): STR 10 -> 11 (300 XP)
+      // and total XP above 380 -> level 2.
+      for (var i = 0; i < 80; i++) {
+        await workoutRepo.saveWorkoutSet(
+          id: 'b$i', sessionId: session.id, exerciseId: 'ex_agachamento_livre_barra', setOrder: i + 1,
+          weightKg: 0, reps: 10, isCompleted: true,
+        );
+      }
+      final summary = await workoutRepo.completeWorkoutSession(session.id);
+      expect(summary.progress!.attributes.any((a) => a.attribute == Attribute.strength && a.to > a.from), isTrue);
+      expect(summary.progress!.leveledUp, isTrue);
     });
   });
 }

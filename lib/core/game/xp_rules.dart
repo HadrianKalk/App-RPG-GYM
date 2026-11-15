@@ -1,4 +1,4 @@
-﻿/// Centraliza todas as constantes e taxas de balanceamento do motor do jogo.
+/// Centraliza todas as constantes e taxas de balanceamento do motor do jogo.
 ///
 /// Alterar valores aqui rebalanceia o ganho de XP e evolução de forma global.
 abstract final class XpRules {
@@ -36,6 +36,25 @@ abstract final class XpRules {
   /// Teto de minutos que um único treino pode creditar às missões
   /// (protege contra sessões esquecidas abertas por horas).
   static const double questMaxMinutesPerWorkout = 180.0;
+
+  // --- Weekly consistency (see weekly_progress.dart) ---
+  /// Default weekly goal: training days per week.
+  static const int weeklyGoalDefault = 3;
+  static const int weeklyGoalMin = 1;
+  static const int weeklyGoalMax = 7;
+
+  /// "Goal Met": bonus on the training day that reaches the weekly goal.
+  static const double weeklyGoalMetXp = 50.0;
+
+  /// "Beyond Duty": bonus for each training day above the goal:
+  /// base, base + step, base + 2*step... (days are capped at 7 per week).
+  static const double beyondDutyBaseXp = 15.0;
+  static const double beyondDutyStepXp = 5.0;
+
+  /// "Flame of Constancy": +10% on weekly bonuses per consecutive week with
+  /// the goal met (the current week counts from the 2nd week on), max +50%.
+  static const double streakBonusPerWeek = 0.10;
+  static const double streakBonusMax = 0.50;
 
   // --- Pontuação de Atributo e Níveis ---
   /// Todo atributo começa no valor padrão humano do D&D (10)

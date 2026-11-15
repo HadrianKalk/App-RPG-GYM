@@ -384,5 +384,202 @@
   "onbCustomOriginNameHint": "Ex.: Caçador das Montanhas",
   "onbCustomOriginStory": "Sua história (opcional)",
   "onbCustomOriginStoryHint": "De onde você veio? O que te trouxe até a forja?",
-  "setComplete": "Concluir série"
+  "setComplete": "Concluir série",
+  "rewardsSetsLine": "Séries efetivas ({count})",
+  "@rewardsSetsLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardsRecordLine": "Recorde Pessoal · {name} {weight} kg",
+  "@rewardsRecordLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardsQuestLine": "Missão: {title}",
+  "@rewardsQuestLine": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "bonusGoalMet": "Meta da semana cumprida ({day}/{goal})",
+  "@bonusGoalMet": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "bonusBeyondDuty": "Além do Dever · {day}º dia de treino",
+  "@bonusBeyondDuty": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "bonusFlame": "Chama da Constância · {weeks} semanas",
+  "@bonusFlame": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "bonusFlameReason": "+{percent}% sobre os bônus da semana",
+  "@bonusFlameReason": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "bonusWeekLabel": "Semana",
+  "rewardsTotal": "Total",
+  "rewardsLevelUp": "Nível {level} alcançado!",
+  "@rewardsLevelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardsAttributeUp": "{attribute} subiu para {score}!",
+  "@rewardsAttributeUp": {
+    "placeholders": {
+      "attribute": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardsWeekProgress": "{day}/{goal} dias de treino nesta semana",
+  "@rewardsWeekProgress": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardsWeekDone": "Meta semanal batida!",
+  "rewardsNoWeeklyBonus": "Você já treinou hoje: bônus semanais contam um treino por dia.",
+  "commonContinueShort": "Continuar",
+  "streakTitle": "Chama da Constância",
+  "streakWeeks": "{count, plural, =0{0 semanas} =1{1 semana} other{{count} semanas}}",
+  "@streakWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakWeekStatus": "{done}/{goal} nesta semana",
+  "@streakWeekStatus": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "streakGoalHit": "{done}/{goal} · meta batida!",
+  "@streakGoalHit": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "weekdayLetters": "S,T,Q,Q,S,S,D",
+  "historyTitle": "Histórico",
+  "historyOpen": "Histórico & Recordes",
+  "historyOpenSubtitle": "Treinos passados, calendário e evolução de carga",
+  "historyTabWorkouts": "Treinos",
+  "historyTabCalendar": "Calendário",
+  "historyTabRecords": "Recordes",
+  "historyEmpty": "Nenhum treino finalizado ainda. A forja espera.",
+  "recordsEmpty": "Nenhum recorde ainda. Termine um treino com carga para registrar suas marcas.",
+  "historyVolume": "{volume} kg",
+  "@historyVolume": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "historyRecords": "{count, plural, =1{1 recorde} other{{count} recordes}}",
+  "@historyRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarMonthDays": "{count, plural, =0{Nenhum dia de treino} =1{1 dia de treino} other{{count} dias de treino}}",
+  "@calendarMonthDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recordBest": "Melhor: {weight} kg × {reps}",
+  "@recordBest": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "recordE1rm": "1RM estimado: {value} kg",
+  "@recordE1rm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "progressTitle": "Evolução",
+  "progressChartE1rm": "1RM estimado por treino (kg)",
+  "progressChartDuration": "Melhor tempo por treino",
+  "progressChartReps": "Mais repetições por treino",
+  "progressEmpty": "Sem dados ainda.",
+  "progressSessions": "Treinos com este exercício",
+  "settingsTraining": "Treino",
+  "settingsWeeklyGoal": "Meta semanal",
+  "settingsWeeklyGoalHint": "Dias de treino por semana. Bater a meta dá bônus; cada dia acima dela dá ainda mais.",
+  "settingsWeeklyGoalValue": "{count, plural, =1{1 dia} other{{count} dias}}",
+  "@settingsWeeklyGoalValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

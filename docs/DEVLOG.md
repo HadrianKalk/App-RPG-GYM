@@ -3,6 +3,25 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Claude Code — Etapa 3: histórico, sequência semanal, bônus e recompensas
+- **Motor:** `weekly_progress.dart` (WeekCalendar, bônus Meta Cumprida /
+  Além do Dever / Chama da Constância, sequência), `progress_diff.dart`
+  (nível/atributo que subiu). Constantes em `xp_rules.dart`.
+- **Finalizar treino** agora concede bônus semanais (1º treino do dia),
+  devolve missões concluídas e o diff de progresso (`WorkoutSummary`).
+- **Tela "Treino Concluído"** (`workout_complete_screen.dart`): herói
+  flexionando, linhas de recompensa reveladas uma a uma com o motivo, total
+  contando, progresso da semana, banners de nível/atributo.
+- **Herói:** card Chama da Constância (semanas + faixa dos 7 dias).
+- **Histórico** (`features/history/`): treinos, detalhe do treino,
+  calendário mensal, recordes e evolução por exercício (gráfico de barras pixel).
+- **Configurações:** meta semanal (1–7 dias).
+- Schema **v5** (`heroes.weekly_goal`); `XpSource.weeklyBonus`.
+- Testes: 79.
+- **Próximo:** Etapa 4 (atividades genéricas + saúde em CON). Usuário
+  propôs uma **arena de combate de treino** — proposta enviada, aguardando
+  decisões (ver STATUS).
+
 ## 2026-11-15 — Claude Code — Etapa 2: rotinas, séries por tempo, origem própria
 - **Rotinas:** 4 modelos fixos (Push, Pull, Legs, Cardio & Mobilidade) em
   `data/seed/routine_seed.dart` + rotinas personalizadas (criar, editar,

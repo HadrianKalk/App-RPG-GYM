@@ -3,14 +3,18 @@ import 'package:drift/drift.dart';
 import '../../core/game/attributes.dart';
 import '../../core/game/exercise_taxonomy.dart';
 import '../../core/game/personal_record.dart';
+import '../../core/game/progress_diff.dart';
 import '../../core/game/quest_progress.dart';
 import '../../core/game/routine.dart';
+import '../../core/game/weekly_progress.dart';
 import '../../core/game/xp_calculator.dart';
 import '../../core/game/xp_event.dart';
 import '../../core/game/xp_rules.dart';
 import '../database.dart';
 import '../seed/exercise_seed.dart';
 import 'character_repository.dart';
+import 'hero_repository.dart';
+import 'history_repository.dart';
 import 'quest_repository.dart';
 
 /// A personal record achieved when a workout was completed.
@@ -39,6 +43,13 @@ final class WorkoutSummary {
     required this.setXp,
     required this.xpByAttribute,
     required this.records,
+    this.weeklyBonuses = const [],
+    this.completedQuests = const [],
+    this.trainingDay = 0,
+    this.weeklyGoal = 0,
+    this.streakWeeks = 0,
+    this.progress,
+    this.repeatedDay = false,
   });
 
   final String sessionId;
@@ -50,17 +61,41 @@ final class WorkoutSummary {
   final Map<Attribute, double> xpByAttribute;
   final List<AchievedRecord> records;
 
+  /// Weekly consistency bonuses earned (with their reason).
+  final List<WeeklyBonus> weeklyBonuses;
+
+  /// Daily quests completed by this workout.
+  final List<DailyQuestsTableData> completedQuests;
+
+  /// Distinct training days this week including today, and the goal.
+  final int trainingDay;
+  final int weeklyGoal;
+
+  /// Consecutive weeks with the goal met (including this one if met).
+  final int streakWeeks;
+
+  /// Level / attribute increases caused by this workout (null if no sets).
+  final ProgressDiff? progress;
+
+  /// True when today was already a training day: weekly bonuses are only
+  /// granted on the first workout of each day.
+  final bool repeatedDay;
+
   double get recordXp => records.fold(0.0, (sum, r) => sum + r.bonusXp);
-  double get totalXp => setXp + recordXp;
+  double get weeklyXp => weeklyBonuses.fold(0.0, (sum, b) => sum + b.xp);
+  double get questXp => completedQuests.fold(0.0, (sum, q) => sum + q.bonusXp);
+  double get totalXp => setXp + recordXp + weeklyXp + questXp;
 }
 
 /// Workouts: catalog sync, sessions, sets, records and XP on completion.
 class WorkoutRepository {
-  WorkoutRepository(this._db, this._characterRepo, this._questRepo);
+  WorkoutRepository(this._db, this._characterRepo, this._questRepo, this._heroRepo, this._historyRepo);
 
   final AppDatabase _db;
   final CharacterRepository _characterRepo;
   final QuestRepository _questRepo;
+  final HeroRepository _heroRepo;
+  final HistoryRepository _historyRepo;
 
   /// Upserts the built-in catalog into the database. Runs on every start so
   /// changes to `ExerciseSeed` (new exercises, re-classification) propagate
@@ -182,10 +217,16 @@ class WorkoutRepository {
   /// 1. generates today's quests first (so this workout cannot change the draw);
   /// 2. evaluates personal records in set order (max one PR bonus per exercise);
   /// 3. writes set XP (per attribute) and PR bonuses to the ledger;
-  /// 4. credits today's quests.
+  /// 4. on the FIRST workout of the day, grants weekly consistency bonuses;
+  /// 5. credits today's quests;
+  /// 6. reports level/attribute increases.
   Future<WorkoutSummary> completeWorkoutSession(String sessionId, {String? notes}) async {
     await _questRepo.ensureTodayQuests();
+    final xpBefore = (await _characterRepo.watchCharacter().first).totalXpMap;
     final now = DateTime.now();
+    final today = WeekCalendar.dayOf(now);
+    // Was today already a training day before this workout?
+    final alreadyTrainedToday = (await _historyRepo.trainingDays()).contains(today);
     final session = await (_db.select(_db.workoutSessions)..where((tbl) => tbl.id.equals(sessionId))).getSingle();
 
     await (_db.update(_db.workoutSessions)..where((tbl) => tbl.id.equals(sessionId))).write(
@@ -292,10 +333,21 @@ class WorkoutRepository {
       );
     }
 
-    await _questRepo.applyCredit(
+    // --- Weekly consistency -------------------------------------------------
+    final goal = await _heroRepo.weeklyGoal();
+    final byWeek = HistoryRepository.daysByWeek(await _historyRepo.trainingDays());
+    final trainingDay = byWeek[WeekCalendar.weekStart(now)] ?? 0;
+    final streak = WeeklyProgress.streakIncludingCurrent(trainingDaysByWeek: byWeek, now: now, goal: goal);
+    final weekly = alreadyTrainedToday
+        ? const <WeeklyBonus>[]
+        : WeeklyProgress.bonusesFor(trainingDay: trainingDay, goal: goal, streakWeeks: streak);
+    await _grantWeeklyBonuses(sessionId, now, weekly, xpByAttribute);
+
+    final quests = await _questRepo.applyCredit(
       QuestProgress.fromWorkout(completedSetsByAttribute: setsByAttribute, sessionDuration: duration),
     );
 
+    final xpAfter = (await _characterRepo.watchCharacter().first).totalXpMap;
     return WorkoutSummary(
       sessionId: sessionId,
       duration: duration,
@@ -303,7 +355,42 @@ class WorkoutRepository {
       setXp: setXp,
       xpByAttribute: xpByAttribute,
       records: records.values.toList(),
+      weeklyBonuses: weekly,
+      completedQuests: quests,
+      trainingDay: trainingDay,
+      weeklyGoal: goal,
+      streakWeeks: streak,
+      progress: ProgressDiff.between(xpBefore, xpAfter),
+      repeatedDay: alreadyTrainedToday,
     );
+  }
+
+  /// Writes weekly bonuses to the ledger, split across the attributes trained
+  /// in this workout proportionally to their set XP.
+  Future<void> _grantWeeklyBonuses(
+    String sessionId,
+    DateTime now,
+    List<WeeklyBonus> bonuses,
+    Map<Attribute, double> xpByAttribute,
+  ) async {
+    final total = xpByAttribute.values.fold(0.0, (a, b) => a + b);
+    if (bonuses.isEmpty || total <= 0) return;
+    for (final bonus in bonuses) {
+      for (final entry in xpByAttribute.entries) {
+        final share = bonus.xp * entry.value / total;
+        if (share <= 0) continue;
+        await _characterRepo.addXp(
+          XpEvent(
+            id: 'weekly_${sessionId}_${bonus.kind.name}_${entry.key.name}',
+            attribute: entry.key,
+            amount: share,
+            source: XpSource.weeklyBonus,
+            timestamp: now,
+            description: 'weekly:${bonus.kind.name}:day${bonus.trainingDay}/${bonus.goal}',
+          ),
+        );
+      }
+    }
   }
 
   /// Completed sets of [exerciseId] from the most recent *finished* workout

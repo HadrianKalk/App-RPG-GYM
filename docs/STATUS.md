@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Claude Code) — Etapa 2 concluída
+**Última atualização:** 2026-11-15 (Claude Code) — Etapa 3 concluída
 
 ## Fase atual
 **Fase 1 — MVP offline: fechando lacunas** antes da Fase 2 (ver abaixo).
@@ -19,7 +19,8 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - Visual pixel art, pt-BR + inglês, configurações e créditos.
 - Rotinas (modelos + personalizadas), treino ativo estilo Hevy com séries
   por tempo, recordes calculados ao finalizar.
-- 64 testes passando; `flutter analyze` limpo.
+- Histórico, calendário, recordes, sequência semanal e tela de recompensas.
+- 79 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (em andamento)
 - [x] Criação do herói (onboarding).
@@ -28,13 +29,15 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       configurações (idioma, fonte), créditos.
 - [x] **Etapa 2:** rotinas — 4 modelos fixos + rotinas personalizadas;
       séries por tempo e só-reps; origem própria do herói.
-- [ ] **Etapa 3:** histórico de treinos, PRs, evolução de carga, sequência
-      semanal (meta padrão 3) + calendário do mês, bônus (Meta Cumprida, Além
-      do Dever, Chama da Constância) e tela "Treino Concluído".
+- [x] **Etapa 3:** histórico, recordes, evolução de carga, calendário,
+      sequência semanal (meta padrão 3), bônus e tela "Treino Concluído".
 - [ ] **Etapa 4:** registro de atividades genérico (catálogo: CAR, DES, CON,
       SAB, INT) + saúde em CON (água e dieta).
 - [ ] Botão "?" em cada exercício (passo a passo; imagens a definir).
 - [ ] (Mais tarde) Sprites definitivos do herói por grupo muscular.
+- [ ] **Proposta: Arena de Treino** (combate tático por turnos, offline, sem
+      IA; números do motor). Aguardando decisões do usuário: XP ou não,
+      fichas de combate ganhas com hábitos reais, quando encaixar.
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).
@@ -49,8 +52,8 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
 ## Avisos / dívidas conhecidas
 - `README.md` ainda é o template padrão do Flutter.
-- Resumo pós-treino ainda é um diálogo simples (vira tela de recompensas na
-  Etapa 3). Tela de Atividades será refeita na Etapa 4.
+- Tela de Atividades será refeita na Etapa 4 (atividades ainda não mostram
+  tela de recompensas completa nem bônus).
 - Dependências com versão maior disponível (Riverpod 3, go_router 18,
   etc.): upgrade planejado em tarefa separada.
 - Comentários antigos em pt-BR ainda existem em arquivos não tocados

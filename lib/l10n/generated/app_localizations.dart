@@ -1051,6 +1051,264 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Concluir série'**
   String get setComplete;
+
+  /// No description provided for @rewardsSetsLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'Séries efetivas ({count})'**
+  String rewardsSetsLine(int count);
+
+  /// No description provided for @rewardsRecordLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recorde Pessoal · {name} {weight} kg'**
+  String rewardsRecordLine(String name, String weight);
+
+  /// No description provided for @rewardsQuestLine.
+  ///
+  /// In pt, this message translates to:
+  /// **'Missão: {title}'**
+  String rewardsQuestLine(String title);
+
+  /// No description provided for @bonusGoalMet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta da semana cumprida ({day}/{goal})'**
+  String bonusGoalMet(int day, int goal);
+
+  /// No description provided for @bonusBeyondDuty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Além do Dever · {day}º dia de treino'**
+  String bonusBeyondDuty(int day);
+
+  /// No description provided for @bonusFlame.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chama da Constância · {weeks} semanas'**
+  String bonusFlame(int weeks);
+
+  /// No description provided for @bonusFlameReason.
+  ///
+  /// In pt, this message translates to:
+  /// **'+{percent}% sobre os bônus da semana'**
+  String bonusFlameReason(int percent);
+
+  /// No description provided for @bonusWeekLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Semana'**
+  String get bonusWeekLabel;
+
+  /// No description provided for @rewardsTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total'**
+  String get rewardsTotal;
+
+  /// No description provided for @rewardsLevelUp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nível {level} alcançado!'**
+  String rewardsLevelUp(int level);
+
+  /// No description provided for @rewardsAttributeUp.
+  ///
+  /// In pt, this message translates to:
+  /// **'{attribute} subiu para {score}!'**
+  String rewardsAttributeUp(String attribute, int score);
+
+  /// No description provided for @rewardsWeekProgress.
+  ///
+  /// In pt, this message translates to:
+  /// **'{day}/{goal} dias de treino nesta semana'**
+  String rewardsWeekProgress(int day, int goal);
+
+  /// No description provided for @rewardsWeekDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta semanal batida!'**
+  String get rewardsWeekDone;
+
+  /// No description provided for @rewardsNoWeeklyBonus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você já treinou hoje: bônus semanais contam um treino por dia.'**
+  String get rewardsNoWeeklyBonus;
+
+  /// No description provided for @commonContinueShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'Continuar'**
+  String get commonContinueShort;
+
+  /// No description provided for @streakTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chama da Constância'**
+  String get streakTitle;
+
+  /// No description provided for @streakWeeks.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{0 semanas} =1{1 semana} other{{count} semanas}}'**
+  String streakWeeks(int count);
+
+  /// No description provided for @streakWeekStatus.
+  ///
+  /// In pt, this message translates to:
+  /// **'{done}/{goal} nesta semana'**
+  String streakWeekStatus(int done, int goal);
+
+  /// No description provided for @streakGoalHit.
+  ///
+  /// In pt, this message translates to:
+  /// **'{done}/{goal} · meta batida!'**
+  String streakGoalHit(int done, int goal);
+
+  /// No description provided for @weekdayLetters.
+  ///
+  /// In pt, this message translates to:
+  /// **'S,T,Q,Q,S,S,D'**
+  String get weekdayLetters;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico'**
+  String get historyTitle;
+
+  /// No description provided for @historyOpen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico & Recordes'**
+  String get historyOpen;
+
+  /// No description provided for @historyOpenSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treinos passados, calendário e evolução de carga'**
+  String get historyOpenSubtitle;
+
+  /// No description provided for @historyTabWorkouts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treinos'**
+  String get historyTabWorkouts;
+
+  /// No description provided for @historyTabCalendar.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calendário'**
+  String get historyTabCalendar;
+
+  /// No description provided for @historyTabRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recordes'**
+  String get historyTabRecords;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum treino finalizado ainda. A forja espera.'**
+  String get historyEmpty;
+
+  /// No description provided for @recordsEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum recorde ainda. Termine um treino com carga para registrar suas marcas.'**
+  String get recordsEmpty;
+
+  /// No description provided for @historyVolume.
+  ///
+  /// In pt, this message translates to:
+  /// **'{volume} kg'**
+  String historyVolume(String volume);
+
+  /// No description provided for @historyRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 recorde} other{{count} recordes}}'**
+  String historyRecords(int count);
+
+  /// No description provided for @calendarMonthDays.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{Nenhum dia de treino} =1{1 dia de treino} other{{count} dias de treino}}'**
+  String calendarMonthDays(int count);
+
+  /// No description provided for @recordBest.
+  ///
+  /// In pt, this message translates to:
+  /// **'Melhor: {weight} kg × {reps}'**
+  String recordBest(String weight, int reps);
+
+  /// No description provided for @recordE1rm.
+  ///
+  /// In pt, this message translates to:
+  /// **'1RM estimado: {value} kg'**
+  String recordE1rm(String value);
+
+  /// No description provided for @progressTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Evolução'**
+  String get progressTitle;
+
+  /// No description provided for @progressChartE1rm.
+  ///
+  /// In pt, this message translates to:
+  /// **'1RM estimado por treino (kg)'**
+  String get progressChartE1rm;
+
+  /// No description provided for @progressChartDuration.
+  ///
+  /// In pt, this message translates to:
+  /// **'Melhor tempo por treino'**
+  String get progressChartDuration;
+
+  /// No description provided for @progressChartReps.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais repetições por treino'**
+  String get progressChartReps;
+
+  /// No description provided for @progressEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem dados ainda.'**
+  String get progressEmpty;
+
+  /// No description provided for @progressSessions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treinos com este exercício'**
+  String get progressSessions;
+
+  /// No description provided for @settingsTraining.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treino'**
+  String get settingsTraining;
+
+  /// No description provided for @settingsWeeklyGoal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meta semanal'**
+  String get settingsWeeklyGoal;
+
+  /// No description provided for @settingsWeeklyGoalHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dias de treino por semana. Bater a meta dá bônus; cada dia acima dela dá ainda mais.'**
+  String get settingsWeeklyGoalHint;
+
+  /// No description provided for @settingsWeeklyGoalValue.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 dia} other{{count} dias}}'**
+  String settingsWeeklyGoalValue(int count);
 }
 
 class _AppLocalizationsDelegate

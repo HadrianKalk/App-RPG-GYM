@@ -1496,6 +1496,18 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _weeklyGoalMeta = const VerificationMeta(
+    'weeklyGoal',
+  );
+  @override
+  late final GeneratedColumn<int> weeklyGoal = GeneratedColumn<int>(
+    'weekly_goal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(3),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1506,6 +1518,7 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
     createdAt,
     customOriginName,
     customOriginStory,
+    weeklyGoal,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1562,6 +1575,12 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         ),
       );
     }
+    if (data.containsKey('weekly_goal')) {
+      context.handle(
+        _weeklyGoalMeta,
+        weeklyGoal.isAcceptableOrUnknown(data['weekly_goal']!, _weeklyGoalMeta),
+      );
+    }
     return context;
   }
 
@@ -1607,6 +1626,10 @@ class $HeroesTable extends Heroes with TableInfo<$HeroesTable, HeroRow> {
         DriftSqlType.string,
         data['${effectivePrefix}custom_origin_story'],
       ),
+      weeklyGoal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}weekly_goal'],
+      )!,
     );
   }
 
@@ -1632,6 +1655,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
   /// Typed origin name/story when `origin` is custom (schema v4).
   final String? customOriginName;
   final String? customOriginStory;
+
+  /// Training days per week the player aims for (schema v5).
+  final int weeklyGoal;
   const HeroRow({
     required this.id,
     required this.name,
@@ -1641,6 +1667,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     required this.createdAt,
     this.customOriginName,
     this.customOriginStory,
+    required this.weeklyGoal,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1665,6 +1692,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     if (!nullToAbsent || customOriginStory != null) {
       map['custom_origin_story'] = Variable<String>(customOriginStory);
     }
+    map['weekly_goal'] = Variable<int>(weeklyGoal);
     return map;
   }
 
@@ -1682,6 +1710,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       customOriginStory: customOriginStory == null && nullToAbsent
           ? const Value.absent()
           : Value(customOriginStory),
+      weeklyGoal: Value(weeklyGoal),
     );
   }
 
@@ -1705,6 +1734,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       customOriginStory: serializer.fromJson<String?>(
         json['customOriginStory'],
       ),
+      weeklyGoal: serializer.fromJson<int>(json['weeklyGoal']),
     );
   }
   @override
@@ -1723,6 +1753,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'customOriginName': serializer.toJson<String?>(customOriginName),
       'customOriginStory': serializer.toJson<String?>(customOriginStory),
+      'weeklyGoal': serializer.toJson<int>(weeklyGoal),
     };
   }
 
@@ -1735,6 +1766,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     DateTime? createdAt,
     Value<String?> customOriginName = const Value.absent(),
     Value<String?> customOriginStory = const Value.absent(),
+    int? weeklyGoal,
   }) => HeroRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1748,6 +1780,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     customOriginStory: customOriginStory.present
         ? customOriginStory.value
         : this.customOriginStory,
+    weeklyGoal: weeklyGoal ?? this.weeklyGoal,
   );
   HeroRow copyWithCompanion(HeroesCompanion data) {
     return HeroRow(
@@ -1763,6 +1796,9 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
       customOriginStory: data.customOriginStory.present
           ? data.customOriginStory.value
           : this.customOriginStory,
+      weeklyGoal: data.weeklyGoal.present
+          ? data.weeklyGoal.value
+          : this.weeklyGoal,
     );
   }
 
@@ -1776,7 +1812,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           ..write('oath: $oath, ')
           ..write('createdAt: $createdAt, ')
           ..write('customOriginName: $customOriginName, ')
-          ..write('customOriginStory: $customOriginStory')
+          ..write('customOriginStory: $customOriginStory, ')
+          ..write('weeklyGoal: $weeklyGoal')
           ..write(')'))
         .toString();
   }
@@ -1791,6 +1828,7 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
     createdAt,
     customOriginName,
     customOriginStory,
+    weeklyGoal,
   );
   @override
   bool operator ==(Object other) =>
@@ -1803,7 +1841,8 @@ class HeroRow extends DataClass implements Insertable<HeroRow> {
           other.oath == this.oath &&
           other.createdAt == this.createdAt &&
           other.customOriginName == this.customOriginName &&
-          other.customOriginStory == this.customOriginStory);
+          other.customOriginStory == this.customOriginStory &&
+          other.weeklyGoal == this.weeklyGoal);
 }
 
 class HeroesCompanion extends UpdateCompanion<HeroRow> {
@@ -1815,6 +1854,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
   final Value<DateTime> createdAt;
   final Value<String?> customOriginName;
   final Value<String?> customOriginStory;
+  final Value<int> weeklyGoal;
   const HeroesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1824,6 +1864,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     this.createdAt = const Value.absent(),
     this.customOriginName = const Value.absent(),
     this.customOriginStory = const Value.absent(),
+    this.weeklyGoal = const Value.absent(),
   });
   HeroesCompanion.insert({
     this.id = const Value.absent(),
@@ -1834,6 +1875,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     required DateTime createdAt,
     this.customOriginName = const Value.absent(),
     this.customOriginStory = const Value.absent(),
+    this.weeklyGoal = const Value.absent(),
   }) : name = Value(name),
        form = Value(form),
        origin = Value(origin),
@@ -1847,6 +1889,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Expression<DateTime>? createdAt,
     Expression<String>? customOriginName,
     Expression<String>? customOriginStory,
+    Expression<int>? weeklyGoal,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1857,6 +1900,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       if (createdAt != null) 'created_at': createdAt,
       if (customOriginName != null) 'custom_origin_name': customOriginName,
       if (customOriginStory != null) 'custom_origin_story': customOriginStory,
+      if (weeklyGoal != null) 'weekly_goal': weeklyGoal,
     });
   }
 
@@ -1869,6 +1913,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     Value<DateTime>? createdAt,
     Value<String?>? customOriginName,
     Value<String?>? customOriginStory,
+    Value<int>? weeklyGoal,
   }) {
     return HeroesCompanion(
       id: id ?? this.id,
@@ -1879,6 +1924,7 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
       createdAt: createdAt ?? this.createdAt,
       customOriginName: customOriginName ?? this.customOriginName,
       customOriginStory: customOriginStory ?? this.customOriginStory,
+      weeklyGoal: weeklyGoal ?? this.weeklyGoal,
     );
   }
 
@@ -1913,6 +1959,9 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
     if (customOriginStory.present) {
       map['custom_origin_story'] = Variable<String>(customOriginStory.value);
     }
+    if (weeklyGoal.present) {
+      map['weekly_goal'] = Variable<int>(weeklyGoal.value);
+    }
     return map;
   }
 
@@ -1926,7 +1975,8 @@ class HeroesCompanion extends UpdateCompanion<HeroRow> {
           ..write('oath: $oath, ')
           ..write('createdAt: $createdAt, ')
           ..write('customOriginName: $customOriginName, ')
-          ..write('customOriginStory: $customOriginStory')
+          ..write('customOriginStory: $customOriginStory, ')
+          ..write('weeklyGoal: $weeklyGoal')
           ..write(')'))
         .toString();
   }
@@ -6346,6 +6396,7 @@ typedef $$HeroesTableCreateCompanionBuilder = HeroesCompanion Function({
   required DateTime createdAt,
   Value<String?> customOriginName,
   Value<String?> customOriginStory,
+  Value<int> weeklyGoal,
 });
 typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<int> id,
@@ -6356,6 +6407,7 @@ typedef $$HeroesTableUpdateCompanionBuilder = HeroesCompanion Function({
   Value<DateTime> createdAt,
   Value<String?> customOriginName,
   Value<String?> customOriginStory,
+  Value<int> weeklyGoal,
 });
 
 class $$HeroesTableFilterComposer
@@ -6408,6 +6460,11 @@ class $$HeroesTableFilterComposer
     column: $table.customOriginStory,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get weeklyGoal => $composableBuilder(
+    column: $table.weeklyGoal,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$HeroesTableOrderingComposer
@@ -6458,6 +6515,11 @@ class $$HeroesTableOrderingComposer
     column: $table.customOriginStory,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get weeklyGoal => $composableBuilder(
+    column: $table.weeklyGoal,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HeroesTableAnnotationComposer
@@ -6494,6 +6556,11 @@ class $$HeroesTableAnnotationComposer
 
   GeneratedColumn<String> get customOriginStory => $composableBuilder(
     column: $table.customOriginStory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get weeklyGoal => $composableBuilder(
+    column: $table.weeklyGoal,
     builder: (column) => column,
   );
 }
@@ -6534,6 +6601,7 @@ class $$HeroesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> customOriginName = const Value.absent(),
                 Value<String?> customOriginStory = const Value.absent(),
+                Value<int> weeklyGoal = const Value.absent(),
               }) => HeroesCompanion(
                 id: id,
                 name: name,
@@ -6543,6 +6611,7 @@ class $$HeroesTableTableManager
                 createdAt: createdAt,
                 customOriginName: customOriginName,
                 customOriginStory: customOriginStory,
+                weeklyGoal: weeklyGoal,
               ),
           createCompanionCallback:
               ({
@@ -6554,6 +6623,7 @@ class $$HeroesTableTableManager
                 required DateTime createdAt,
                 Value<String?> customOriginName = const Value.absent(),
                 Value<String?> customOriginStory = const Value.absent(),
+                Value<int> weeklyGoal = const Value.absent(),
               }) => HeroesCompanion.insert(
                 id: id,
                 name: name,
@@ -6563,6 +6633,7 @@ class $$HeroesTableTableManager
                 createdAt: createdAt,
                 customOriginName: customOriginName,
                 customOriginStory: customOriginStory,
+                weeklyGoal: weeklyGoal,
               ),
           withReferenceMapper: (p0) => p0
               .map(
