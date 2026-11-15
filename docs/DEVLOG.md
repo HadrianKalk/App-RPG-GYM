@@ -3,6 +3,33 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 5A: Motor de Combate em Turnos, Habilidades D&D 5e e Arena
+- **Motor (`lib/core/game/combat.dart`, `xp_rules.dart`):**
+  - `CombatStats.fromHero`: deriva HP máximo, Foco máximo, Defesa, Iniciativa,
+    Esquiva, Crítico, Bônus de Cura e Presença a partir dos 6 atributos reais
+    do herói (FOR, DES, CON, INT, SAB, CAR).
+  - `ClassSkillCatalog`: 16 habilidades assinadas inspiradas nos arquétipos do
+    D&D 5e (*Surto de Ação*, *Fúria Ancestral*, *Lâmina Rúnica*, *Égide do
+    Juramento*, *Destruição Divina*, *Marca do Caçador*, *Ataque Furtivo*,
+    *Ataque Atordoante*, *Acorde Dissonante*, *Disparo Arcano*, *Fúria
+    Espinhosa*, *Surto Caótico*, *Projétil Arcano*, *Rajada Mística*, *Chama
+    Sagrada* e *Golpe Determinado*).
+  - `ArenaCatalog`: 6 oponentes NPC (*Recruta das Cinzas* até *Colosso da
+    Forja*, níveis recomendados 1 a 16), cada um concedendo título e cosmético
+    exclusivos (`CombatReward`), sem nunca conceder XP (Decisão #40).
+  - `CombatEngine`: resolução pura em turnos (`basicStrike`, `classSkill`,
+    `defend`, `heroicInspiration`) com intenções telegrafadas do inimigo
+    (`strike`, `heavyBlow`, `guard`) e log estruturado (`CombatLogEntry`).
+  - `ArenaTokenRules`: cálculo das fichas diárias de entrada (2 grátis + 1 por
+    treino + 1 por missão diária + 1 por hábito de saúde).
+- **Localização (`game_content_pt.dart`, `game_content_en.dart`, `game_text.dart`):**
+  tradução completa em pt-BR e en das 16 habilidades, 6 NPCs, 6 títulos e 6
+  cosméticos, cobertos por `test/l10n/game_content_test.dart`.
+- **Testes (`test/core/game/combat_test.dart`):** 104 testes passando no total,
+  `flutter analyze` sem avisos.
+- **Próximo:** Etapa 5B — Persistência de títulos/cosméticos desbloqueados e
+  fichas da Arena + Tela da Arena 1v1 + seleção de título e cosmético no Herói.
+
 ## 2026-11-15 — Gemini (Antigravity) — Curva diária unificada por atributo + Guia "?" nos exercícios
 - **Motor (`xp_calculator.dart`, `xp_rules.dart`, `xp_event.dart`):** curva
   diária de retornos decrescentes por atributo (`0–60: 100%`, `60–120: 75%`,

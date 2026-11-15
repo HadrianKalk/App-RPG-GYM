@@ -124,3 +124,19 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Regra de coerência mantida: uma classe só é desbloqueada quando o jogador
       possui os atributos reais compatíveis com ela (não é possível ser Mago
       treinando apenas Força).
+42. **Motor de Combate Tático em Turnos e Habilidades Inspiradas no D&D 5e (`combat.dart`):**
+    - Combate 1v1 em turnos onde todos os 6 atributos têm função clara:
+      - **FOR**: poder de golpe físico e penetração de guarda;
+      - **DES**: iniciativa, chance de esquiva, chance de crítico e poder ágil;
+      - **CON**: HP máximo e defesa física;
+      - **INT**: reserva máxima de Foco (energia de habilidade) e poder arcano;
+      - **SAB**: eficiência de cura, recuperação ao defender e leitura de intenção;
+      - **CAR**: chance de crítico, multiplicador de presença e poder da Inspiração Heroica.
+    - As 16 classes possuem habilidades assinadas inspiradas nos arquétipos do
+      D&D 5e (*Surto de Ação*, *Fúria Ancestral*, *Destruição Divina*, *Ataque
+      Furtivo*, *Ataque Atordoante*, *Rajada Mística*, *Chama Sagrada*, etc.).
+    - O oponente telegrafa sua intenção (*Ataque*, *Golpe Pesado*, *Guarda*),
+      premiando o uso tático de **Defender** ou **Atordoar**.
+    - Fichas de entrada da Arena (`ArenaTokenRules`): 2 entradas grátis/dia + 1
+      por treino concluído + 1 por missão diária cumprida + 1 por hábito de
+      saúde (meta de água ou check-in de dieta).

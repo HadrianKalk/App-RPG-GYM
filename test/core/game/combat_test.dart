@@ -1,0 +1,340 @@
+import 'dart:math' as math;
+
+import 'package:app/core/game/attributes.dart';
+import 'package:app/core/game/class_resolver.dart';
+import 'package:app/core/game/combat.dart';
+import 'package:app/core/game/xp_rules.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// Deterministic RNG for combat tests (always returns [fixedDouble] for
+/// `nextDouble()`).
+class _FixedRandom implements math.Random {
+  _FixedRandom(this.fixedDouble);
+  final double fixedDouble;
+
+  @override
+  bool nextBool() => fixedDouble < 0.5;
+
+  @override
+  double nextDouble() => fixedDouble;
+
+  @override
+  int nextInt(int max) => (fixedDouble * max).floor().clamp(0, max - 1);
+}
+
+void main() {
+  group('ClassSkillCatalog & ArenaCatalog', () {
+    test('every CharacterClass has a unique signature skill', () {
+      final ids = <String>{};
+      for (final c in CharacterClass.values) {
+        final skill = ClassSkillCatalog.forClass(c);
+        expect(skill.characterClass, c);
+        expect(skill.focusCost, greaterThan(0));
+        expect(skill.cooldownTurns, greaterThan(0));
+        expect(ids.add(skill.id), isTrue, reason: 'duplicate skill id ${skill.id}');
+      }
+      expect(ids.length, CharacterClass.values.length);
+    });
+
+    test('ArenaCatalog opponents are ordered by recommendedLevel and have unique rewards', () {
+      expect(ArenaCatalog.opponents, isNotEmpty);
+      final npcIds = <String>{};
+      final titleIds = <String>{};
+      final cosmeticIds = <String>{};
+      var lastLevel = 0;
+
+      for (final npc in ArenaCatalog.opponents) {
+        expect(npc.recommendedLevel, greaterThanOrEqualTo(lastLevel));
+        lastLevel = npc.recommendedLevel;
+        expect(npcIds.add(npc.id), isTrue);
+        expect(titleIds.add(npc.reward.titleId), isTrue);
+        expect(cosmeticIds.add(npc.reward.cosmeticId), isTrue);
+        expect(ArenaCatalog.byId(npc.id), same(npc));
+      }
+      expect(ArenaCatalog.byId('unknown_npc'), isNull);
+    });
+  });
+
+  group('CombatStats.fromHero', () {
+    Map<Attribute, int> baseScores() => {
+          for (final a in Attribute.values) a: XpRules.baseAttributeScore,
+        };
+
+    test('all 6 D&D attributes contribute to distinct combat stats', () {
+      final base = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.warrior,
+        attributeScores: baseScores(),
+      );
+
+      final highCon = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.warrior,
+        attributeScores: {...baseScores(), Attribute.constitution: 16},
+      );
+      expect(highCon.maxHp, greaterThan(base.maxHp));
+      expect(highCon.defense, greaterThan(base.defense));
+
+      final highDex = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.rogue,
+        attributeScores: {...baseScores(), Attribute.dexterity: 16},
+      );
+      expect(highDex.initiative, greaterThan(base.initiative));
+      expect(highDex.dodgeChance, greaterThan(base.dodgeChance));
+
+      final highInt = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.mage,
+        attributeScores: {...baseScores(), Attribute.intelligence: 16},
+      );
+      expect(highInt.maxFocus, greaterThan(base.maxFocus));
+      expect(
+        highInt.attackPowerFor(Attribute.intelligence),
+        greaterThan(base.attackPowerFor(Attribute.intelligence)),
+      );
+
+      final highWis = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.cleric,
+        attributeScores: {...baseScores(), Attribute.wisdom: 16},
+      );
+      expect(highWis.healBonus, greaterThan(base.healBonus));
+      expect(highWis.maxFocus, greaterThan(base.maxFocus));
+
+      final highCha = CombatStats.fromHero(
+        level: 3,
+        characterClass: CharacterClass.paladin,
+        attributeScores: {...baseScores(), Attribute.charisma: 16},
+      );
+      expect(highCha.critChance, greaterThan(base.critChance));
+      expect(highCha.presenceMultiplier, greaterThan(base.presenceMultiplier));
+    });
+
+    test('Adventurer uses highest attribute as primaryAttackAttribute', () {
+      final stats = CombatStats.fromHero(
+        level: 2,
+        characterClass: CharacterClass.adventurer,
+        attributeScores: {
+          ...baseScores(),
+          Attribute.intelligence: 15,
+        },
+      );
+      expect(stats.primaryAttackAttribute, Attribute.intelligence);
+    });
+  });
+
+  group('ArenaTokenRules', () {
+    test('totalEntriesToday combines free entries with real-world habit bonuses', () {
+      expect(
+        ArenaTokenRules.totalEntriesToday(
+          workoutsToday: 0,
+          questsCompletedToday: 0,
+          healthHabitDoneToday: false,
+        ),
+        XpRules.arenaFreeDailyEntries,
+      );
+
+      expect(
+        ArenaTokenRules.totalEntriesToday(
+          workoutsToday: 1,
+          questsCompletedToday: 2,
+          healthHabitDoneToday: true,
+        ),
+        XpRules.arenaFreeDailyEntries + 1 + 2 + 1,
+      );
+    });
+  });
+
+  group('CombatEngine', () {
+    final recruit = ArenaCatalog.opponents.first;
+    final inquisitor = ArenaCatalog.opponents[3]; // 130 HP, 23 attack
+
+    CombatStats makeHero({
+      int level = 3,
+      CharacterClass characterClass = CharacterClass.warrior,
+      int score = 14,
+    }) {
+      return CombatStats.fromHero(
+        level: level,
+        characterClass: characterClass,
+        attributeScores: {
+          for (final a in Attribute.values) a: score,
+        },
+      );
+    }
+
+    test('basicStrike deals damage, restores Focus, and advances enemy intent', () {
+      final hero = makeHero();
+      final initial = CombatEngine.start(hero: hero, opponent: inquisitor);
+      final afterTurn1 = CombatEngine.executeTurn(
+        initial,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99), // no dodge, no crit
+      );
+
+      expect(afterTurn1.enemyHp, lessThan(inquisitor.maxHp));
+      expect(afterTurn1.heroHp, lessThan(hero.maxHp));
+      expect(afterTurn1.turn, 2);
+      expect(afterTurn1.enemyIntent, EnemyIntent.heavyBlow);
+      expect(
+        afterTurn1.log.any((e) => e.kind == CombatLogKind.heroBasicStrike),
+        isTrue,
+      );
+    });
+
+    test('classSkill consumes Focus, sets cooldown, and Warrior hits twice', () {
+      final hero = makeHero(characterClass: CharacterClass.warrior);
+      final initial = CombatEngine.start(hero: hero, opponent: inquisitor);
+      final skill = initial.skill;
+      expect(skill.hitsTwice, isTrue);
+
+      final afterSkill = CombatEngine.executeTurn(
+        initial,
+        CombatAction.classSkill,
+        random: _FixedRandom(0.99),
+      );
+
+      expect(afterSkill.heroFocus, hero.maxFocus - skill.focusCost);
+      expect(afterSkill.heroSkillCooldown, skill.cooldownTurns);
+      expect(afterSkill.canUseClassSkill, isFalse);
+      expect(
+        afterSkill.log.any(
+          (e) => e.kind == CombatLogKind.heroClassSkill && e.skillId == skill.id,
+        ),
+        isTrue,
+      );
+    });
+
+    test('Monk Stunning Strike stuns opponent and skips enemy attack that round', () {
+      final monk = makeHero(characterClass: CharacterClass.monk);
+      final initial = CombatEngine.start(hero: monk, opponent: inquisitor);
+
+      final afterStun = CombatEngine.executeTurn(
+        initial,
+        CombatAction.classSkill,
+        random: _FixedRandom(0.99),
+      );
+
+      // Enemy was stunned on turn 1, so hero took 0 damage!
+      expect(afterStun.status, CombatStatus.ongoing);
+      expect(afterStun.heroHp, monk.maxHp);
+      expect(
+        afterStun.log.any((e) => e.kind == CombatLogKind.enemyStunned),
+        isTrue,
+      );
+    });
+
+    test('Paladin Divine Smite deals damage and heals the hero', () {
+      final paladin = makeHero(characterClass: CharacterClass.paladin);
+      final initial = CombatEngine.start(hero: paladin, opponent: inquisitor);
+      // Take a hit first
+      final wounded = CombatEngine.executeTurn(
+        initial,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+      );
+      expect(wounded.heroHp, lessThan(paladin.maxHp));
+
+      final afterSmite = CombatEngine.executeTurn(
+        wounded,
+        CombatAction.classSkill,
+        random: _FixedRandom(0.99),
+      );
+      final smiteLog = afterSmite.log.firstWhere(
+        (e) => e.kind == CombatLogKind.heroClassSkill,
+      );
+      expect(smiteLog.heal, greaterThan(0));
+    });
+
+    test('defend reduces incoming heavy blow damage by 50% and restores Focus + HP', () {
+      final hero = makeHero();
+      final t1 = CombatEngine.start(hero: hero, opponent: inquisitor);
+      // Turn 1 -> Turn 2 sets enemyIntent to heavyBlow
+      final t2 = CombatEngine.executeTurn(
+        t1,
+        CombatAction.classSkill,
+        random: _FixedRandom(0.99),
+      );
+      expect(t2.status, CombatStatus.ongoing);
+      expect(t2.enemyIntent, EnemyIntent.heavyBlow);
+
+      final noDefend = CombatEngine.executeTurn(
+        t2,
+        CombatAction.basicStrike,
+        random: _FixedRandom(0.99),
+      );
+      final withDefend = CombatEngine.executeTurn(
+        t2,
+        CombatAction.defend,
+        random: _FixedRandom(0.99),
+      );
+
+      final enemyDmgNoDefend = noDefend.log
+          .lastWhere((e) => e.kind == CombatLogKind.enemyHeavyBlow)
+          .damage;
+      final enemyDmgWithDefend = withDefend.log
+          .lastWhere((e) => e.kind == CombatLogKind.enemyHeavyBlow)
+          .damage;
+
+      expect(enemyDmgWithDefend, lessThan(enemyDmgNoDefend));
+      expect(withDefend.heroFocus, greaterThan(t2.heroFocus));
+    });
+
+    test('heroicInspiration guarantees a critical hit and can only be used once per battle', () {
+      final hero = makeHero();
+      final start = CombatEngine.start(
+        hero: hero,
+        opponent: recruit,
+        availableInspiration: 2,
+      );
+      expect(start.canUseInspiration, isTrue);
+
+      final afterInsp = CombatEngine.executeTurn(
+        start,
+        CombatAction.heroicInspiration,
+        random: _FixedRandom(0.99), // even with 0.99, crit is forced
+      );
+
+      expect(afterInsp.inspirationUsed, isTrue);
+      expect(afterInsp.availableInspiration, 1);
+      expect(afterInsp.canUseInspiration, isFalse);
+      final entry = afterInsp.log.firstWhere(
+        (e) => e.kind == CombatLogKind.heroInspirationStrike,
+      );
+      expect(entry.isCritical, isTrue);
+      expect(entry.damage, greaterThan(0));
+    });
+
+    test('encounter ends in victory when opponent HP reaches 0', () {
+      final strongHero = makeHero(level: 12, score: 18);
+      var state = CombatEngine.start(hero: strongHero, opponent: recruit);
+      while (state.status == CombatStatus.ongoing) {
+        state = CombatEngine.executeTurn(
+          state,
+          CombatAction.basicStrike,
+          random: _FixedRandom(0.99),
+        );
+      }
+      expect(state.status, CombatStatus.victory);
+      expect(state.enemyHp, 0);
+      expect(state.log.last.kind, CombatLogKind.victory);
+    });
+
+    test('encounter ends in defeat when hero HP reaches 0', () {
+      final weakHero = makeHero(level: 1, score: 8);
+      final boss = ArenaCatalog.opponents.last;
+      var state = CombatEngine.start(hero: weakHero, opponent: boss);
+      while (state.status == CombatStatus.ongoing) {
+        state = CombatEngine.executeTurn(
+          state,
+          CombatAction.basicStrike,
+          random: _FixedRandom(0.99),
+        );
+      }
+      expect(state.status, CombatStatus.defeat);
+      expect(state.heroHp, 0);
+      expect(state.log.last.kind, CombatLogKind.defeat);
+    });
+  });
+}

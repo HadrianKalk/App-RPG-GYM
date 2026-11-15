@@ -1,6 +1,7 @@
 import 'package:app/core/game/activity_catalog.dart';
 import 'package:app/core/game/attributes.dart';
 import 'package:app/core/game/class_resolver.dart';
+import 'package:app/core/game/combat.dart';
 import 'package:app/core/game/exercise_taxonomy.dart';
 import 'package:app/core/game/hero_profile.dart';
 import 'package:app/core/game/quest_generator.dart';
@@ -29,6 +30,13 @@ void main() {
       for (final e in Equipment.values) 'equipment.${e.name}',
       for (final e in ExerciseSeed.defaultExercises) ...['exercise.${e.id}', 'exercise.${e.id}.guide'],
       for (final a in ActivityCatalog.entries) ...['activity.${a.id}.name', 'activity.${a.id}.description'],
+      for (final s in ClassSkillCatalog.byClass.values) ...['skill.${s.id}.name', 'skill.${s.id}.description'],
+      for (final npc in ArenaCatalog.opponents) ...[
+        'arenaNpc.${npc.id}.name',
+        'arenaNpc.${npc.id}.lore',
+        'combatTitle.${npc.reward.titleId}',
+        'combatCosmetic.${npc.reward.cosmeticId}',
+      ],
     ];
     for (final lang in GameText.supportedLanguages) {
       final text = GameText(lang);

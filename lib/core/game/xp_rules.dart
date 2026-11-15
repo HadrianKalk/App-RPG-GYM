@@ -72,6 +72,13 @@ abstract final class XpRules {
   static const int activityMinMinutes = 1;
   static const int activityMaxMinutes = 240;
 
+  // --- Arena & Combat (Stage 5A — zero XP, cosmetic/title rewards only) ---
+  /// Free Arena entries granted every day even before logging a workout.
+  static const int arenaFreeDailyEntries = 2;
+
+  /// Maximum turns before an Arena duel ends by exhaustion (prevents infinite loops).
+  static const int combatMaxTurns = 30;
+
   // --- Weekly consistency (see weekly_progress.dart) ---
   /// Default weekly goal: training days per week.
   static const int weeklyGoalDefault = 3;

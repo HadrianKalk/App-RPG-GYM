@@ -106,4 +106,12 @@ class GameText {
   }
 
   String questUnit(String unit) => t('questUnit.$unit', fallback: unit);
+
+  // --- Combat (Skills, Arena NPCs, Titles & Cosmetics) ----------------------
+  String skillName(String skillId) => t('skill.$skillId.name');
+  String skillDescription(String skillId) => t('skill.$skillId.description');
+  String arenaNpcName(String npcId) => t('arenaNpc.$npcId.name');
+  String arenaNpcLore(String npcId) => t('arenaNpc.$npcId.lore');
+  String combatTitle(String titleId) => t('combatTitle.$titleId');
+  String combatCosmetic(String cosmeticId) => t('combatCosmetic.$cosmeticId');
 }
