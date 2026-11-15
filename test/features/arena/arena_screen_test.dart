@@ -105,6 +105,10 @@ void main() {
     await tester.tap(challengeBtn);
     await settle(tester);
 
+    expect(find.byKey(const Key('combat_stage_widget')), findsOneWidget);
+    expect(find.byKey(const Key('stage_hero_avatar')), findsOneWidget);
+    expect(find.byKey(const Key('stage_opponent_avatar')), findsOneWidget);
+
     // 5. Execute basic strikes (with forced 20 criticals) and verify the animated D20 banner
     for (var turn = 0; turn < 5; turn++) {
       final basicBtn = find.byKey(const Key('combat_action_basic'));

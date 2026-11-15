@@ -17,6 +17,7 @@ import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
 import '../../settings/presentation/tester_panel_sheet.dart';
+import 'combat_stage_widget.dart';
 import 'd20_roller_widget.dart';
 
 /// Sub-modes selectable from the Combat Hub.
@@ -1574,6 +1575,7 @@ class _ActiveCombatView extends StatelessWidget {
         : l10n.combatActionSkill(game.skillName(skill.id), skill.focusCost);
 
     return ListView(
+      cacheExtent: 1500,
       padding: const EdgeInsets.all(12),
       children: [
         // --- Opponent Panel -------------------------------------------------
@@ -1586,50 +1588,32 @@ class _ActiveCombatView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: AppTheme.obsidianBlack,
-                      border: Border.all(color: AppTheme.bloodCrimson, width: 2),
-                    ),
-                    child: OpponentAvatar(opponentId: npc.id, pixelSize: 2.3),
-                  ),
-                  const SizedBox(width: 10),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          game.arenaNpcName(npc.id),
-                          style: display.style(26, color: AppTheme.emberGold),
-                        ),
-                        const SizedBox(height: 4),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: [
-                            if (tournamentRun != null)
-                              PixelTag(
-                                text: l10n.tournamentRoundProgress(
-                                  tournamentRun!.currentRoundNumber,
-                                  tournamentRun!.totalRounds,
-                                ),
-                                color: AppTheme.emberGold,
-                              ),
-                            PixelTag(
-                              text: l10n.combatArmorClassLabel(npc.armorClass),
-                              color: AppTheme.emberGold,
-                            ),
-                            PixelTag(
-                              text: l10n.combatTurnLabel(encounter.turn),
-                              color: AppTheme.dullSilver,
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: Text(
+                      game.arenaNpcName(npc.id),
+                      style: display.style(26, color: AppTheme.emberGold),
                     ),
+                  ),
+                  if (tournamentRun != null) ...[
+                    PixelTag(
+                      text: l10n.tournamentRoundProgress(
+                        tournamentRun!.currentRoundNumber,
+                        tournamentRun!.totalRounds,
+                      ),
+                      color: AppTheme.emberGold,
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  PixelTag(
+                    text: l10n.combatArmorClassLabel(npc.armorClass),
+                    color: AppTheme.emberGold,
+                  ),
+                  const SizedBox(width: 6),
+                  PixelTag(
+                    text: l10n.combatTurnLabel(encounter.turn),
+                    color: AppTheme.dullSilver,
                   ),
                 ],
               ),
@@ -1672,6 +1656,15 @@ class _ActiveCombatView extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
+        // --- Visual 16-Bit Battle Stage (Weapon Poses & Attack VFX) ---------
+        CombatStageWidget(
+          encounter: encounter,
+          heroAppearance: heroAppearance,
+          equippedCosmeticId: equippedCosmeticId,
+          animationSeed: rollSeed,
+        ),
+        const SizedBox(height: 10),
+
         // --- Animated D20 Roll Banner ---------------------------------------
         if (encounter.lastRoll != null) ...[
           D20RollerBanner(
@@ -1688,19 +1681,6 @@ class _ActiveCombatView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: AppTheme.obsidianBlack,
-                      border: Border.all(color: AppTheme.emberGold, width: 2),
-                    ),
-                    child: HeroAvatar(
-                      appearance: heroAppearance,
-                      equippedCosmeticId: equippedCosmeticId,
-                      pixelSize: 2.3,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

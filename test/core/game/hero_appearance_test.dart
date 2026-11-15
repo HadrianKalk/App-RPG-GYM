@@ -59,6 +59,64 @@ void main() {
         expect(app.encode(), isNotEmpty);
       }
     });
+
+    test('resolveAttackAnimation selects specific animations for Mage staff, Rogue daggers, Ranger bow, Monk Ki, Paladin holy blade, and Greatsword', () {
+      const def = HeroAppearance.defaultAppearance;
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.mage),
+        AttackAnimationKind.staffArcaneCast,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.rogue),
+        AttackAnimationKind.daggerShadowFlurry,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.ranger),
+        AttackAnimationKind.bowPiercingShot,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.monk),
+        AttackAnimationKind.martialKiStrike,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.paladin),
+        AttackAnimationKind.holyRadiantSmite,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.eldritchKnight),
+        AttackAnimationKind.eldritchRunicSlash,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.druid),
+        AttackAnimationKind.primalSongWave,
+      );
+      expect(
+        def.resolveAttackAnimation(characterClass: CharacterClass.warrior),
+        AttackAnimationKind.greatswordCleave,
+      );
+      expect(
+        def.resolveAttackAnimation(
+          characterClass: CharacterClass.warrior,
+          isDefend: true,
+        ),
+        AttackAnimationKind.defensiveGuard,
+      );
+
+      // Warrior equipping a Runic Staff on back adapts basic attack to staff cast
+      final staffWarrior = def.copyWith(backStyle: BackStyle.runicStaffCape);
+      expect(
+        staffWarrior.resolveAttackAnimation(characterClass: CharacterClass.warrior),
+        AttackAnimationKind.staffArcaneCast,
+      );
+      // Class skill still uses Warrior's signature cleave
+      expect(
+        staffWarrior.resolveAttackAnimation(
+          characterClass: CharacterClass.warrior,
+          isClassSkill: true,
+        ),
+        AttackAnimationKind.greatswordCleave,
+      );
+    });
   });
 
   group('HeroPaperDoll 28x36 16-bit compositor', () {

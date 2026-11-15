@@ -105,7 +105,16 @@ class _StandaloneAppearanceSheetState
               appearance: _appearance,
               pose: _pose,
               onTogglePose: () => setState(() {
-                _pose = _pose == HeroPose.idle ? HeroPose.flex : HeroPose.idle;
+                final attackPose = HeroPose.forAttack(
+                  _appearance.resolveAttackAnimation(
+                    characterClass: CharacterClass.adventurer,
+                  ),
+                );
+                _pose = switch (_pose) {
+                  HeroPose.idle => attackPose,
+                  HeroPose.flex => HeroPose.idle,
+                  _ => HeroPose.flex,
+                };
               }),
             ),
             const SizedBox(height: 10),
@@ -194,7 +203,17 @@ class _HeroCustomizationSheetState
               equippedCosmeticId: hero?.equippedCosmeticId,
               pose: _pose,
               onTogglePose: () => setState(() {
-                _pose = _pose == HeroPose.idle ? HeroPose.flex : HeroPose.idle;
+                final attackPose = HeroPose.forAttack(
+                  appearance.resolveAttackAnimation(
+                    characterClass:
+                        char?.characterClass ?? CharacterClass.adventurer,
+                  ),
+                );
+                _pose = switch (_pose) {
+                  HeroPose.idle => attackPose,
+                  HeroPose.flex => HeroPose.idle,
+                  _ => HeroPose.flex,
+                };
               }),
             ),
             const SizedBox(height: 10),

@@ -2,7 +2,7 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 6A: Sistema Paper-Doll Customizável 16-bit (28×36 px) + Arquétipos Pré-Prontos + Sprites dos Oponentes
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 6B: Palco de Batalha 16-bit + Animações Específicas por Arma e Classe (Cajado, Espadão, Adagas, Arco, Ki, Luz Divina, Escudo)
 
 ## Fase atual
 **Fase 1 — MVP offline concluído**; executando **Etapa 6 (Arte, Animações e Sons)** antes da Fase 2 (Narrador IA & Modo História).
@@ -36,12 +36,14 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - **Modo Tester / Sandbox (`TesterPanelSheet`):** edição ao vivo dos 6 atributos
   (8–30), presets rápidos, fichas infinitas e forçar rolagem `20` ou `1` no d20
   sem tocar no `xp_ledger`.
-- **Etapa 6A — Sistema Paper-Doll 16-bit (`28×36 px`, `HeroAppearance` + `HeroPaperDoll`):**
-  customização modular em camadas (tom de pele, olhos/cicatriz, cor dos olhos,
-  cabelo/elmo, cor do cabelo, barba, camisa/peitoral, calças/grevas,
-  calçados/botas, capa/arma nas costas e paleta de cores) + 7 arquétipos
-  pré-prontos + sprites 16-bit exclusivos para os oponentes (`OpponentAvatar`).
-- 116 testes passando; `flutter analyze` limpo.
+- **Etapa 6A & 6B — Sistema Paper-Doll 16-bit (`28×36 px`) + Palco de Batalha e Animações por Arma/Classe (`CombatStageWidget`):**
+  customização modular em camadas + 7 arquétipos pré-prontos + sprites 16-bit
+  para os oponentes (`OpponentAvatar`, espelhados no combate) + poses de arma em
+  mãos (`HeroPose.attackGreatsword`, `attackStaff`, `attackDaggers`, `attackBow`,
+  `attackMartial`, `attackHolyBlade`, `guard`) + 9 animações de ataque/VFX
+  específicas por arma e classe + respiração *idle*, *hit flash/shake* e números
+  flutuantes de dano/crítico/cura.
+- 118 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (concluído)
 - [x] Criação do herói (onboarding).
@@ -79,8 +81,11 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       compositor em camadas sombreadas (estilo Berserk Action-RPG), 11 categorias
       customizáveis, 7 arquétipos pré-prontos, editor no Onboarding e na Ficha
       do Herói, e avatares para todos os NPCs/Chefes.
-- [ ] **Etapa 6B — Animações de Combate e UI:** respiração *idle*, avanço de
-      ataque (*lunge*), flash/shake de dano e números flutuantes de dano/crítico.
+- [x] **Etapa 6B — Animações de Combate por Arma/Classe e Palco 16-bit:**
+      respiração *idle*, poses de arma sacada em mãos, 9 animações de ataque e
+      VFX (Cajado Arcano, Espadão, Adagas Gêmeas, Arco, Punho de Ki, Espada
+      Sagrada, Lâmina Rúnica, Onda Primal e Escudo de Guarda), *hit flash/shake*
+      e números flutuantes de dano/crítico/cura.
 - [ ] **Etapa 6C — Efeitos Sonoros Dark Fantasy Retro:** síntese procedural WAV
       offline (`SoundService`) para dado d20, golpes, crítico, falha, concluir
       série e subir de nível + toggle nas configurações.

@@ -3,6 +3,41 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Etapa 6B: Palco de Batalha 16-bit + Animações Específicas por Arma e Classe
+- **Resolução de Animação por Arma e Classe (`lib/core/game/hero_appearance.dart`):**
+  - `AttackAnimationKind` e `HeroAppearance.resolveAttackAnimation`: determina a
+    animação de combate com base na `CharacterClass`, na arma equipada nas costas
+    (`BackStyle`) e na ação executada (`basicStrike`, `classSkill`, `defend`):
+    - **Mago / Feiticeiro / Bruxo / Artífice (ou Cajado equipado):** `staffArcaneCast`;
+    - **Guerreiro / Bárbaro / Aventureiro (ou Espadão equipado):** `greatswordCleave`;
+    - **Ladino (ou Adagas Gêmeas equipadas):** `daggerShadowFlurry`;
+    - **Patrulheiro:** `bowPiercingShot`;
+    - **Monge:** `martialKiStrike`;
+    - **Paladino / Templário / Clérigo (ou Espada Santa equipada):** `holyRadiantSmite`;
+    - **Cavaleiro Arcano:** `eldritchRunicSlash`;
+    - **Druida / Bardo:** `primalSongWave`;
+    - **Defender:** `defensiveGuard`.
+- **Poses de Arma em Mãos no Compositor 28×36 (`lib/app/ui/pixel_sprite.dart`):**
+  - Novos estados em `HeroPose`: `attackGreatsword`, `attackStaff`,
+    `attackDaggers`, `attackBow`, `attackMartial`, `attackHolyBlade` e `guard`.
+  - Quando o herói ataca ou defende, a arma sai das costas e é renderizada nas
+    mãos do personagem (Espadão horizontal, Cajado Rúnico erguido com cristal
+    brilhante, Adagas duplas, Arco Longo com flecha puxada, Punho de Ki, Espada
+    Sagrada ou Escudo Forjado).
+  - Adicionado suporte a `flipHorizontal` (para o oponente encarar o herói) e
+    `hitFlashColor` (flash de impacto ao receber dano).
+- **Palco de Batalha Visual 16-bit (`lib/features/arena/presentation/combat_stage_widget.dart`, `arena_screen.dart`):**
+  - `CombatStageWidget`: exibe Herói vs Oponente sobre o piso de pedra da forja,
+    com respiração *idle*, avanço coreografado (*lunge/dash*) no turno do herói e
+    no contra-ataque do inimigo, VFX dedicados para todas as 9 categorias de
+    arma/magia (feixe e orbe de cajado, corte crescente de espadão, corte em X de
+    adagas, flecha veloz com anéis de vento, ondas de Ki, pilar de luz divina,
+    relâmpago arcano, espinhos primais e barreira de escudo) e popups flutuantes
+    (`-Dano`, `CRIT!`, `FALHA 1!`, `+PV`, `ATORDOADO!`, `ESQUIVOU!`).
+- **Testes:** 118 testes passando, `flutter analyze` limpo.
+- **Próximo:** Etapa 6C — Efeitos Sonoros Dark Fantasy Retro (síntese procedural
+  WAV offline + toggle de som nas configurações).
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 6A: Sistema Paper-Doll Customizável 16-bit (28×36 px) + Arquétipos Pré-Prontos + Sprites dos Oponentes
 - **Modelo Puro de Aparência (`lib/core/game/hero_appearance.dart`, `hero_profile.dart`):**
   - `HeroAppearance`: modelo modular Paper-Doll em Dart puro com rampas de 3 tons

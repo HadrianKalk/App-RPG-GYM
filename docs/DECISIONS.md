@@ -190,3 +190,22 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
       na Ficha do Herói (`HeroCustomizationSheet`).
     - Oponentes da Arena, Torneios e Chefes de Masmorra possuem sprites próprios
       em `OpponentSprites` / `OpponentAvatar`.
+47. **Palco de Batalha 16-bit e Animações Específicas por Arma/Classe (`AttackAnimationKind` + `CombatStageWidget`, Etapa 6B):**
+    - Em combate (`ArenaScreen`), um palco visual 16-bit (`CombatStageWidget`)
+      posiciona o Herói à esquerda e o Oponente à direita (espelhado
+      horizontalmente) sobre o piso de pedra da forja sob o céu noturno.
+    - `HeroAppearance.resolveAttackAnimation` resolve deterministicamente a
+      animação do turno com base na `CharacterClass`, na arma equipada em
+      `BackStyle` e na ação (`basicStrike`, `classSkill`, `defend`):
+      1. `greatswordCleave`: Espadão Colossal em mãos (`HeroPose.attackGreatsword`) + arco cortante carmesim/aço;
+      2. `staffArcaneCast`: Cajado Rúnico erguido (`HeroPose.attackStaff`) + círculo rúnico + orbe/feixe arcano que viaja até o inimigo e explode (Mago, Feiticeiro, Bruxo, Artífice ou Cajado equipado);
+      3. `daggerShadowFlurry`: Adagas Gêmeas em mãos (`HeroPose.attackDaggers`) + investida rápida com rastro de sombra e corte duplo em `X` (Ladino);
+      4. `bowPiercingShot`: Arco Longo esticado (`HeroPose.attackBow`) + disparo de flecha veloz com anéis de vento (Patrulheiro);
+      5. `martialKiStrike`: Palma/Punho de Ki (`HeroPose.attackMartial`) + ondas de choque concêntricas douradas/jade (Monge);
+      6. `holyRadiantSmite`: Espada Sagrada erguida (`HeroPose.attackHolyBlade`) + pilar vertical de luz divina e cruz radiante (Paladino, Templário, Clérigo);
+      7. `eldritchRunicSlash`: Lâmina Rúnica + relâmpago arcano azul (Cavaleiro Arcano);
+      8. `primalSongWave`: Ondas de ressonância e espinhos primais brotando sob o alvo (Druida, Bardo);
+      9. `defensiveGuard`: Escudo forjado erguido (`HeroPose.guard`) + barreira protetora dourada.
+    - Inclui respiração *idle* contínua, *hit flash/shake* ao receber dano,
+      recuo de esquiva e popups flutuantes (`-Dano`, `CRIT!`, `FALHA 1!`,
+      `+PV`, `ATORDOADO!`, `ESQUIVOU!`).

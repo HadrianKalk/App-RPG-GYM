@@ -448,6 +448,36 @@ enum HeroAppearancePreset {
   sereneMonk,
 }
 
+/// Visual weapon & attack animation archetype played on the Battle Stage.
+enum AttackAnimationKind {
+  /// Heavy two-handed greatsword cleave with crimson/steel slash arc.
+  greatswordCleave,
+
+  /// Raised runic staff channeling an arcane orb/beam that explodes on target.
+  staffArcaneCast,
+
+  /// High-speed shadow dash with crossed twin-dagger slashes.
+  daggerShadowFlurry,
+
+  /// Drawn longbow firing a high-velocity piercing arrow with wind rings.
+  bowPiercingShot,
+
+  /// Martial arts palm/fist thrust with golden/emerald Ki shockwaves.
+  martialKiStrike,
+
+  /// Holy broadsword slash calling down a pillar of radiant golden light.
+  holyRadiantSmite,
+
+  /// Runic blade slash wreathed in crackling arcane lightning.
+  eldritchRunicSlash,
+
+  /// Channeling primal/sonic waves and erupting nature thorns.
+  primalSongWave,
+
+  /// Defensive shield/gauntlet brace with a shimmering ward barrier.
+  defensiveGuard,
+}
+
 /// Complete modular Paper-Doll configuration for the player's hero.
 final class HeroAppearance {
   const HeroAppearance({
@@ -603,6 +633,81 @@ final class HeroAppearance {
         fromPreset(HeroAppearancePreset.sereneMonk),
     };
   }
+
+  /// Resolves the specific weapon/magic animation for an action based on the
+  /// hero's [characterClass], equipped [backStyle], and whether they are
+  /// using a class skill or defending.
+  AttackAnimationKind resolveAttackAnimation({
+    required CharacterClass characterClass,
+    bool isClassSkill = false,
+    bool isDefend = false,
+  }) {
+    if (isDefend) return AttackAnimationKind.defensiveGuard;
+
+    // Class signature skills always showcase the class's iconic combat style.
+    if (isClassSkill) {
+      return _classAnimation(characterClass);
+    }
+
+    // For basic / inspiration strikes, honor caster/ranged/martial classes
+    // first, or adapt to the weapon visibly strapped on the hero's back.
+    return switch (characterClass) {
+      CharacterClass.mage ||
+      CharacterClass.sorcerer ||
+      CharacterClass.warlock ||
+      CharacterClass.artificer =>
+        AttackAnimationKind.staffArcaneCast,
+      CharacterClass.ranger => AttackAnimationKind.bowPiercingShot,
+      CharacterClass.rogue => AttackAnimationKind.daggerShadowFlurry,
+      CharacterClass.monk => AttackAnimationKind.martialKiStrike,
+      CharacterClass.eldritchKnight => AttackAnimationKind.eldritchRunicSlash,
+      CharacterClass.druid ||
+      CharacterClass.bard =>
+        backStyle == BackStyle.runicStaffCape
+            ? AttackAnimationKind.staffArcaneCast
+            : AttackAnimationKind.primalSongWave,
+      CharacterClass.paladin ||
+      CharacterClass.templar ||
+      CharacterClass.cleric =>
+        AttackAnimationKind.holyRadiantSmite,
+      CharacterClass.adventurer ||
+      CharacterClass.warrior ||
+      CharacterClass.barbarian =>
+        switch (backStyle) {
+          BackStyle.runicStaffCape => AttackAnimationKind.staffArcaneCast,
+          BackStyle.twinDaggersCloak => AttackAnimationKind.daggerShadowFlurry,
+          BackStyle.paladinWingedMantle =>
+            AttackAnimationKind.holyRadiantSmite,
+          BackStyle.dragonslayerCape ||
+          BackStyle.tatteredCloak ||
+          BackStyle.none =>
+            AttackAnimationKind.greatswordCleave,
+        },
+    };
+  }
+
+  static AttackAnimationKind _classAnimation(CharacterClass c) => switch (c) {
+        CharacterClass.adventurer ||
+        CharacterClass.warrior ||
+        CharacterClass.barbarian =>
+          AttackAnimationKind.greatswordCleave,
+        CharacterClass.mage ||
+        CharacterClass.sorcerer ||
+        CharacterClass.warlock ||
+        CharacterClass.artificer =>
+          AttackAnimationKind.staffArcaneCast,
+        CharacterClass.rogue => AttackAnimationKind.daggerShadowFlurry,
+        CharacterClass.ranger => AttackAnimationKind.bowPiercingShot,
+        CharacterClass.monk => AttackAnimationKind.martialKiStrike,
+        CharacterClass.paladin ||
+        CharacterClass.templar ||
+        CharacterClass.cleric =>
+          AttackAnimationKind.holyRadiantSmite,
+        CharacterClass.eldritchKnight => AttackAnimationKind.eldritchRunicSlash,
+        CharacterClass.druid ||
+        CharacterClass.bard =>
+          AttackAnimationKind.primalSongWave,
+      };
 
   HeroAppearance copyWith({
     SkinTone? skinTone,

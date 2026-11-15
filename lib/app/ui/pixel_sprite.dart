@@ -10,42 +10,64 @@ class PixelSprite extends StatelessWidget {
     required this.rows,
     required this.palette,
     this.pixelSize = 4,
+    this.flipHorizontal = false,
+    this.hitFlashColor,
   });
 
   final List<String> rows;
   final Map<String, Color> palette;
   final double pixelSize;
+  final bool flipHorizontal;
+  final Color? hitFlashColor;
 
   @override
   Widget build(BuildContext context) {
     final w = rows.fold<int>(0, (m, r) => r.length > m ? r.length : m);
     return CustomPaint(
       size: Size(w * pixelSize, rows.length * pixelSize),
-      painter: _SpritePainter(rows, palette, pixelSize),
+      painter: _SpritePainter(
+        rows,
+        palette,
+        pixelSize,
+        flipHorizontal: flipHorizontal,
+        hitFlashColor: hitFlashColor,
+      ),
     );
   }
 }
 
 class _SpritePainter extends CustomPainter {
-  _SpritePainter(this.rows, this.palette, this.px);
+  _SpritePainter(
+    this.rows,
+    this.palette,
+    this.px, {
+    required this.flipHorizontal,
+    required this.hitFlashColor,
+  });
 
   final List<String> rows;
   final Map<String, Color> palette;
   final double px;
+  final bool flipHorizontal;
+  final Color? hitFlashColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
+    final maxW = rows.fold<int>(0, (m, r) => r.length > m ? r.length : m);
     for (var y = 0; y < rows.length; y++) {
       final row = rows[y];
       for (var x = 0; x < row.length; x++) {
         final ch = row[x];
         if (ch == '.') continue;
-        final color = palette[ch];
-        if (color == null) continue;
-        paint.color = color;
+        final baseColor = palette[ch];
+        if (baseColor == null) continue;
+        paint.color = hitFlashColor != null
+            ? Color.lerp(baseColor, hitFlashColor, 0.72)!
+            : baseColor;
+        final drawX = flipHorizontal ? (maxW - 1 - x) : x;
         canvas.drawRect(
-          Rect.fromLTWH(x * px, y * px, px + 0.35, px + 0.35),
+          Rect.fromLTWH(drawX * px, y * px, px + 0.35, px + 0.35),
           paint,
         );
       }
@@ -54,16 +76,48 @@ class _SpritePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SpritePainter old) =>
-      old.rows != rows || old.palette != palette || old.px != px;
+      old.rows != rows ||
+      old.palette != palette ||
+      old.px != px ||
+      old.flipHorizontal != flipHorizontal ||
+      old.hitFlashColor != hitFlashColor;
 }
 
-/// Poses supported by the Paper-Doll compositor.
-enum HeroPose { idle, flex }
+/// Poses supported by the Paper-Doll compositor, including weapon-specific
+/// combat stances.
+enum HeroPose {
+  idle,
+  flex,
+  attackGreatsword,
+  attackStaff,
+  attackDaggers,
+  attackBow,
+  attackMartial,
+  attackHolyBlade,
+  guard;
+
+  bool get isCombatWeaponDrawn =>
+      this != HeroPose.idle && this != HeroPose.flex;
+
+  static HeroPose forAttack(AttackAnimationKind kind) => switch (kind) {
+        AttackAnimationKind.greatswordCleave => HeroPose.attackGreatsword,
+        AttackAnimationKind.staffArcaneCast ||
+        AttackAnimationKind.primalSongWave =>
+          HeroPose.attackStaff,
+        AttackAnimationKind.daggerShadowFlurry => HeroPose.attackDaggers,
+        AttackAnimationKind.bowPiercingShot => HeroPose.attackBow,
+        AttackAnimationKind.martialKiStrike => HeroPose.attackMartial,
+        AttackAnimationKind.holyRadiantSmite ||
+        AttackAnimationKind.eldritchRunicSlash =>
+          HeroPose.attackHolyBlade,
+        AttackAnimationKind.defensiveGuard => HeroPose.guard,
+      };
+}
 
 /// Renders the player's customized [HeroAppearance] as a 28x36 16-bit
 /// Action-RPG sprite (inspired by the 2nd Berserk reference image),
 /// compositing back gear, body, pants, boots, torso, eyes, beard, hair,
-/// and optional combat cosmetic aura.
+/// weapon action pose, and optional combat cosmetic aura.
 class HeroAvatar extends StatelessWidget {
   const HeroAvatar({
     super.key,
@@ -71,12 +125,16 @@ class HeroAvatar extends StatelessWidget {
     this.equippedCosmeticId,
     this.pose = HeroPose.idle,
     this.pixelSize = 3.2,
+    this.flipHorizontal = false,
+    this.hitFlashColor,
   });
 
   final HeroAppearance appearance;
   final String? equippedCosmeticId;
   final HeroPose pose;
   final double pixelSize;
+  final bool flipHorizontal;
+  final Color? hitFlashColor;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +147,8 @@ class HeroAvatar extends StatelessWidget {
       rows: composed.rows,
       palette: composed.palette,
       pixelSize: pixelSize,
+      flipHorizontal: flipHorizontal,
+      hitFlashColor: hitFlashColor,
     );
   }
 }
@@ -209,8 +269,14 @@ abstract final class HeroPaperDoll {
       }
     }
 
-    // 0. Back layer (cape / greatsword / staff / daggers)
-    applyLayer(_backLayer(appearance.backStyle));
+    // 0. Back layer (when a weapon is drawn in hand during combat, show cloak only)
+    applyLayer(
+      pose.isCombatWeaponDrawn
+          ? (appearance.backStyle == BackStyle.none
+              ? const []
+              : _backTatteredCloak)
+          : _backLayer(appearance.backStyle),
+    );
 
     // 1. Base body anatomy (head, neck, arms, hands, legs silhouette)
     applyLayer(pose == HeroPose.flex ? _bodyFlexLayer : _bodyIdleLayer);
@@ -237,7 +303,10 @@ abstract final class HeroPaperDoll {
     // 7. Hair / helm / hood layer
     applyLayer(_hairLayer(appearance.hairStyle));
 
-    // 8. Equipped combat cosmetic aura/crest (if any)
+    // 8. Weapon / Action Foreground Layer (drawn weapon in hand during attack/guard)
+    applyLayer(_weaponPoseForegroundLayer(pose));
+
+    // 9. Equipped combat cosmetic aura/crest (if any)
     if (equippedCosmeticId != null && equippedCosmeticId.isNotEmpty) {
       applyLayer(_cosmeticAuraLayer);
     }
@@ -1502,7 +1571,205 @@ abstract final class HeroPaperDoll {
   ];
 
   // ---------------------------------------------------------------------------
-  // Layer 8: Equipped Combat Cosmetic Aura / Floating Crest (28x36)
+  // Layer 8: Weapon / Combat Action Foreground Layer (28x36)
+  // ---------------------------------------------------------------------------
+
+  static List<String> _weaponPoseForegroundLayer(HeroPose pose) => switch (pose) {
+        HeroPose.idle || HeroPose.flex => const [],
+        HeroPose.attackGreatsword => _weaponGreatswordSwing,
+        HeroPose.attackStaff => _weaponStaffCast,
+        HeroPose.attackDaggers => _weaponDaggersSlash,
+        HeroPose.attackBow => _weaponBowDraw,
+        HeroPose.attackMartial => _weaponMartialStrike,
+        HeroPose.attackHolyBlade => _weaponHolyBladeSwing,
+        HeroPose.guard => _weaponShieldGuard,
+      };
+
+  /// Colossal greatsword swung forward horizontally across the right side!
+  static const List<String> _weaponGreatswordSwing = [
+    '............................', // 00..13
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '...................KK.......', // 14 crossguard top
+    '..................KAAK......', // 15
+    '...............KKKKAAMKKKKK.', // 16 colossal blade top edge (`W` shine)
+    '..............KLLlKAAMWWWWWK', // 17 hilt + gauntleted grip + bright edge
+    '..............KSSsKAAMmmmmWK', // 18 blade fuller
+    '...............KKKKAAnnnnnK.', // 19 blade dark edge
+    '..................KAAKKKKK..', // 20 crossguard bottom
+    '...................KK.......', // 21
+  ];
+
+  /// Runic quarterstaff held upright in the outstretched right hand with a
+  /// glowing arcane crystal orb (`E`/`W`/`A`) at the crown!
+  static const List<String> _weaponStaffCast = [
+    '............................', // 00..05
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '.....................EEE....', // 06 arcane energy sparks
+    '....................EWWWE...', // 07 glowing crystal orb
+    '....................EWWWE...', // 08
+    '....................KAAAK...', // 09 golden staff cradle
+    '.....................KLlK...', // 10 wooden shaft
+    '.....................KLlK...', // 11
+    '.....................KLlK...', // 12
+    '.....................KLlK...', // 13
+    '.....................KLlK...', // 14
+    '.....................KLlK...', // 15
+    '................KKKKKKLlK...', // 16 outstretched casting arm
+    '...............KSSSSSKSSK...', // 17 hand gripping staff
+    '................KKKKKKLlK...', // 18
+    '.....................KLlK...', // 19
+    '.....................KLlK...', // 20
+    '.....................KLlK...', // 21
+    '.....................KLlK...', // 22
+    '.....................KAAK...', // 23 staff butt-cap
+    '.....................KKKK...', // 24
+  ];
+
+  /// Twin rogue daggers brandished forward with gleaming silver blades!
+  static const List<String> _weaponDaggersSlash = [
+    '............................', // 00..13
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '.......................KKK..', // 14 upper dagger tip
+    '.....................KKMWWK.', // 15
+    '.................KKKKAMmmK..', // 16 right hand + upper dagger
+    '................KSSSSAKKK...', // 17
+    '..KKKK...........KKKK.......', // 18 left off-hand dagger
+    '.KWWWMK.............KKKKKK..', // 19 lower forward dagger slash
+    '..KKKK.............KAAWWWWK.', // 20
+    '....................KKKKKK..', // 21
+  ];
+
+  /// Curved hunter longbow drawn with a glowing notched arrow!
+  static const List<String> _weaponBowDraw = [
+    '............................', // 00..10
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '....................KKK.....', // 11 upper bow limb
+    '...................KwKLK....', // 12 bowstring + wood
+    '...................Kw.KLK...', // 13
+    '...................Kw..KLK..', // 14
+    '...................Kw...KLK.', // 15
+    '...............KKKKKWWWWWWAK', // 16 drawn arrow + glowing arrowhead!
+    '...............KSSSSSSSKAAK.', // 17 outstretched bow hand
+    '...................Kw...KLK.', // 18
+    '...................Kw..KLK..', // 19
+    '...................Kw.KLK...', // 20
+    '...................KwKLK....', // 21
+    '....................KKK.....', // 22 lower bow limb
+  ];
+
+  /// Monk martial arts Ki palm thrust with golden/emerald aura!
+  static const List<String> _weaponMartialStrike = [
+    '............................', // 00..13
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '......................AA....', // 14 Ki aura
+    '.....................AWWA...', // 15
+    '...............KKKKKAWWWWAK.', // 16 thrusting wrapped fist + Ki burst
+    '..............KWWWWWSSSSWWAK', // 17
+    '...............KKKKKAWWWWAK.', // 18
+    '.....................AWWA...', // 19
+    '......................AA....', // 20
+  ];
+
+  /// Radiant holy broadsword / runic blade raised in a golden slash!
+  static const List<String> _weaponHolyBladeSwing = [
+    '............................', // 00..09
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '........................AA..', // 10 holy blade tip
+    '.......................AWWA.', // 11
+    '......................KWWWAK', // 12
+    '.....................KWWMWK.', // 13
+    '....................KWWMMK..', // 14
+    '..................KKAWWMK...', // 15
+    '................KKAAAKKK....', // 16 golden crossguard
+    '...............KSSSSAK......', // 17 hand on hilt
+    '................KKKKK.......', // 18
+  ];
+
+  /// Forged iron & golden buckler shield raised in defensive brace!
+  static const List<String> _weaponShieldGuard = [
+    '............................', // 00..12
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '............................',
+    '.................KKKKKK.....', // 13 shield top rim
+    '................KAAAAAAMK...', // 14
+    '...............KAMMMMMMmAK..', // 15
+    '...............KAMMWWWmmAK..', // 16 shield boss shine
+    '...............KAMMWWWmmAK..', // 17
+    '...............KAMmmmnnnAK..', // 18
+    '...............KAMmnnnnnAK..', // 19
+    '................KAAAAAAAK...', // 20
+    '.................KKKKKKK....', // 21 shield bottom point
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Layer 9: Equipped Combat Cosmetic Aura / Floating Crest (28x36)
   // ---------------------------------------------------------------------------
 
   static const List<String> _cosmeticAuraLayer = [
@@ -1533,11 +1800,17 @@ class OpponentAvatar extends StatelessWidget {
   const OpponentAvatar({
     super.key,
     required this.opponentId,
+    this.pose = HeroPose.idle,
     this.pixelSize = 3.0,
+    this.flipHorizontal = false,
+    this.hitFlashColor,
   });
 
   final String opponentId;
+  final HeroPose pose;
   final double pixelSize;
+  final bool flipHorizontal;
+  final Color? hitFlashColor;
 
   @override
   Widget build(BuildContext context) {
@@ -1545,11 +1818,14 @@ class OpponentAvatar extends StatelessWidget {
     final composed = HeroPaperDoll.compose(
       appearance,
       equippedCosmeticId: opponentId,
+      pose: pose,
     );
     return PixelSprite(
       rows: composed.rows,
       palette: composed.palette,
       pixelSize: pixelSize,
+      flipHorizontal: flipHorizontal,
+      hitFlashColor: hitFlashColor,
     );
   }
 }
