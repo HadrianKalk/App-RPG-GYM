@@ -3,6 +3,11 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Modal do d20 aguarda clique do usuário após revelar
+- Removido o fechamento automático de 950ms do `D20RollDialog`; agora, após o dado cair e revelar o número + fórmula D&D 5e, a janela permanece aberta até o usuário clicar em qualquer ponto dela (`TOQUE PARA CONTINUAR`) para iniciar a animação do golpe na arena.
+- Arquivos principais tocados: `lib/features/arena/presentation/d20_roll_dialog.dart`, `test/features/arena/arena_screen_test.dart`.
+- Verificado com `flutter analyze` (0 erros) e `flutter test` (119/119).
+
 ## 2026-11-15 — Gemini (Antigravity) — Mini-Janela Interativa do d20 + Etapa 6C: Efeitos Sonoros Offline
 - **Mini-Janela Central Interativa do d20 (`lib/features/arena/presentation/d20_roll_dialog.dart`, `arena_screen.dart`):**
   - Ao atacar (`basicStrike`, `classSkill`, `heroicInspiration`) ou rolar uma

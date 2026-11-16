@@ -85,7 +85,6 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
     with TickerProviderStateMixin {
   late final AnimationController _pulseController;
   late final AnimationController _rollController;
-  Timer? _autoCloseTimer;
 
   _RollPhase _phase = _RollPhase.waiting;
   int _finalRoll = 10;
@@ -158,14 +157,9 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
     } else {
       unawaited(widget.soundService.play(GameSfx.diceReveal));
     }
-
-    _autoCloseTimer = Timer(const Duration(milliseconds: 950), () {
-      if (mounted) _closeWithResult();
-    });
   }
 
   void _closeWithResult() {
-    _autoCloseTimer?.cancel();
     if (mounted) {
       Navigator.of(context).pop(_finalRoll);
     }
@@ -173,7 +167,6 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
 
   @override
   void dispose() {
-    _autoCloseTimer?.cancel();
     _pulseController.dispose();
     _rollController.dispose();
     super.dispose();
@@ -218,7 +211,10 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
-      child: PixelFrame(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _phase == _RollPhase.revealed ? _closeWithResult : null,
+        child: PixelFrame(
         key: const Key('d20_interactive_dialog'),
         highlight: true,
         color: outcome == D20Outcome.criticalFumble
@@ -397,13 +393,15 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppTheme.ashWhite, fontSize: 12),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 l10n.d20DialogTapToContinue,
-                style: const TextStyle(color: AppTheme.darkAsh, fontSize: 11),
+                key: const Key('d20_dialog_continue_hint'),
+                style: display.style(18, color: AppTheme.emberGold),
               ),
             ],
           ],
+        ),
         ),
       ),
     );

@@ -121,9 +121,12 @@ void main() {
       // Interactive center D20 modal appears asking user to tap the die
       expect(find.byKey(const Key('d20_interactive_dialog')), findsOneWidget);
       await tester.tap(find.byKey(const Key('d20_dialog_tap_area')));
-      // Pump through the 620ms drop/spin animation + auto-close reveal
+      // Pump through the 620ms drop/spin animation; modal stays open until user taps
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 700));
-      await tester.pump(const Duration(milliseconds: 1050));
+      await tester.pump();
+      expect(find.byKey(const Key('d20_dialog_continue_hint')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('d20_dialog_continue_hint')));
       await settle(tester);
 
       expect(find.byKey(const Key('d20_roller_banner')), findsOneWidget);
