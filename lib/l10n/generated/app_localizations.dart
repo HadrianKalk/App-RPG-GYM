@@ -2361,6 +2361,126 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)'**
   String get d20DialogInspiredBanner;
+
+  /// No description provided for @settingsBackup.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup & Dados'**
+  String get settingsBackup;
+
+  /// No description provided for @settingsBackupExportTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar Backup (JSON)'**
+  String get settingsBackupExportTitle;
+
+  /// No description provided for @settingsBackupExportHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salva treinos, herói, rotinas e XP em arquivo/área de transferência para proteger seus dados no PWA.'**
+  String get settingsBackupExportHint;
+
+  /// No description provided for @settingsBackupExportSuccessClipboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup copiado para a área de transferência!'**
+  String get settingsBackupExportSuccessClipboard;
+
+  /// No description provided for @settingsBackupExportSuccessDownload.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivo .json baixado e copiado para a área de transferência!'**
+  String get settingsBackupExportSuccessDownload;
+
+  /// No description provided for @settingsBackupRestoreTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar Backup (JSON)'**
+  String get settingsBackupRestoreTitle;
+
+  /// No description provided for @settingsBackupRestoreHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Importa um snapshot JSON exportado anteriormente, substituindo o estado atual.'**
+  String get settingsBackupRestoreHint;
+
+  /// No description provided for @settingsBackupPasteLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cole aqui o conteúdo do backup (.json)'**
+  String get settingsBackupPasteLabel;
+
+  /// No description provided for @settingsBackupPasteFromClipboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Colar da Área de Transferência'**
+  String get settingsBackupPasteFromClipboard;
+
+  /// No description provided for @settingsBackupPreviewSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Herói: {hero} · Treinos: {workouts} · Registros XP: {xpCount}'**
+  String settingsBackupPreviewSummary(String hero, int workouts, int xpCount);
+
+  /// No description provided for @settingsBackupConfirmButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar e Substituir Dados'**
+  String get settingsBackupConfirmButton;
+
+  /// No description provided for @settingsBackupRestoreSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Backup restaurado com sucesso!'**
+  String get settingsBackupRestoreSuccess;
+
+  /// No description provided for @settingsBackupInvalidError.
+  ///
+  /// In pt, this message translates to:
+  /// **'JSON de backup inválido ou incompatível.'**
+  String get settingsBackupInvalidError;
+
+  /// No description provided for @combatLogLegendaryCounter.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Contra-golpe relâmpago! Você sofreu {dmg} de dano.'**
+  String combatLogLegendaryCounter(int turn, int dmg);
+
+  /// No description provided for @combatLogLegendaryBleedTick.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Cortes amaldiçoados sangram ({dmg} de dano).'**
+  String combatLogLegendaryBleedTick(int turn, int dmg);
+
+  /// No description provided for @combatLogLegendaryPhaseShift.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Despertar Lendário! O chefe muda de forma e recupera +{heal} PV.'**
+  String combatLogLegendaryPhaseShift(int turn, int heal);
+
+  /// No description provided for @combatLogLegendaryPlateBroken.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Placa de armadura rachada!'**
+  String combatLogLegendaryPlateBroken(int turn);
+
+  /// No description provided for @combatLogLegendaryBarrierPierced.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: A Barreira do Infinito foi rompida!'**
+  String combatLogLegendaryBarrierPierced(int turn);
+
+  /// No description provided for @combatLogLegendaryFocusDrain.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Pressão sombria drenou {dmg} de Foco!'**
+  String combatLogLegendaryFocusDrain(int turn, int dmg);
+
+  /// No description provided for @combatLogLegendarySurge.
+  ///
+  /// In pt, this message translates to:
+  /// **'T{turn}: Surto Lendário! O chefe desencadeou {dmg} de dano massivo!'**
+  String combatLogLegendarySurge(int turn, int dmg);
 }
 
 class _AppLocalizationsDelegate

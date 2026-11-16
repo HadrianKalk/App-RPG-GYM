@@ -141,10 +141,17 @@ class _CombatStageWidgetState extends State<CombatStageWidget>
           enemyStunned = true;
         case CombatLogKind.enemyStrike:
         case CombatLogKind.enemyHeavyBlow:
+        case CombatLogKind.legendarySurge:
           enemyAttackEntry = e;
         case CombatLogKind.heroDodged:
           heroDodged = true;
         case CombatLogKind.enemyGuard:
+        case CombatLogKind.legendaryCounter:
+        case CombatLogKind.legendaryBleedTick:
+        case CombatLogKind.legendaryPhaseShift:
+        case CombatLogKind.legendaryPlateBroken:
+        case CombatLogKind.legendaryBarrierPierced:
+        case CombatLogKind.legendaryFocusDrain:
         case CombatLogKind.victory:
         case CombatLogKind.defeat:
           break;

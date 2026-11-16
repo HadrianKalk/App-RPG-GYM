@@ -1613,6 +1613,20 @@ class _ActiveCombatView extends StatelessWidget {
       CombatLogKind.enemyStunned => l10n.combatLogEnemyStunned(entry.turn),
       CombatLogKind.enemyDodged => l10n.combatLogEnemyDodged(entry.turn),
       CombatLogKind.heroDodged => l10n.combatLogHeroDodged(entry.turn),
+      CombatLogKind.legendaryCounter =>
+        l10n.combatLogLegendaryCounter(entry.turn, entry.damage),
+      CombatLogKind.legendaryBleedTick =>
+        l10n.combatLogLegendaryBleedTick(entry.turn, entry.damage),
+      CombatLogKind.legendaryPhaseShift =>
+        l10n.combatLogLegendaryPhaseShift(entry.turn, entry.heal),
+      CombatLogKind.legendaryPlateBroken =>
+        l10n.combatLogLegendaryPlateBroken(entry.turn),
+      CombatLogKind.legendaryBarrierPierced =>
+        l10n.combatLogLegendaryBarrierPierced(entry.turn),
+      CombatLogKind.legendaryFocusDrain =>
+        l10n.combatLogLegendaryFocusDrain(entry.turn, entry.damage),
+      CombatLogKind.legendarySurge =>
+        l10n.combatLogLegendarySurge(entry.turn, entry.damage),
       CombatLogKind.victory => l10n.combatVictoryTitle,
       CombatLogKind.defeat => l10n.combatDefeatTitle,
     };

@@ -4,6 +4,7 @@ import 'package:app/core/game/class_resolver.dart';
 import 'package:app/core/game/combat.dart';
 import 'package:app/core/game/exercise_taxonomy.dart';
 import 'package:app/core/game/hero_profile.dart';
+import 'package:app/core/game/legendary_bosses.dart';
 import 'package:app/core/game/quest_generator.dart';
 import 'package:app/data/seed/exercise_seed.dart';
 import 'package:app/l10n/content/game_content_en.dart';
@@ -52,6 +53,13 @@ void main() {
           'dungeonRoom.${r.id}.name',
           'dungeonRoom.${r.id}.description',
         ],
+      ],
+      for (final b in LegendaryBossCatalog.bosses) ...[
+        'legendary.${b.id}.name',
+        'legendary.${b.id}.dndClass',
+        'legendary.${b.id}.lore',
+        'combatTitle.${b.reward.titleId}',
+        'combatCosmetic.${b.reward.cosmeticId}',
       ],
     ];
     for (final lang in GameText.supportedLanguages) {

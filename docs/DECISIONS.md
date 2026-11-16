@@ -220,3 +220,40 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
       `SoundService`), com reprodução nativa sem plugins extras no Windows
       (`winmm.dll!PlaySoundA` via `dart:ffi`) e fallback seguro em outras
       plataformas/testes, controlado por `settings.soundEnabled`.
+49. **Arquitetura da Fase 2 — Modo História Interativo ("Mestre + Gatilhos de Motor"):**
+    - O Modo História é uma campanha narrativa aberta conduzida pelo Mestre
+      (`StoryNarrator`), conectada diretamente ao motor de regras (`story.dart`
+      e `combat.dart`) por um protocolo estruturado de gatilhos:
+      - `narrative`: diálogo/exploração livre;
+      - `skillCheck`: pedido de teste em `Attribute` com dificuldade decidida
+        pelo motor, resolvido na mini-janela `D20RollDialog` com opção de gastar
+        **Inspiração** (`XpSource.inspirationSpend`) para re-rolar;
+      - `combatTrigger`: transição direta para o palco 16-bit (`CombatStageWidget`
+        + `CombatEngine`) com resultado devolvido ao Mestre após Vitória/Derrota.
+    - Ritmo: **1 Arco Semanal com Capítulos livres (sem trava diária por enquanto)**,
+      estruturado atrás de uma política (`StoryQuotaPolicy`) pronta para aplicar
+      limites no futuro plano gratuito vs. ilimitado no plano pago.
+    - Offline-first: `TemplateStoryNarrator` funciona 100% sem rede;
+      `RemoteAiStoryNarrator` usará **BYOK** (chave Gemini própria salva
+      localmente nas Configurações do dispositivo) por enquanto, com interface
+      pronta para migrar para proxy/Edge Function no futuro e fallback automático
+      para o narrador offline.
+50. **18 Chefes Semanais Lendários (Catálogo Seguro + Mecânicas D&D 5e):**
+    - Nova categoria de oponentes (`LegendaryBossSpec` em `combat.dart`) como
+      Chefes Semanais do Modo História (e acessíveis para treino no Modo Tester).
+    - **Nomes e habilidades Dark Fantasy originais** com inspiração reconhecível
+      mas sem marcas/nomes literais de terceiros (Satorion, Ryomoth, Gonnir,
+      Netherion, Meruvor, Kakarion, Toshirion, Aforion, Lord Vadric, Vegor,
+      Naruval, Sasukar, Arthorius, Gerric, Kaibaron, Saurath, Erendir, Reinor).
+    - Combinam 9 blocos mecânicos modulares no motor (`infinityBarrier`,
+      `bleedSanctuary`, `telegraphedTriad`, `counterStance`, `tacticalAdaptation`,
+      `multiPhaseAwakening`, `armorPlates`, `focusDrainAndBurn`,
+      `powerStealOrSurge`).
+    - **Disciplina real enfraquece o Chefe:** metas cumpridas na semana (treinos,
+      hidratação, dieta, sono, missões) acumulam **Selos de Enfraquecimento**
+      que reduzem PV, CA ou severidade das passivas do Chefe Lendário no Dia 7.
+      Recompensas seguem Decisão #40 (**0 XP**; Títulos e Cosméticos Lendários).
+51. **Backup & Restauração Portável (JSON):**
+    - Para proteger o progresso dos usuários (especialmente no PWA do Safari/iOS),
+      as Configurações oferecem Exportar e Importar snapshot JSON completo de
+      treinos, rotinas, atividades, saúde, livro-razão de XP, herói e campanha.

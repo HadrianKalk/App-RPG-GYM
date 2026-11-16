@@ -375,5 +375,74 @@
   "d20DialogTapToRoll": "TAP THE DIE TO ROLL",
   "d20DialogRolling": "Rolling across the stone table...",
   "d20DialogTapToContinue": "Tap to unleash the strike!",
-  "d20DialogInspiredBanner": "HEROIC INSPIRATION! GUARANTEED CRIT (20)"
+  "d20DialogInspiredBanner": "HEROIC INSPIRATION! GUARANTEED CRIT (20)",
+  "settingsBackup": "Backup & Data",
+  "settingsBackupExportTitle": "Export Backup (JSON)",
+  "settingsBackupExportHint": "Saves workouts, hero, routines, and XP to a file/clipboard so your PWA progress stays safe.",
+  "settingsBackupExportSuccessClipboard": "Backup copied to clipboard!",
+  "settingsBackupExportSuccessDownload": "JSON file downloaded and copied to clipboard!",
+  "settingsBackupRestoreTitle": "Restore Backup (JSON)",
+  "settingsBackupRestoreHint": "Imports a previously exported JSON snapshot, replacing the current local save.",
+  "settingsBackupPasteLabel": "Paste your backup (.json) payload here",
+  "settingsBackupPasteFromClipboard": "Paste from Clipboard",
+  "settingsBackupPreviewSummary": "Hero: {hero} · Workouts: {workouts} · XP entries: {xpCount}",
+  "@settingsBackupPreviewSummary": {
+    "placeholders": {
+      "hero": {
+        "type": "String"
+      },
+      "workouts": {
+        "type": "int"
+      },
+      "xpCount": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupConfirmButton": "Restore & Replace Data",
+  "settingsBackupRestoreSuccess": "Backup restored successfully!",
+  "settingsBackupInvalidError": "Invalid or incompatible backup JSON.",
+  "combatLogLegendaryCounter": "T{turn}: Lightning counter-strike! You took {dmg} damage.",
+  "@combatLogLegendaryCounter": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryBleedTick": "T{turn}: Cursed wounds bleed for {dmg} damage.",
+  "@combatLogLegendaryBleedTick": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryPhaseShift": "T{turn}: Legendary Awakening! The boss shifts forms and recovers +{heal} HP.",
+  "@combatLogLegendaryPhaseShift": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "heal": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryPlateBroken": "T{turn}: An armor plate shatters!",
+  "@combatLogLegendaryPlateBroken": {
+    "placeholders": { "turn": { "type": "int" } }
+  },
+  "combatLogLegendaryBarrierPierced": "T{turn}: The Infinity Barrier is shattered!",
+  "@combatLogLegendaryBarrierPierced": {
+    "placeholders": { "turn": { "type": "int" } }
+  },
+  "combatLogLegendaryFocusDrain": "T{turn}: Dark pressure drained {dmg} Focus!",
+  "@combatLogLegendaryFocusDrain": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendarySurge": "T{turn}: Legendary Surge! The boss unleashed {dmg} massive damage!",
+  "@combatLogLegendarySurge": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  }
 }

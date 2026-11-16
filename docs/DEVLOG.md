@@ -3,6 +3,15 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Etapa 7A: Backup JSON + 18 Chefes Lendários + Motor do Modo História
+- **Arquitetura da Fase 2 fechada em `docs/DECISIONS.md` (#49–#51):**
+  - Modo História interativo via protocolo **Mestre + Gatilhos de Motor** (`narrative`, `skillCheck`, `combatTrigger`, `chapterComplete`), sem trava diária no MVP (com `StoryQuotaPolicy` pronto para plano gratuito vs. pago) e BYOK na Etapa 7C.
+  - **Backup & Restauração Portável (`lib/data/backup/backup_service.dart`, `backup_export_web.dart`, `settings_screen.dart`):** exporta todas as 13 tabelas do Drift + `AppSettings` em JSON (copia + download `.json` no PWA/Web) e restaura atomicamente em transação com pré-visualização e validação.
+  - **18 Chefes Semanais Lendários (`lib/core/game/legendary_bosses.dart`, `combat.dart`, `game_content_pt/en.dart`):** Satorion, Ryomoth, Gonnir, Netherion, Meruvor, Kakarion, Toshirion, Aforion, Lord Vadric, Vegor, Naruval, Sasukar, Arthorius, Gerric, Kaibaron, Saurath, Erendir e Reinor — combinando 9 mecânicas D&D 5e únicas + **Selos de Enfraquecimento (`0..7`)** vindos dos treinos/hábitos reais da semana.
+  - **Motor Puro & Narrador Offline (`lib/core/game/story.dart`, `lib/features/story/domain/`):** Arco Semanal, testes d20 com re-rolagem por Inspiração, transição direta para combate 16-bit (`0 XP`), `CampaignMemory` compacta e `TemplateStoryNarrator` offline em `pt-BR` e `en`.
+- **Verificação:** `flutter gen-l10n`, `flutter analyze` (0 erros) e `flutter test` (**135/135** testes passando).
+- **Próximo passo:** Etapa 7B — Sprites/VFX dos 18 Lendários, Drift schema v10 + `StoryRepository`, desbloqueio do Modo História na aba Combate (`StoryScreen` + Diário de Crônicas) e acesso aos Lendários no Modo Tester.
+
 ## 2026-11-16 — Gemini (Antigravity) — Configuração PWA iOS + Deploy GitHub Pages
 - Ajustado `web/index.html` e `web/manifest.json` para experiência PWA no iPhone/Safari (viewport com `viewport-fit=cover`, `apple-mobile-web-app-capable`, `black-translucent`, tema `#0F0F12`).
 - Adicionado `.github/workflows/deploy-web.yml` para build e deploy automático do PWA no GitHub Pages a cada push na `main`.

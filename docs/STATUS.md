@@ -2,10 +2,23 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Mini-Janela Interativa do d20 + Etapa 6C: Efeitos Sonoros Dark Fantasy Offline (`SoundService` + `WavSynth`)
+**Última atualização:** 2026-11-16 (Gemini / Antigravity) — Etapa 7A concluída: Backup JSON (PWA/Desktop) + 18 Chefes Semanais Lendários + Motor do Modo História (`story.dart`) & `TemplateStoryNarrator`
 
 ## Fase atual
-**Fase 1 + Etapa 6 (Arte, Animações e Sons) concluídos!** Pronto para iniciar a **Fase 2 — Mundo Vivo & Narrador IA (Modo História)**.
+**Etapa 7A concluída!** Pronto para iniciar a **Etapa 7B — Sprites/VFX dos 18 Lendários + Drift v10 + UI do Modo História & Diário**.
+
+## Fase 2 — Mundo Vivo, Inimigos Lendários & Narrador IA
+- [x] **Etapa 7A — Backup JSON + 18 Chefes Lendários + Motor de História & `StoryNarrator` Offline:**
+  - [x] Exportar / Importar Backup JSON nas Configurações (proteção para PWA iOS + Desktop).
+  - [x] Sistema de **18 Inimigos Lendários** em `legendary_bosses.dart` + `combat.dart` com 9 mecânicas únicas D&D 5e e **Selos de Enfraquecimento** vindos dos hábitos reais da semana.
+  - [x] Motor puro `lib/core/game/story.dart` (Arco Semanal + Capítulos livres com `StoryQuotaPolicy` pronto para tiers futuros + protocolo `StoryTriggerType` + `CampaignMemory` compacta + re-rolagem por Inspiração).
+  - [x] Interface `StoryNarrator` + `TemplateStoryNarrator` offline-first (`pt-BR` e `en`).
+- [ ] **Etapa 7B — Sprites/VFX dos Lendários + Persistência v10 + UI Modo História & Diário:**
+  - [ ] Sprites e auras/VFX 16-bit no palco para os Chefes Lendários.
+  - [ ] Drift schema v10 (`story_runs`, `story_chapters`, `campaign_state`) + `StoryRepository`.
+  - [ ] Desbloqueio do card **Modo História · Crônicas da Forja** na aba Combate + `StoryScreen` (texto livre/escolhas + `D20RollDialog` + re-rolagem com Inspiração + transição para o palco 16-bit + Diário de Crônicas) + acesso direto aos 18 Lendários e cenas extras no **Modo Tester**.
+- [ ] **Etapa 7C — Provedor de IA Real (`RemoteAiStoryNarrator`):**
+  - [ ] Conector HTTP para Gemini usando **BYOK** (chave própria configurável no aparelho, pronta para proxy/tiers futuro), com JSON estrito e fallback automático para `TemplateStoryNarrator`.
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
@@ -91,14 +104,6 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       revelação antes do golpe) + síntese procedural WAV offline (`WavSynth` +
       `SoundService`) para dado d20, armas/magias, crítico, falha, concluir
       treino e subir de nível + toggle em Configurações.
-
-## Fase 2 — Mundo Vivo & Narrador IA
-- [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).
-- [ ] Escolhas com rolagem d20 + modificador; IA só narra o resultado.
-- [ ] Gasto de Inspiração para re-rolar.
-- [ ] Arco semanal + Boss enfraquecido pelas metas cumpridas.
-- [ ] Memória de campanha (resumo compacto, NPCs, lugares).
-- [ ] Decidir provedor de IA (atrás de interface) e onde fica a chave (Edge Function).
 
 ## Fase 3 (futuro)
 - Modo Hardcore: atrofia após 7 dias inativo + memória muscular (2x ao voltar).

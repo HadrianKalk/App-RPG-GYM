@@ -1429,4 +1429,86 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get d20DialogInspiredBanner =>
       'HEROIC INSPIRATION! GUARANTEED CRIT (20)';
+
+  @override
+  String get settingsBackup => 'Backup & Data';
+
+  @override
+  String get settingsBackupExportTitle => 'Export Backup (JSON)';
+
+  @override
+  String get settingsBackupExportHint =>
+      'Saves workouts, hero, routines, and XP to a file/clipboard so your PWA progress stays safe.';
+
+  @override
+  String get settingsBackupExportSuccessClipboard =>
+      'Backup copied to clipboard!';
+
+  @override
+  String get settingsBackupExportSuccessDownload =>
+      'JSON file downloaded and copied to clipboard!';
+
+  @override
+  String get settingsBackupRestoreTitle => 'Restore Backup (JSON)';
+
+  @override
+  String get settingsBackupRestoreHint =>
+      'Imports a previously exported JSON snapshot, replacing the current local save.';
+
+  @override
+  String get settingsBackupPasteLabel =>
+      'Paste your backup (.json) payload here';
+
+  @override
+  String get settingsBackupPasteFromClipboard => 'Paste from Clipboard';
+
+  @override
+  String settingsBackupPreviewSummary(String hero, int workouts, int xpCount) {
+    return 'Hero: $hero · Workouts: $workouts · XP entries: $xpCount';
+  }
+
+  @override
+  String get settingsBackupConfirmButton => 'Restore & Replace Data';
+
+  @override
+  String get settingsBackupRestoreSuccess => 'Backup restored successfully!';
+
+  @override
+  String get settingsBackupInvalidError =>
+      'Invalid or incompatible backup JSON.';
+
+  @override
+  String combatLogLegendaryCounter(int turn, int dmg) {
+    return 'T$turn: Lightning counter-strike! You took $dmg damage.';
+  }
+
+  @override
+  String combatLogLegendaryBleedTick(int turn, int dmg) {
+    return 'T$turn: Cursed wounds bleed for $dmg damage.';
+  }
+
+  @override
+  String combatLogLegendaryPhaseShift(int turn, int heal) {
+    return 'T$turn: Legendary Awakening! The boss shifts forms and recovers +$heal HP.';
+  }
+
+  @override
+  String combatLogLegendaryPlateBroken(int turn) {
+    return 'T$turn: An armor plate shatters!';
+  }
+
+  @override
+  String combatLogLegendaryBarrierPierced(int turn) {
+    return 'T$turn: The Infinity Barrier is shattered!';
+  }
+
+  @override
+  String combatLogLegendaryFocusDrain(int turn, int dmg) {
+    return 'T$turn: Dark pressure drained $dmg Focus!';
+  }
+
+  @override
+  String combatLogLegendarySurge(int turn, int dmg) {
+    return 'T$turn: Legendary Surge! The boss unleashed $dmg massive damage!';
+  }
 }

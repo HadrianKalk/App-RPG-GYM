@@ -1215,5 +1215,74 @@
   "d20DialogTapToRoll": "TOQUE NO DADO PARA ROLAR",
   "d20DialogRolling": "Rolando na mesa de pedra...",
   "d20DialogTapToContinue": "Toque para executar o golpe!",
-  "d20DialogInspiredBanner": "INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)"
+  "d20DialogInspiredBanner": "INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)",
+  "settingsBackup": "Backup & Dados",
+  "settingsBackupExportTitle": "Exportar Backup (JSON)",
+  "settingsBackupExportHint": "Salva treinos, herói, rotinas e XP em arquivo/área de transferência para proteger seus dados no PWA.",
+  "settingsBackupExportSuccessClipboard": "Backup copiado para a área de transferência!",
+  "settingsBackupExportSuccessDownload": "Arquivo .json baixado e copiado para a área de transferência!",
+  "settingsBackupRestoreTitle": "Restaurar Backup (JSON)",
+  "settingsBackupRestoreHint": "Importa um snapshot JSON exportado anteriormente, substituindo o estado atual.",
+  "settingsBackupPasteLabel": "Cole aqui o conteúdo do backup (.json)",
+  "settingsBackupPasteFromClipboard": "Colar da Área de Transferência",
+  "settingsBackupPreviewSummary": "Herói: {hero} · Treinos: {workouts} · Registros XP: {xpCount}",
+  "@settingsBackupPreviewSummary": {
+    "placeholders": {
+      "hero": {
+        "type": "String"
+      },
+      "workouts": {
+        "type": "int"
+      },
+      "xpCount": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsBackupConfirmButton": "Restaurar e Substituir Dados",
+  "settingsBackupRestoreSuccess": "Backup restaurado com sucesso!",
+  "settingsBackupInvalidError": "JSON de backup inválido ou incompatível.",
+  "combatLogLegendaryCounter": "T{turn}: Contra-golpe relâmpago! Você sofreu {dmg} de dano.",
+  "@combatLogLegendaryCounter": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryBleedTick": "T{turn}: Cortes amaldiçoados sangram ({dmg} de dano).",
+  "@combatLogLegendaryBleedTick": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryPhaseShift": "T{turn}: Despertar Lendário! O chefe muda de forma e recupera +{heal} PV.",
+  "@combatLogLegendaryPhaseShift": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "heal": { "type": "int" }
+    }
+  },
+  "combatLogLegendaryPlateBroken": "T{turn}: Placa de armadura rachada!",
+  "@combatLogLegendaryPlateBroken": {
+    "placeholders": { "turn": { "type": "int" } }
+  },
+  "combatLogLegendaryBarrierPierced": "T{turn}: A Barreira do Infinito foi rompida!",
+  "@combatLogLegendaryBarrierPierced": {
+    "placeholders": { "turn": { "type": "int" } }
+  },
+  "combatLogLegendaryFocusDrain": "T{turn}: Pressão sombria drenou {dmg} de Foco!",
+  "@combatLogLegendaryFocusDrain": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  },
+  "combatLogLegendarySurge": "T{turn}: Surto Lendário! O chefe desencadeou {dmg} de dano massivo!",
+  "@combatLogLegendarySurge": {
+    "placeholders": {
+      "turn": { "type": "int" },
+      "dmg": { "type": "int" }
+    }
+  }
 }

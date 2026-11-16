@@ -1434,4 +1434,87 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get d20DialogInspiredBanner =>
       'INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)';
+
+  @override
+  String get settingsBackup => 'Backup & Dados';
+
+  @override
+  String get settingsBackupExportTitle => 'Exportar Backup (JSON)';
+
+  @override
+  String get settingsBackupExportHint =>
+      'Salva treinos, herói, rotinas e XP em arquivo/área de transferência para proteger seus dados no PWA.';
+
+  @override
+  String get settingsBackupExportSuccessClipboard =>
+      'Backup copiado para a área de transferência!';
+
+  @override
+  String get settingsBackupExportSuccessDownload =>
+      'Arquivo .json baixado e copiado para a área de transferência!';
+
+  @override
+  String get settingsBackupRestoreTitle => 'Restaurar Backup (JSON)';
+
+  @override
+  String get settingsBackupRestoreHint =>
+      'Importa um snapshot JSON exportado anteriormente, substituindo o estado atual.';
+
+  @override
+  String get settingsBackupPasteLabel =>
+      'Cole aqui o conteúdo do backup (.json)';
+
+  @override
+  String get settingsBackupPasteFromClipboard =>
+      'Colar da Área de Transferência';
+
+  @override
+  String settingsBackupPreviewSummary(String hero, int workouts, int xpCount) {
+    return 'Herói: $hero · Treinos: $workouts · Registros XP: $xpCount';
+  }
+
+  @override
+  String get settingsBackupConfirmButton => 'Restaurar e Substituir Dados';
+
+  @override
+  String get settingsBackupRestoreSuccess => 'Backup restaurado com sucesso!';
+
+  @override
+  String get settingsBackupInvalidError =>
+      'JSON de backup inválido ou incompatível.';
+
+  @override
+  String combatLogLegendaryCounter(int turn, int dmg) {
+    return 'T$turn: Contra-golpe relâmpago! Você sofreu $dmg de dano.';
+  }
+
+  @override
+  String combatLogLegendaryBleedTick(int turn, int dmg) {
+    return 'T$turn: Cortes amaldiçoados sangram ($dmg de dano).';
+  }
+
+  @override
+  String combatLogLegendaryPhaseShift(int turn, int heal) {
+    return 'T$turn: Despertar Lendário! O chefe muda de forma e recupera +$heal PV.';
+  }
+
+  @override
+  String combatLogLegendaryPlateBroken(int turn) {
+    return 'T$turn: Placa de armadura rachada!';
+  }
+
+  @override
+  String combatLogLegendaryBarrierPierced(int turn) {
+    return 'T$turn: A Barreira do Infinito foi rompida!';
+  }
+
+  @override
+  String combatLogLegendaryFocusDrain(int turn, int dmg) {
+    return 'T$turn: Pressão sombria drenou $dmg de Foco!';
+  }
+
+  @override
+  String combatLogLegendarySurge(int turn, int dmg) {
+    return 'T$turn: Surto Lendário! O chefe desencadeou $dmg de dano massivo!';
+  }
 }

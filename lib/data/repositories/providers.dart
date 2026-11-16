@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../backup/backup_service.dart';
 import '../database.dart';
 import 'character_repository.dart';
 import 'workout_repository.dart';
@@ -116,6 +117,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
   ref.onDispose(() => db.close());
   return db;
+});
+
+final backupServiceProvider = Provider<BackupService>((ref) {
+  return BackupService(ref.watch(databaseProvider));
 });
 
 final characterRepositoryProvider = Provider<CharacterRepository>((ref) {

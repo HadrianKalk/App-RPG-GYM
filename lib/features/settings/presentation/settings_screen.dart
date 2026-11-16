@@ -1,11 +1,14 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/brand.dart';
 import '../../../app/theme.dart';
+import '../../../app/ui/pixel_button.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
+import '../../../data/backup/backup_service.dart';
 import '../../../l10n/l10n.dart';
 import '../../../core/game/attributes.dart';
 import '../../../core/game/xp_rules.dart';
@@ -127,6 +130,9 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          _SectionTitle(l10n.settingsBackup),
+          const _BackupSection(),
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsAbout),
           PixelFrame(
@@ -338,6 +344,277 @@ class _WaterGoalTile extends ConsumerWidget {
           const SizedBox(height: 6),
           Text(l10n.settingsWaterGoalHint, style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12)),
         ],
+      ),
+    );
+  }
+}
+
+/// Export & Restore portable JSON backup section for PWA / desktop safety.
+class _BackupSection extends ConsumerWidget {
+  const _BackupSection();
+
+  Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final backup = ref.read(backupServiceProvider);
+    final settings = ref.read(settingsProvider);
+    final downloaded = await backup.exportAndShare(settings: settings);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          downloaded
+              ? l10n.settingsBackupExportSuccessDownload
+              : l10n.settingsBackupExportSuccessClipboard,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openRestoreDialog(BuildContext context, WidgetRef ref) async {
+    final restored = await showDialog<bool>(
+      context: context,
+      builder: (_) => _RestoreBackupDialog(ref: ref),
+    );
+    if (restored == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.settingsBackupRestoreSuccess)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return Column(
+      children: [
+        PixelFrame(
+          key: const Key('settings_export_backup_btn'),
+          onTap: () => _exportBackup(context, ref),
+          child: Row(
+            children: [
+              const Icon(Icons.download, size: 22, color: AppTheme.emberGold),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.settingsBackupExportTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      l10n.settingsBackupExportHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppTheme.darkAsh),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        PixelFrame(
+          key: const Key('settings_restore_backup_btn'),
+          onTap: () => _openRestoreDialog(context, ref),
+          child: Row(
+            children: [
+              const Icon(Icons.upload, size: 22, color: AppTheme.emberGold),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.settingsBackupRestoreTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      l10n.settingsBackupRestoreHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppTheme.darkAsh),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RestoreBackupDialog extends StatefulWidget {
+  const _RestoreBackupDialog({required this.ref});
+
+  final WidgetRef ref;
+
+  @override
+  State<_RestoreBackupDialog> createState() => _RestoreBackupDialogState();
+}
+
+class _RestoreBackupDialogState extends State<_RestoreBackupDialog> {
+  final _controller = TextEditingController();
+  BackupPreview? _preview;
+  String? _error;
+  bool _restoring = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _inspectText(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _preview = null;
+        _error = null;
+      });
+      return;
+    }
+    try {
+      final service = widget.ref.read(backupServiceProvider);
+      final preview = service.inspectJson(trimmed);
+      setState(() {
+        _preview = preview;
+        _error = null;
+      });
+    } catch (_) {
+      setState(() {
+        _preview = null;
+        _error = context.l10n.settingsBackupInvalidError;
+      });
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    final text = data?.text ?? '';
+    _controller.text = text;
+    _inspectText(text);
+  }
+
+  Future<void> _confirmRestore() async {
+    if (_preview == null || _restoring) return;
+    setState(() => _restoring = true);
+    try {
+      final service = widget.ref.read(backupServiceProvider);
+      final restoredSettings = await service.restoreJson(_controller.text);
+      if (restoredSettings != null) {
+        final settingsNotifier = widget.ref.read(settingsProvider.notifier);
+        await settingsNotifier.setLanguage(restoredSettings.languageCode);
+        await settingsNotifier.setFontStyle(restoredSettings.fontStyle);
+        await settingsNotifier.setSoundEnabled(restoredSettings.soundEnabled);
+      }
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _restoring = false;
+        _error = context.l10n.settingsBackupInvalidError;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: PixelFrame(
+          highlight: true,
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.settingsBackupRestoreTitle,
+                  style: display.style(22, color: AppTheme.emberGold),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  key: const Key('backup_restore_input'),
+                  controller: _controller,
+                  maxLines: 5,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.ashWhite),
+                  decoration: InputDecoration(
+                    labelText: l10n.settingsBackupPasteLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: _inspectText,
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _pasteFromClipboard,
+                  icon: const Icon(Icons.paste, size: 16),
+                  label: Text(l10n.settingsBackupPasteFromClipboard),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: AppTheme.bloodCrimson,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+                if (_preview != null) ...[
+                  const SizedBox(height: 10),
+                  PixelFrame(
+                    color: AppTheme.obsidianBlack,
+                    child: Text(
+                      l10n.settingsBackupPreviewSummary(
+                        _preview!.heroName ?? '-',
+                        _preview!.workoutCount,
+                        _preview!.xpEntryCount,
+                      ),
+                      key: const Key('backup_preview_summary'),
+                      style: const TextStyle(
+                        color: AppTheme.emberGold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            _restoring ? null : () => Navigator.of(context).pop(false),
+                        child: Text(l10n.commonCancel),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 2,
+                      child: PixelButton(
+                        key: const Key('backup_confirm_restore_btn'),
+                        label: l10n.settingsBackupConfirmButton,
+                        onPressed:
+                            (_preview != null && !_restoring) ? _confirmRestore : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

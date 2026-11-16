@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'attributes.dart';
 import 'class_resolver.dart';
+import 'legendary_bosses.dart';
 import 'progression.dart';
 import 'xp_rules.dart';
 
@@ -48,6 +49,13 @@ enum CombatLogKind {
   enemyStunned,
   enemyDodged,
   heroDodged,
+  legendaryCounter,
+  legendaryBleedTick,
+  legendaryPhaseShift,
+  legendaryPlateBroken,
+  legendaryBarrierPierced,
+  legendaryFocusDrain,
+  legendarySurge,
   victory,
   defeat,
 }
@@ -950,6 +958,15 @@ final class CombatEncounter {
     required this.status,
     required this.log,
     this.lastRoll,
+    this.legendaryBoss,
+    this.weaknessStacks = 0,
+    this.legendaryBarrierTurns = 0,
+    this.legendaryPlateStacks = 0,
+    this.legendaryPhase = 1,
+    this.heroBleedStacks = 0,
+    this.lastHeroAction,
+    this.repeatedHeroActionCount = 0,
+    this.legendaryExposedTurns = 0,
   });
 
   final CombatStats hero;
@@ -971,6 +988,41 @@ final class CombatEncounter {
 
   /// Latest `1d20 + attribute` roll performed by the hero in this encounter.
   final D20RollResult? lastRoll;
+
+  /// Optional Weekly Legendary Boss metadata driving unique D&D mechanics.
+  final LegendaryBossSpec? legendaryBoss;
+
+  /// Real-world weekly habit seals (`0..7`) weakening this Legendary Boss.
+  final int weaknessStacks;
+  final int legendaryBarrierTurns;
+  final int legendaryPlateStacks;
+  final int legendaryPhase;
+  final int heroBleedStacks;
+  final CombatAction? lastHeroAction;
+  final int repeatedHeroActionCount;
+  final int legendaryExposedTurns;
+
+  bool get isLegendary => legendaryBoss != null;
+
+  /// Dynamic Armor Class factoring active Legendary barriers, plates,
+  /// tactical adaptation, and post-surge / all-out vow vulnerabilities.
+  int get effectiveArmorClass {
+    var ac = opponent.armorClass;
+    if (legendaryBarrierTurns > 0) ac += 4;
+    if (legendaryPlateStacks > 0) ac += math.min(4, legendaryPlateStacks);
+    if (legendaryBoss?.hasMechanic(LegendaryMechanicKind.tacticalAdaptation) ==
+            true &&
+        repeatedHeroActionCount >= 2) {
+      ac += 3;
+    }
+    if (legendaryExposedTurns > 0) ac -= 3;
+    if (legendaryBoss?.hasMechanic(LegendaryMechanicKind.telegraphedTriad) ==
+            true &&
+        enemyHp <= (opponent.maxHp * 0.35).round()) {
+      ac -= 3;
+    }
+    return ac.clamp(8, 28);
+  }
 
   ClassSkill get skill => ClassSkillCatalog.forClass(hero.characterClass);
 
@@ -1078,6 +1130,51 @@ abstract final class CombatEngine {
     );
   }
 
+  /// Starts a Weekly Legendary Boss battle with unique D&D mechanics and
+  /// real-world weekly habit seals ([weaknessStacks], `0..7`).
+  static CombatEncounter startLegendary({
+    required CombatStats hero,
+    required LegendaryBossSpec boss,
+    int weaknessStacks = 0,
+    int availableInspiration = 0,
+  }) {
+    final safeSeals = weaknessStacks.clamp(0, 7);
+    final opponent = boss.instantiate(
+      heroLevel: hero.level,
+      weaknessStacks: safeSeals,
+    );
+    final initialBarrier = boss.hasMechanic(LegendaryMechanicKind.infinityBarrier)
+        ? math.max(0, 3 - (safeSeals ~/ 2))
+        : 0;
+    final initialPlates = boss.hasMechanic(LegendaryMechanicKind.armorPlates)
+        ? math.max(1, 4 - (safeSeals ~/ 2))
+        : 0;
+
+    return CombatEncounter(
+      hero: hero,
+      opponent: opponent,
+      turn: 1,
+      heroHp: hero.maxHp,
+      heroFocus: hero.maxFocus,
+      enemyHp: opponent.maxHp,
+      heroSkillCooldown: 0,
+      heroBuffTurns: 0,
+      heroDefending: false,
+      enemyWeakenTurns: 0,
+      enemyStunned: false,
+      enemyIntent: EnemyIntent.strike,
+      availableInspiration: math.max(0, availableInspiration),
+      inspirationUsed: false,
+      status: CombatStatus.ongoing,
+      log: const [],
+      legendaryBoss: boss,
+      weaknessStacks: safeSeals,
+      legendaryBarrierTurns: initialBarrier,
+      legendaryPlateStacks: initialPlates,
+      legendaryPhase: 1,
+    );
+  }
+
   /// Resolves one full round (hero action followed by opponent response).
   ///
   /// Offensive actions (`basicStrike`, `classSkill`) roll `1d20 + Attribute + Proficiency`
@@ -1111,9 +1208,34 @@ abstract final class CombatEngine {
     var availableInsp = state.availableInspiration;
     D20RollResult? lastRoll = state.lastRoll;
 
+    final boss = state.legendaryBoss;
+    bool hasMech(LegendaryMechanicKind kind) => boss?.hasMechanic(kind) ?? false;
+
+    var barrierTurns = state.legendaryBarrierTurns;
+    var plateStacks = state.legendaryPlateStacks;
+    var bossPhase = state.legendaryPhase;
+    var heroBleed = state.heroBleedStacks;
+    var exposedTurns = state.legendaryExposedTurns;
+    final repeatedActionCount = state.lastHeroAction == action
+        ? state.repeatedHeroActionCount + 1
+        : 1;
+
     final heroBuffMultiplier = heroBuff > 0 ? 1.25 : 1.0;
     final enemyGuardReduction =
         state.enemyIntent == EnemyIntent.guard ? 0.65 : 1.0;
+    final targetAc = state.effectiveArmorClass;
+
+    final plateMitigation = plateStacks > 0 ? 0.70 : 1.0;
+    final adaptedMitigation =
+        hasMech(LegendaryMechanicKind.tacticalAdaptation) &&
+                repeatedActionCount >= 2 &&
+                action != CombatAction.heroicInspiration
+            ? 0.65
+            : 1.0;
+    final barrierMitigation =
+        barrierTurns > 0 && action != CombatAction.heroicInspiration
+            ? 0.75
+            : 1.0;
 
     int computeD20Damage({
       required D20RollResult roll,
@@ -1128,7 +1250,10 @@ abstract final class CombatEngine {
           multiplier *
           rollPrecisionScale *
           heroBuffMultiplier *
-          enemyGuardReduction;
+          enemyGuardReduction *
+          plateMitigation *
+          adaptedMitigation *
+          barrierMitigation;
       final critBoosted =
           roll.isCriticalHit ? raw * XpRules.combatCriticalMultiplier : raw;
       final mitigation = ignoresDefense ? 0 : state.opponent.defense;
@@ -1136,6 +1261,7 @@ abstract final class CombatEngine {
     }
 
     // --- 1. Hero Action ---
+    var heroBasicHitLanded = false;
     switch (action) {
       case CombatAction.basicStrike:
         heroFocus = math.min(state.hero.maxFocus, heroFocus + 3);
@@ -1143,7 +1269,7 @@ abstract final class CombatEngine {
         final roll = resolveD20Check(
           hero: state.hero,
           attribute: state.hero.primaryAttackAttribute,
-          targetNumber: state.opponent.armorClass,
+          targetNumber: targetAc,
           naturalRoll: nat,
         );
         lastRoll = roll;
@@ -1171,6 +1297,7 @@ abstract final class CombatEngine {
             ),
           );
         } else {
+          heroBasicHitLanded = !roll.isCriticalHit;
           final dmg = computeD20Damage(
             roll: roll,
             multiplier: 1.0,
@@ -1186,6 +1313,20 @@ abstract final class CombatEngine {
               roll: roll,
             ),
           );
+          if (roll.isCriticalHit && plateStacks > 0) {
+            plateStacks--;
+            log.add(CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.legendaryPlateBroken,
+            ));
+          }
+          if (roll.isCriticalHit && barrierTurns > 0) {
+            barrierTurns = 0;
+            log.add(CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.legendaryBarrierPierced,
+            ));
+          }
         }
 
       case CombatAction.classSkill:
@@ -1207,7 +1348,7 @@ abstract final class CombatEngine {
         final roll = resolveD20Check(
           hero: state.hero,
           attribute: scaleAttr,
-          targetNumber: state.opponent.armorClass,
+          targetNumber: targetAc,
           naturalRoll: nat,
           forceCritical: forceCrit,
         );
@@ -1276,6 +1417,22 @@ abstract final class CombatEngine {
               roll: roll,
             ),
           );
+          if (plateStacks > 0) {
+            plateStacks = math.max(0, plateStacks - (roll.isCriticalHit ? 2 : 1));
+            log.add(CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.legendaryPlateBroken,
+            ));
+          }
+          if (barrierTurns > 0) {
+            barrierTurns = roll.isCriticalHit ? 0 : math.max(0, barrierTurns - 1);
+            if (barrierTurns == 0) {
+              log.add(CombatLogEntry(
+                turn: state.turn,
+                kind: CombatLogKind.legendaryBarrierPierced,
+              ));
+            }
+          }
         }
 
       case CombatAction.defend:
@@ -1284,6 +1441,9 @@ abstract final class CombatEngine {
         heroFocus = math.min(state.hero.maxFocus, heroFocus + 8);
         final heal = state.hero.healBonus;
         heroHp = math.min(state.hero.maxHp, heroHp + heal);
+        if (heroBleed > 0) {
+          heroBleed = math.max(0, heroBleed - 2);
+        }
         log.add(
           CombatLogEntry(
             turn: state.turn,
@@ -1307,7 +1467,7 @@ abstract final class CombatEngine {
         final roll = resolveD20Check(
           hero: state.hero,
           attribute: state.hero.primaryAttackAttribute,
-          targetNumber: state.opponent.armorClass,
+          targetNumber: targetAc,
           naturalRoll: 20,
           forceCritical: true,
         );
@@ -1318,6 +1478,20 @@ abstract final class CombatEngine {
           ignoresDefense: true,
         );
         enemyHp = math.max(0, enemyHp - dmg);
+        if (plateStacks > 0) {
+          plateStacks = math.max(0, plateStacks - 2);
+          log.add(CombatLogEntry(
+            turn: state.turn,
+            kind: CombatLogKind.legendaryPlateBroken,
+          ));
+        }
+        if (barrierTurns > 0) {
+          barrierTurns = 0;
+          log.add(CombatLogEntry(
+            turn: state.turn,
+            kind: CombatLogKind.legendaryBarrierPierced,
+          ));
+        }
         log.add(
           CombatLogEntry(
             turn: state.turn,
@@ -1350,7 +1524,52 @@ abstract final class CombatEngine {
         status: CombatStatus.victory,
         log: log,
         lastRoll: lastRoll,
+        legendaryBoss: boss,
+        weaknessStacks: state.weaknessStacks,
+        legendaryBarrierTurns: barrierTurns,
+        legendaryPlateStacks: plateStacks,
+        legendaryPhase: bossPhase,
+        heroBleedStacks: heroBleed,
+        lastHeroAction: action,
+        repeatedHeroActionCount: repeatedActionCount,
+        legendaryExposedTurns: exposedTurns,
       );
+    }
+
+    // --- 1b. Legendary Boss Phase Awakening & Counter Stance ------------------
+    if (heroHp > 0 &&
+        !enemyStunned &&
+        heroBasicHitLanded &&
+        hasMech(LegendaryMechanicKind.counterStance)) {
+      final counterDmg = math.max(
+        1,
+        (state.opponent.attack * 0.40 - state.hero.defense * 0.5).round(),
+      );
+      heroHp = math.max(0, heroHp - counterDmg);
+      log.add(
+        CombatLogEntry(
+          turn: state.turn,
+          kind: CombatLogKind.legendaryCounter,
+          damage: counterDmg,
+        ),
+      );
+    }
+
+    if (heroHp > 0 && hasMech(LegendaryMechanicKind.multiPhaseAwakening)) {
+      final hpPct = enemyHp / state.opponent.maxHp;
+      final nextPhase = hpPct <= 0.30 ? 3 : (hpPct <= 0.65 ? 2 : 1);
+      if (nextPhase > bossPhase) {
+        bossPhase = nextPhase;
+        final phaseHeal = math.max(3, (state.opponent.maxHp * 0.08).round());
+        enemyHp = math.min(state.opponent.maxHp, enemyHp + phaseHeal);
+        log.add(
+          CombatLogEntry(
+            turn: state.turn,
+            kind: CombatLogKind.legendaryPhaseShift,
+            heal: phaseHeal,
+          ),
+        );
+      }
     }
 
     // --- 2. Opponent Turn (only if hero didn't already fall to 0 HP) ---
@@ -1371,6 +1590,15 @@ abstract final class CombatEngine {
           ),
         );
       } else {
+        final phaseAtkBonus = 1.0 + (bossPhase - 1) * 0.14;
+        final triadFuryBonus = hasMech(LegendaryMechanicKind.telegraphedTriad) &&
+                enemyHp <= (state.opponent.maxHp * 0.35).round()
+            ? 1.40
+            : 1.0;
+        final isSurging = hasMech(LegendaryMechanicKind.powerStealOrSurge) &&
+            state.turn % 3 == 0;
+        final surgeMult = isSurging ? 1.35 : 1.0;
+
         if (rng.nextDouble() < state.hero.dodgeChance) {
           log.add(
             CombatLogEntry(turn: state.turn, kind: CombatLogKind.heroDodged),
@@ -1382,7 +1610,12 @@ abstract final class CombatEngine {
           final buffMitigation = heroBuff > 0 ? 0.75 : 1.0;
           final defendMitigation = defending ? 0.50 : 1.0;
 
-          final rawEnemy = state.opponent.attack * intentMult * weakenMult;
+          final rawEnemy = state.opponent.attack *
+              intentMult *
+              weakenMult *
+              phaseAtkBonus *
+              triadFuryBonus *
+              surgeMult;
           final afterDef = math.max(1.0, rawEnemy - state.hero.defense);
           final dmg = math.max(
             1,
@@ -1392,10 +1625,51 @@ abstract final class CombatEngine {
           log.add(
             CombatLogEntry(
               turn: state.turn,
-              kind: state.enemyIntent == EnemyIntent.heavyBlow
-                  ? CombatLogKind.enemyHeavyBlow
-                  : CombatLogKind.enemyStrike,
+              kind: isSurging
+                  ? CombatLogKind.legendarySurge
+                  : (state.enemyIntent == EnemyIntent.heavyBlow
+                      ? CombatLogKind.enemyHeavyBlow
+                      : CombatLogKind.enemyStrike),
               damage: dmg,
+            ),
+          );
+
+          if (hasMech(LegendaryMechanicKind.bleedSanctuary) && heroHp > 0) {
+            heroBleed = math.min(4, heroBleed + (defending ? 0 : 1));
+          }
+          if (hasMech(LegendaryMechanicKind.focusDrainAndBurn) &&
+              heroHp > 0 &&
+              heroFocus > 0) {
+            final drain = defending ? 1 : 4;
+            heroFocus = math.max(0, heroFocus - drain);
+            log.add(
+              CombatLogEntry(
+                turn: state.turn,
+                kind: CombatLogKind.legendaryFocusDrain,
+                damage: drain,
+              ),
+            );
+          }
+        }
+
+        if (isSurging) {
+          exposedTurns = 2; // decrements to 1 at end of this round
+        }
+      }
+
+      // Bleed / Sanctuary tick at end of round.
+      if (heroHp > 0 && heroBleed > 0) {
+        final sanctuaryActive = hasMech(LegendaryMechanicKind.bleedSanctuary) &&
+            enemyHp <= (state.opponent.maxHp * 0.50).round();
+        final tickDmg =
+            (heroBleed * 3 + (sanctuaryActive ? 4 : 0)) ~/ (defending ? 2 : 1);
+        if (tickDmg > 0) {
+          heroHp = math.max(0, heroHp - tickDmg);
+          log.add(
+            CombatLogEntry(
+              turn: state.turn,
+              kind: CombatLogKind.legendaryBleedTick,
+              damage: tickDmg,
             ),
           );
         }
@@ -1405,6 +1679,8 @@ abstract final class CombatEngine {
     // Tick down active buffs/debuffs at end of round.
     if (heroBuff > 0) heroBuff--;
     if (enemyWeaken > 0) enemyWeaken--;
+    if (barrierTurns > 0) barrierTurns--;
+    if (exposedTurns > 0) exposedTurns--;
 
     final nextTurn = state.turn + 1;
     final defeated = heroHp <= 0 || nextTurn > XpRules.combatMaxTurns;
@@ -1437,6 +1713,15 @@ abstract final class CombatEngine {
       status: defeated ? CombatStatus.defeat : CombatStatus.ongoing,
       log: log,
       lastRoll: lastRoll,
+      legendaryBoss: boss,
+      weaknessStacks: state.weaknessStacks,
+      legendaryBarrierTurns: barrierTurns,
+      legendaryPlateStacks: plateStacks,
+      legendaryPhase: bossPhase,
+      heroBleedStacks: heroBleed,
+      lastHeroAction: action,
+      repeatedHeroActionCount: repeatedActionCount,
+      legendaryExposedTurns: exposedTurns,
     );
   }
 

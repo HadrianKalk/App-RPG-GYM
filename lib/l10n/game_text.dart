@@ -123,6 +123,11 @@ class GameText {
   String combatTitle(String titleId) => t('combatTitle.$titleId');
   String combatCosmetic(String cosmeticId) => t('combatCosmetic.$cosmeticId');
 
+  // --- Legendary Weekly Bosses ----------------------------------------------
+  String legendaryBossName(String bossId) => t('legendary.$bossId.name');
+  String legendaryBossClass(String bossId) => t('legendary.$bossId.dndClass');
+  String legendaryBossLore(String bossId) => t('legendary.$bossId.lore');
+
   // --- Hero Paper-Doll Appearance -------------------------------------------
   String appearancePreset(HeroAppearancePreset p) =>
       t('appearance.preset.${p.name}');
