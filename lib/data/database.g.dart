@@ -3231,6 +3231,1027 @@ class DailyArenaLogsCompanion extends UpdateCompanion<DailyArenaLogRow> {
   }
 }
 
+class $StoryRunsTable extends StoryRuns
+    with TableInfo<$StoryRunsTable, StoryRunRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StoryRunsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _weekKeyMeta = const VerificationMeta(
+    'weekKey',
+  );
+  @override
+  late final GeneratedColumn<String> weekKey = GeneratedColumn<String>(
+    'week_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weeklyBossIdMeta = const VerificationMeta(
+    'weeklyBossId',
+  );
+  @override
+  late final GeneratedColumn<String> weeklyBossId = GeneratedColumn<String>(
+    'weekly_boss_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weaknessStacksMeta = const VerificationMeta(
+    'weaknessStacks',
+  );
+  @override
+  late final GeneratedColumn<int> weaknessStacks = GeneratedColumn<int>(
+    'weakness_stacks',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _chaptersCompletedMeta = const VerificationMeta(
+    'chaptersCompleted',
+  );
+  @override
+  late final GeneratedColumn<int> chaptersCompleted = GeneratedColumn<int>(
+    'chapters_completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bossDefeatedMeta = const VerificationMeta(
+    'bossDefeated',
+  );
+  @override
+  late final GeneratedColumn<bool> bossDefeated = GeneratedColumn<bool>(
+    'boss_defeated',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("boss_defeated" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _memoryJsonMeta = const VerificationMeta(
+    'memoryJson',
+  );
+  @override
+  late final GeneratedColumn<String> memoryJson = GeneratedColumn<String>(
+    'memory_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    weekKey,
+    weeklyBossId,
+    weaknessStacks,
+    chaptersCompleted,
+    bossDefeated,
+    memoryJson,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'story_runs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StoryRunRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('week_key')) {
+      context.handle(
+        _weekKeyMeta,
+        weekKey.isAcceptableOrUnknown(data['week_key']!, _weekKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weekKeyMeta);
+    }
+    if (data.containsKey('weekly_boss_id')) {
+      context.handle(
+        _weeklyBossIdMeta,
+        weeklyBossId.isAcceptableOrUnknown(
+          data['weekly_boss_id']!,
+          _weeklyBossIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_weeklyBossIdMeta);
+    }
+    if (data.containsKey('weakness_stacks')) {
+      context.handle(
+        _weaknessStacksMeta,
+        weaknessStacks.isAcceptableOrUnknown(
+          data['weakness_stacks']!,
+          _weaknessStacksMeta,
+        ),
+      );
+    }
+    if (data.containsKey('chapters_completed')) {
+      context.handle(
+        _chaptersCompletedMeta,
+        chaptersCompleted.isAcceptableOrUnknown(
+          data['chapters_completed']!,
+          _chaptersCompletedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('boss_defeated')) {
+      context.handle(
+        _bossDefeatedMeta,
+        bossDefeated.isAcceptableOrUnknown(
+          data['boss_defeated']!,
+          _bossDefeatedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('memory_json')) {
+      context.handle(
+        _memoryJsonMeta,
+        memoryJson.isAcceptableOrUnknown(data['memory_json']!, _memoryJsonMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {weekKey};
+  @override
+  StoryRunRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StoryRunRow(
+      weekKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}week_key'],
+      )!,
+      weeklyBossId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}weekly_boss_id'],
+      )!,
+      weaknessStacks: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}weakness_stacks'],
+      )!,
+      chaptersCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chapters_completed'],
+      )!,
+      bossDefeated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}boss_defeated'],
+      )!,
+      memoryJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}memory_json'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StoryRunsTable createAlias(String alias) {
+    return $StoryRunsTable(attachedDatabase, alias);
+  }
+}
+
+class StoryRunRow extends DataClass implements Insertable<StoryRunRow> {
+  final String weekKey;
+  final String weeklyBossId;
+  final int weaknessStacks;
+  final int chaptersCompleted;
+  final bool bossDefeated;
+  final String memoryJson;
+  final DateTime updatedAt;
+  const StoryRunRow({
+    required this.weekKey,
+    required this.weeklyBossId,
+    required this.weaknessStacks,
+    required this.chaptersCompleted,
+    required this.bossDefeated,
+    required this.memoryJson,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['week_key'] = Variable<String>(weekKey);
+    map['weekly_boss_id'] = Variable<String>(weeklyBossId);
+    map['weakness_stacks'] = Variable<int>(weaknessStacks);
+    map['chapters_completed'] = Variable<int>(chaptersCompleted);
+    map['boss_defeated'] = Variable<bool>(bossDefeated);
+    map['memory_json'] = Variable<String>(memoryJson);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  StoryRunsCompanion toCompanion(bool nullToAbsent) {
+    return StoryRunsCompanion(
+      weekKey: Value(weekKey),
+      weeklyBossId: Value(weeklyBossId),
+      weaknessStacks: Value(weaknessStacks),
+      chaptersCompleted: Value(chaptersCompleted),
+      bossDefeated: Value(bossDefeated),
+      memoryJson: Value(memoryJson),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory StoryRunRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StoryRunRow(
+      weekKey: serializer.fromJson<String>(json['weekKey']),
+      weeklyBossId: serializer.fromJson<String>(json['weeklyBossId']),
+      weaknessStacks: serializer.fromJson<int>(json['weaknessStacks']),
+      chaptersCompleted: serializer.fromJson<int>(json['chaptersCompleted']),
+      bossDefeated: serializer.fromJson<bool>(json['bossDefeated']),
+      memoryJson: serializer.fromJson<String>(json['memoryJson']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'weekKey': serializer.toJson<String>(weekKey),
+      'weeklyBossId': serializer.toJson<String>(weeklyBossId),
+      'weaknessStacks': serializer.toJson<int>(weaknessStacks),
+      'chaptersCompleted': serializer.toJson<int>(chaptersCompleted),
+      'bossDefeated': serializer.toJson<bool>(bossDefeated),
+      'memoryJson': serializer.toJson<String>(memoryJson),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  StoryRunRow copyWith({
+    String? weekKey,
+    String? weeklyBossId,
+    int? weaknessStacks,
+    int? chaptersCompleted,
+    bool? bossDefeated,
+    String? memoryJson,
+    DateTime? updatedAt,
+  }) => StoryRunRow(
+    weekKey: weekKey ?? this.weekKey,
+    weeklyBossId: weeklyBossId ?? this.weeklyBossId,
+    weaknessStacks: weaknessStacks ?? this.weaknessStacks,
+    chaptersCompleted: chaptersCompleted ?? this.chaptersCompleted,
+    bossDefeated: bossDefeated ?? this.bossDefeated,
+    memoryJson: memoryJson ?? this.memoryJson,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  StoryRunRow copyWithCompanion(StoryRunsCompanion data) {
+    return StoryRunRow(
+      weekKey: data.weekKey.present ? data.weekKey.value : this.weekKey,
+      weeklyBossId: data.weeklyBossId.present
+          ? data.weeklyBossId.value
+          : this.weeklyBossId,
+      weaknessStacks: data.weaknessStacks.present
+          ? data.weaknessStacks.value
+          : this.weaknessStacks,
+      chaptersCompleted: data.chaptersCompleted.present
+          ? data.chaptersCompleted.value
+          : this.chaptersCompleted,
+      bossDefeated: data.bossDefeated.present
+          ? data.bossDefeated.value
+          : this.bossDefeated,
+      memoryJson: data.memoryJson.present
+          ? data.memoryJson.value
+          : this.memoryJson,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryRunRow(')
+          ..write('weekKey: $weekKey, ')
+          ..write('weeklyBossId: $weeklyBossId, ')
+          ..write('weaknessStacks: $weaknessStacks, ')
+          ..write('chaptersCompleted: $chaptersCompleted, ')
+          ..write('bossDefeated: $bossDefeated, ')
+          ..write('memoryJson: $memoryJson, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    weekKey,
+    weeklyBossId,
+    weaknessStacks,
+    chaptersCompleted,
+    bossDefeated,
+    memoryJson,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StoryRunRow &&
+          other.weekKey == this.weekKey &&
+          other.weeklyBossId == this.weeklyBossId &&
+          other.weaknessStacks == this.weaknessStacks &&
+          other.chaptersCompleted == this.chaptersCompleted &&
+          other.bossDefeated == this.bossDefeated &&
+          other.memoryJson == this.memoryJson &&
+          other.updatedAt == this.updatedAt);
+}
+
+class StoryRunsCompanion extends UpdateCompanion<StoryRunRow> {
+  final Value<String> weekKey;
+  final Value<String> weeklyBossId;
+  final Value<int> weaknessStacks;
+  final Value<int> chaptersCompleted;
+  final Value<bool> bossDefeated;
+  final Value<String> memoryJson;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const StoryRunsCompanion({
+    this.weekKey = const Value.absent(),
+    this.weeklyBossId = const Value.absent(),
+    this.weaknessStacks = const Value.absent(),
+    this.chaptersCompleted = const Value.absent(),
+    this.bossDefeated = const Value.absent(),
+    this.memoryJson = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StoryRunsCompanion.insert({
+    required String weekKey,
+    required String weeklyBossId,
+    this.weaknessStacks = const Value.absent(),
+    this.chaptersCompleted = const Value.absent(),
+    this.bossDefeated = const Value.absent(),
+    this.memoryJson = const Value.absent(),
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : weekKey = Value(weekKey),
+       weeklyBossId = Value(weeklyBossId),
+       updatedAt = Value(updatedAt);
+  static Insertable<StoryRunRow> custom({
+    Expression<String>? weekKey,
+    Expression<String>? weeklyBossId,
+    Expression<int>? weaknessStacks,
+    Expression<int>? chaptersCompleted,
+    Expression<bool>? bossDefeated,
+    Expression<String>? memoryJson,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (weekKey != null) 'week_key': weekKey,
+      if (weeklyBossId != null) 'weekly_boss_id': weeklyBossId,
+      if (weaknessStacks != null) 'weakness_stacks': weaknessStacks,
+      if (chaptersCompleted != null) 'chapters_completed': chaptersCompleted,
+      if (bossDefeated != null) 'boss_defeated': bossDefeated,
+      if (memoryJson != null) 'memory_json': memoryJson,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StoryRunsCompanion copyWith({
+    Value<String>? weekKey,
+    Value<String>? weeklyBossId,
+    Value<int>? weaknessStacks,
+    Value<int>? chaptersCompleted,
+    Value<bool>? bossDefeated,
+    Value<String>? memoryJson,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return StoryRunsCompanion(
+      weekKey: weekKey ?? this.weekKey,
+      weeklyBossId: weeklyBossId ?? this.weeklyBossId,
+      weaknessStacks: weaknessStacks ?? this.weaknessStacks,
+      chaptersCompleted: chaptersCompleted ?? this.chaptersCompleted,
+      bossDefeated: bossDefeated ?? this.bossDefeated,
+      memoryJson: memoryJson ?? this.memoryJson,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (weekKey.present) {
+      map['week_key'] = Variable<String>(weekKey.value);
+    }
+    if (weeklyBossId.present) {
+      map['weekly_boss_id'] = Variable<String>(weeklyBossId.value);
+    }
+    if (weaknessStacks.present) {
+      map['weakness_stacks'] = Variable<int>(weaknessStacks.value);
+    }
+    if (chaptersCompleted.present) {
+      map['chapters_completed'] = Variable<int>(chaptersCompleted.value);
+    }
+    if (bossDefeated.present) {
+      map['boss_defeated'] = Variable<bool>(bossDefeated.value);
+    }
+    if (memoryJson.present) {
+      map['memory_json'] = Variable<String>(memoryJson.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryRunsCompanion(')
+          ..write('weekKey: $weekKey, ')
+          ..write('weeklyBossId: $weeklyBossId, ')
+          ..write('weaknessStacks: $weaknessStacks, ')
+          ..write('chaptersCompleted: $chaptersCompleted, ')
+          ..write('bossDefeated: $bossDefeated, ')
+          ..write('memoryJson: $memoryJson, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StoryChaptersTable extends StoryChapters
+    with TableInfo<$StoryChaptersTable, StoryChapterRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StoryChaptersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weekKeyMeta = const VerificationMeta(
+    'weekKey',
+  );
+  @override
+  late final GeneratedColumn<String> weekKey = GeneratedColumn<String>(
+    'week_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _locationNameMeta = const VerificationMeta(
+    'locationName',
+  );
+  @override
+  late final GeneratedColumn<String> locationName = GeneratedColumn<String>(
+    'location_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _playerActionMeta = const VerificationMeta(
+    'playerAction',
+  );
+  @override
+  late final GeneratedColumn<String> playerAction = GeneratedColumn<String>(
+    'player_action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _narrationMeta = const VerificationMeta(
+    'narration',
+  );
+  @override
+  late final GeneratedColumn<String> narration = GeneratedColumn<String>(
+    'narration',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _triggerTypeMeta = const VerificationMeta(
+    'triggerType',
+  );
+  @override
+  late final GeneratedColumn<String> triggerType = GeneratedColumn<String>(
+    'trigger_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outcomeSummaryMeta = const VerificationMeta(
+    'outcomeSummary',
+  );
+  @override
+  late final GeneratedColumn<String> outcomeSummary = GeneratedColumn<String>(
+    'outcome_summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    weekKey,
+    locationName,
+    playerAction,
+    narration,
+    triggerType,
+    outcomeSummary,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'story_chapters';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StoryChapterRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('week_key')) {
+      context.handle(
+        _weekKeyMeta,
+        weekKey.isAcceptableOrUnknown(data['week_key']!, _weekKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weekKeyMeta);
+    }
+    if (data.containsKey('location_name')) {
+      context.handle(
+        _locationNameMeta,
+        locationName.isAcceptableOrUnknown(
+          data['location_name']!,
+          _locationNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_locationNameMeta);
+    }
+    if (data.containsKey('player_action')) {
+      context.handle(
+        _playerActionMeta,
+        playerAction.isAcceptableOrUnknown(
+          data['player_action']!,
+          _playerActionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_playerActionMeta);
+    }
+    if (data.containsKey('narration')) {
+      context.handle(
+        _narrationMeta,
+        narration.isAcceptableOrUnknown(data['narration']!, _narrationMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_narrationMeta);
+    }
+    if (data.containsKey('trigger_type')) {
+      context.handle(
+        _triggerTypeMeta,
+        triggerType.isAcceptableOrUnknown(
+          data['trigger_type']!,
+          _triggerTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_triggerTypeMeta);
+    }
+    if (data.containsKey('outcome_summary')) {
+      context.handle(
+        _outcomeSummaryMeta,
+        outcomeSummary.isAcceptableOrUnknown(
+          data['outcome_summary']!,
+          _outcomeSummaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StoryChapterRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StoryChapterRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      weekKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}week_key'],
+      )!,
+      locationName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_name'],
+      )!,
+      playerAction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}player_action'],
+      )!,
+      narration: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}narration'],
+      )!,
+      triggerType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}trigger_type'],
+      )!,
+      outcomeSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}outcome_summary'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StoryChaptersTable createAlias(String alias) {
+    return $StoryChaptersTable(attachedDatabase, alias);
+  }
+}
+
+class StoryChapterRow extends DataClass implements Insertable<StoryChapterRow> {
+  final String id;
+  final String weekKey;
+  final String locationName;
+  final String playerAction;
+  final String narration;
+  final String triggerType;
+  final String? outcomeSummary;
+  final DateTime createdAt;
+  const StoryChapterRow({
+    required this.id,
+    required this.weekKey,
+    required this.locationName,
+    required this.playerAction,
+    required this.narration,
+    required this.triggerType,
+    this.outcomeSummary,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['week_key'] = Variable<String>(weekKey);
+    map['location_name'] = Variable<String>(locationName);
+    map['player_action'] = Variable<String>(playerAction);
+    map['narration'] = Variable<String>(narration);
+    map['trigger_type'] = Variable<String>(triggerType);
+    if (!nullToAbsent || outcomeSummary != null) {
+      map['outcome_summary'] = Variable<String>(outcomeSummary);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  StoryChaptersCompanion toCompanion(bool nullToAbsent) {
+    return StoryChaptersCompanion(
+      id: Value(id),
+      weekKey: Value(weekKey),
+      locationName: Value(locationName),
+      playerAction: Value(playerAction),
+      narration: Value(narration),
+      triggerType: Value(triggerType),
+      outcomeSummary: outcomeSummary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(outcomeSummary),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory StoryChapterRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StoryChapterRow(
+      id: serializer.fromJson<String>(json['id']),
+      weekKey: serializer.fromJson<String>(json['weekKey']),
+      locationName: serializer.fromJson<String>(json['locationName']),
+      playerAction: serializer.fromJson<String>(json['playerAction']),
+      narration: serializer.fromJson<String>(json['narration']),
+      triggerType: serializer.fromJson<String>(json['triggerType']),
+      outcomeSummary: serializer.fromJson<String?>(json['outcomeSummary']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'weekKey': serializer.toJson<String>(weekKey),
+      'locationName': serializer.toJson<String>(locationName),
+      'playerAction': serializer.toJson<String>(playerAction),
+      'narration': serializer.toJson<String>(narration),
+      'triggerType': serializer.toJson<String>(triggerType),
+      'outcomeSummary': serializer.toJson<String?>(outcomeSummary),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  StoryChapterRow copyWith({
+    String? id,
+    String? weekKey,
+    String? locationName,
+    String? playerAction,
+    String? narration,
+    String? triggerType,
+    Value<String?> outcomeSummary = const Value.absent(),
+    DateTime? createdAt,
+  }) => StoryChapterRow(
+    id: id ?? this.id,
+    weekKey: weekKey ?? this.weekKey,
+    locationName: locationName ?? this.locationName,
+    playerAction: playerAction ?? this.playerAction,
+    narration: narration ?? this.narration,
+    triggerType: triggerType ?? this.triggerType,
+    outcomeSummary: outcomeSummary.present
+        ? outcomeSummary.value
+        : this.outcomeSummary,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  StoryChapterRow copyWithCompanion(StoryChaptersCompanion data) {
+    return StoryChapterRow(
+      id: data.id.present ? data.id.value : this.id,
+      weekKey: data.weekKey.present ? data.weekKey.value : this.weekKey,
+      locationName: data.locationName.present
+          ? data.locationName.value
+          : this.locationName,
+      playerAction: data.playerAction.present
+          ? data.playerAction.value
+          : this.playerAction,
+      narration: data.narration.present ? data.narration.value : this.narration,
+      triggerType: data.triggerType.present
+          ? data.triggerType.value
+          : this.triggerType,
+      outcomeSummary: data.outcomeSummary.present
+          ? data.outcomeSummary.value
+          : this.outcomeSummary,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryChapterRow(')
+          ..write('id: $id, ')
+          ..write('weekKey: $weekKey, ')
+          ..write('locationName: $locationName, ')
+          ..write('playerAction: $playerAction, ')
+          ..write('narration: $narration, ')
+          ..write('triggerType: $triggerType, ')
+          ..write('outcomeSummary: $outcomeSummary, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    weekKey,
+    locationName,
+    playerAction,
+    narration,
+    triggerType,
+    outcomeSummary,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StoryChapterRow &&
+          other.id == this.id &&
+          other.weekKey == this.weekKey &&
+          other.locationName == this.locationName &&
+          other.playerAction == this.playerAction &&
+          other.narration == this.narration &&
+          other.triggerType == this.triggerType &&
+          other.outcomeSummary == this.outcomeSummary &&
+          other.createdAt == this.createdAt);
+}
+
+class StoryChaptersCompanion extends UpdateCompanion<StoryChapterRow> {
+  final Value<String> id;
+  final Value<String> weekKey;
+  final Value<String> locationName;
+  final Value<String> playerAction;
+  final Value<String> narration;
+  final Value<String> triggerType;
+  final Value<String?> outcomeSummary;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const StoryChaptersCompanion({
+    this.id = const Value.absent(),
+    this.weekKey = const Value.absent(),
+    this.locationName = const Value.absent(),
+    this.playerAction = const Value.absent(),
+    this.narration = const Value.absent(),
+    this.triggerType = const Value.absent(),
+    this.outcomeSummary = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StoryChaptersCompanion.insert({
+    required String id,
+    required String weekKey,
+    required String locationName,
+    required String playerAction,
+    required String narration,
+    required String triggerType,
+    this.outcomeSummary = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       weekKey = Value(weekKey),
+       locationName = Value(locationName),
+       playerAction = Value(playerAction),
+       narration = Value(narration),
+       triggerType = Value(triggerType),
+       createdAt = Value(createdAt);
+  static Insertable<StoryChapterRow> custom({
+    Expression<String>? id,
+    Expression<String>? weekKey,
+    Expression<String>? locationName,
+    Expression<String>? playerAction,
+    Expression<String>? narration,
+    Expression<String>? triggerType,
+    Expression<String>? outcomeSummary,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weekKey != null) 'week_key': weekKey,
+      if (locationName != null) 'location_name': locationName,
+      if (playerAction != null) 'player_action': playerAction,
+      if (narration != null) 'narration': narration,
+      if (triggerType != null) 'trigger_type': triggerType,
+      if (outcomeSummary != null) 'outcome_summary': outcomeSummary,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StoryChaptersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? weekKey,
+    Value<String>? locationName,
+    Value<String>? playerAction,
+    Value<String>? narration,
+    Value<String>? triggerType,
+    Value<String?>? outcomeSummary,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return StoryChaptersCompanion(
+      id: id ?? this.id,
+      weekKey: weekKey ?? this.weekKey,
+      locationName: locationName ?? this.locationName,
+      playerAction: playerAction ?? this.playerAction,
+      narration: narration ?? this.narration,
+      triggerType: triggerType ?? this.triggerType,
+      outcomeSummary: outcomeSummary ?? this.outcomeSummary,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (weekKey.present) {
+      map['week_key'] = Variable<String>(weekKey.value);
+    }
+    if (locationName.present) {
+      map['location_name'] = Variable<String>(locationName.value);
+    }
+    if (playerAction.present) {
+      map['player_action'] = Variable<String>(playerAction.value);
+    }
+    if (narration.present) {
+      map['narration'] = Variable<String>(narration.value);
+    }
+    if (triggerType.present) {
+      map['trigger_type'] = Variable<String>(triggerType.value);
+    }
+    if (outcomeSummary.present) {
+      map['outcome_summary'] = Variable<String>(outcomeSummary.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryChaptersCompanion(')
+          ..write('id: $id, ')
+          ..write('weekKey: $weekKey, ')
+          ..write('locationName: $locationName, ')
+          ..write('playerAction: $playerAction, ')
+          ..write('narration: $narration, ')
+          ..write('triggerType: $triggerType, ')
+          ..write('outcomeSummary: $outcomeSummary, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WorkoutSessionsTable extends WorkoutSessions
     with TableInfo<$WorkoutSessionsTable, WorkoutSession> {
   @override
@@ -6270,6 +7291,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $ArenaProgressTable arenaProgress = $ArenaProgressTable(this);
   late final $DailyArenaLogsTable dailyArenaLogs = $DailyArenaLogsTable(this);
+  late final $StoryRunsTable storyRuns = $StoryRunsTable(this);
+  late final $StoryChaptersTable storyChapters = $StoryChaptersTable(this);
   late final $WorkoutSessionsTable workoutSessions = $WorkoutSessionsTable(
     this,
   );
@@ -6294,6 +7317,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dailyHealthLogs,
     arenaProgress,
     dailyArenaLogs,
+    storyRuns,
+    storyChapters,
     workoutSessions,
     workoutSets,
     personalRecords,
@@ -8613,6 +9638,535 @@ typedef $$DailyArenaLogsTableProcessedTableManager =
       DailyArenaLogRow,
       PrefetchHooks Function()
     >;
+typedef $$StoryRunsTableCreateCompanionBuilder = StoryRunsCompanion Function({
+  required String weekKey,
+  required String weeklyBossId,
+  Value<int> weaknessStacks,
+  Value<int> chaptersCompleted,
+  Value<bool> bossDefeated,
+  Value<String> memoryJson,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$StoryRunsTableUpdateCompanionBuilder = StoryRunsCompanion Function({
+  Value<String> weekKey,
+  Value<String> weeklyBossId,
+  Value<int> weaknessStacks,
+  Value<int> chaptersCompleted,
+  Value<bool> bossDefeated,
+  Value<String> memoryJson,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$StoryRunsTableFilterComposer
+    extends Composer<_$AppDatabase, $StoryRunsTable> {
+  $$StoryRunsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get weekKey => $composableBuilder(
+    column: $table.weekKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weeklyBossId => $composableBuilder(
+    column: $table.weeklyBossId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get weaknessStacks => $composableBuilder(
+    column: $table.weaknessStacks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chaptersCompleted => $composableBuilder(
+    column: $table.chaptersCompleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get bossDefeated => $composableBuilder(
+    column: $table.bossDefeated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memoryJson => $composableBuilder(
+    column: $table.memoryJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StoryRunsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StoryRunsTable> {
+  $$StoryRunsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get weekKey => $composableBuilder(
+    column: $table.weekKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weeklyBossId => $composableBuilder(
+    column: $table.weeklyBossId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get weaknessStacks => $composableBuilder(
+    column: $table.weaknessStacks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chaptersCompleted => $composableBuilder(
+    column: $table.chaptersCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get bossDefeated => $composableBuilder(
+    column: $table.bossDefeated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memoryJson => $composableBuilder(
+    column: $table.memoryJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StoryRunsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StoryRunsTable> {
+  $$StoryRunsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get weekKey =>
+      $composableBuilder(column: $table.weekKey, builder: (column) => column);
+
+  GeneratedColumn<String> get weeklyBossId => $composableBuilder(
+    column: $table.weeklyBossId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get weaknessStacks => $composableBuilder(
+    column: $table.weaknessStacks,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get chaptersCompleted => $composableBuilder(
+    column: $table.chaptersCompleted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get bossDefeated => $composableBuilder(
+    column: $table.bossDefeated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get memoryJson => $composableBuilder(
+    column: $table.memoryJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$StoryRunsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StoryRunsTable,
+          StoryRunRow,
+          $$StoryRunsTableFilterComposer,
+          $$StoryRunsTableOrderingComposer,
+          $$StoryRunsTableAnnotationComposer,
+          $$StoryRunsTableCreateCompanionBuilder,
+          $$StoryRunsTableUpdateCompanionBuilder,
+          (
+            StoryRunRow,
+            BaseReferences<_$AppDatabase, $StoryRunsTable, StoryRunRow>,
+          ),
+          StoryRunRow,
+          PrefetchHooks Function()
+        > {
+  $$StoryRunsTableTableManager(_$AppDatabase db, $StoryRunsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StoryRunsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StoryRunsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StoryRunsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> weekKey = const Value.absent(),
+                Value<String> weeklyBossId = const Value.absent(),
+                Value<int> weaknessStacks = const Value.absent(),
+                Value<int> chaptersCompleted = const Value.absent(),
+                Value<bool> bossDefeated = const Value.absent(),
+                Value<String> memoryJson = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StoryRunsCompanion(
+                weekKey: weekKey,
+                weeklyBossId: weeklyBossId,
+                weaknessStacks: weaknessStacks,
+                chaptersCompleted: chaptersCompleted,
+                bossDefeated: bossDefeated,
+                memoryJson: memoryJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String weekKey,
+                required String weeklyBossId,
+                Value<int> weaknessStacks = const Value.absent(),
+                Value<int> chaptersCompleted = const Value.absent(),
+                Value<bool> bossDefeated = const Value.absent(),
+                Value<String> memoryJson = const Value.absent(),
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => StoryRunsCompanion.insert(
+                weekKey: weekKey,
+                weeklyBossId: weeklyBossId,
+                weaknessStacks: weaknessStacks,
+                chaptersCompleted: chaptersCompleted,
+                bossDefeated: bossDefeated,
+                memoryJson: memoryJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$StoryRunsTable, StoryRunRow>(table),
+                  BaseReferences<_$AppDatabase, $StoryRunsTable, StoryRunRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StoryRunsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StoryRunsTable,
+      StoryRunRow,
+      $$StoryRunsTableFilterComposer,
+      $$StoryRunsTableOrderingComposer,
+      $$StoryRunsTableAnnotationComposer,
+      $$StoryRunsTableCreateCompanionBuilder,
+      $$StoryRunsTableUpdateCompanionBuilder,
+      (
+        StoryRunRow,
+        BaseReferences<_$AppDatabase, $StoryRunsTable, StoryRunRow>,
+      ),
+      StoryRunRow,
+      PrefetchHooks Function()
+    >;
+typedef $$StoryChaptersTableCreateCompanionBuilder =
+    StoryChaptersCompanion Function({
+      required String id,
+      required String weekKey,
+      required String locationName,
+      required String playerAction,
+      required String narration,
+      required String triggerType,
+      Value<String?> outcomeSummary,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$StoryChaptersTableUpdateCompanionBuilder =
+    StoryChaptersCompanion Function({
+      Value<String> id,
+      Value<String> weekKey,
+      Value<String> locationName,
+      Value<String> playerAction,
+      Value<String> narration,
+      Value<String> triggerType,
+      Value<String?> outcomeSummary,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$StoryChaptersTableFilterComposer
+    extends Composer<_$AppDatabase, $StoryChaptersTable> {
+  $$StoryChaptersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weekKey => $composableBuilder(
+    column: $table.weekKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locationName => $composableBuilder(
+    column: $table.locationName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get playerAction => $composableBuilder(
+    column: $table.playerAction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get narration => $composableBuilder(
+    column: $table.narration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get outcomeSummary => $composableBuilder(
+    column: $table.outcomeSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StoryChaptersTableOrderingComposer
+    extends Composer<_$AppDatabase, $StoryChaptersTable> {
+  $$StoryChaptersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weekKey => $composableBuilder(
+    column: $table.weekKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get locationName => $composableBuilder(
+    column: $table.locationName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get playerAction => $composableBuilder(
+    column: $table.playerAction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get narration => $composableBuilder(
+    column: $table.narration,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get outcomeSummary => $composableBuilder(
+    column: $table.outcomeSummary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StoryChaptersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StoryChaptersTable> {
+  $$StoryChaptersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get weekKey =>
+      $composableBuilder(column: $table.weekKey, builder: (column) => column);
+
+  GeneratedColumn<String> get locationName => $composableBuilder(
+    column: $table.locationName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get playerAction => $composableBuilder(
+    column: $table.playerAction,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get narration =>
+      $composableBuilder(column: $table.narration, builder: (column) => column);
+
+  GeneratedColumn<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get outcomeSummary => $composableBuilder(
+    column: $table.outcomeSummary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$StoryChaptersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StoryChaptersTable,
+          StoryChapterRow,
+          $$StoryChaptersTableFilterComposer,
+          $$StoryChaptersTableOrderingComposer,
+          $$StoryChaptersTableAnnotationComposer,
+          $$StoryChaptersTableCreateCompanionBuilder,
+          $$StoryChaptersTableUpdateCompanionBuilder,
+          (
+            StoryChapterRow,
+            BaseReferences<_$AppDatabase, $StoryChaptersTable, StoryChapterRow>,
+          ),
+          StoryChapterRow,
+          PrefetchHooks Function()
+        > {
+  $$StoryChaptersTableTableManager(_$AppDatabase db, $StoryChaptersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StoryChaptersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StoryChaptersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StoryChaptersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> weekKey = const Value.absent(),
+                Value<String> locationName = const Value.absent(),
+                Value<String> playerAction = const Value.absent(),
+                Value<String> narration = const Value.absent(),
+                Value<String> triggerType = const Value.absent(),
+                Value<String?> outcomeSummary = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StoryChaptersCompanion(
+                id: id,
+                weekKey: weekKey,
+                locationName: locationName,
+                playerAction: playerAction,
+                narration: narration,
+                triggerType: triggerType,
+                outcomeSummary: outcomeSummary,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String weekKey,
+                required String locationName,
+                required String playerAction,
+                required String narration,
+                required String triggerType,
+                Value<String?> outcomeSummary = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => StoryChaptersCompanion.insert(
+                id: id,
+                weekKey: weekKey,
+                locationName: locationName,
+                playerAction: playerAction,
+                narration: narration,
+                triggerType: triggerType,
+                outcomeSummary: outcomeSummary,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$StoryChaptersTable, StoryChapterRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $StoryChaptersTable,
+                    StoryChapterRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StoryChaptersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StoryChaptersTable,
+      StoryChapterRow,
+      $$StoryChaptersTableFilterComposer,
+      $$StoryChaptersTableOrderingComposer,
+      $$StoryChaptersTableAnnotationComposer,
+      $$StoryChaptersTableCreateCompanionBuilder,
+      $$StoryChaptersTableUpdateCompanionBuilder,
+      (
+        StoryChapterRow,
+        BaseReferences<_$AppDatabase, $StoryChaptersTable, StoryChapterRow>,
+      ),
+      StoryChapterRow,
+      PrefetchHooks Function()
+    >;
 typedef $$WorkoutSessionsTableCreateCompanionBuilder =
     WorkoutSessionsCompanion Function({
       required String id,
@@ -10613,6 +12167,10 @@ class $AppDatabaseManager {
       $$ArenaProgressTableTableManager(_db, _db.arenaProgress);
   $$DailyArenaLogsTableTableManager get dailyArenaLogs =>
       $$DailyArenaLogsTableTableManager(_db, _db.dailyArenaLogs);
+  $$StoryRunsTableTableManager get storyRuns =>
+      $$StoryRunsTableTableManager(_db, _db.storyRuns);
+  $$StoryChaptersTableTableManager get storyChapters =>
+      $$StoryChaptersTableTableManager(_db, _db.storyChapters);
   $$WorkoutSessionsTableTableManager get workoutSessions =>
       $$WorkoutSessionsTableTableManager(_db, _db.workoutSessions);
   $$WorkoutSetsTableTableManager get workoutSets =>

@@ -53,6 +53,8 @@ class BackupService {
     final healthRows = await _db.select(_db.dailyHealthLogs).get();
     final arenaProgressRows = await _db.select(_db.arenaProgress).get();
     final arenaLogRows = await _db.select(_db.dailyArenaLogs).get();
+    final storyRunsRows = await _db.select(_db.storyRuns).get();
+    final storyChaptersRows = await _db.select(_db.storyChapters).get();
 
     final payload = <String, dynamic>{
       'formatVersion': currentFormatVersion,
@@ -78,6 +80,8 @@ class BackupService {
         'daily_health_logs': [for (final r in healthRows) r.toJson()],
         'arena_progress': [for (final r in arenaProgressRows) r.toJson()],
         'daily_arena_logs': [for (final r in arenaLogRows) r.toJson()],
+        'story_runs': [for (final r in storyRunsRows) r.toJson()],
+        'story_chapters': [for (final r in storyChaptersRows) r.toJson()],
       },
     };
 
@@ -155,6 +159,11 @@ class BackupService {
     final arenaLogRows = _readList(tables, 'daily_arena_logs')
         .map(DailyArenaLogRow.fromJson)
         .toList();
+    final storyRunRows =
+        _readList(tables, 'story_runs').map(StoryRunRow.fromJson).toList();
+    final storyChapterRows = _readList(tables, 'story_chapters')
+        .map(StoryChapterRow.fromJson)
+        .toList();
 
     await _db.transaction(() async {
       // Clear tables in reverse foreign-key order.
@@ -169,6 +178,8 @@ class BackupService {
       await _db.delete(_db.dailyHealthLogs).go();
       await _db.delete(_db.arenaProgress).go();
       await _db.delete(_db.dailyArenaLogs).go();
+      await _db.delete(_db.storyChapters).go();
+      await _db.delete(_db.storyRuns).go();
       await _db.delete(_db.heroes).go();
       await _db.delete(_db.exercises).go();
 
@@ -215,6 +226,12 @@ class BackupService {
         }
         if (arenaLogRows.isNotEmpty) {
           b.insertAll(_db.dailyArenaLogs, arenaLogRows);
+        }
+        if (storyRunRows.isNotEmpty) {
+          b.insertAll(_db.storyRuns, storyRunRows);
+        }
+        if (storyChapterRows.isNotEmpty) {
+          b.insertAll(_db.storyChapters, storyChapterRows);
         }
       });
     });

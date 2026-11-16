@@ -1919,7 +1919,7 @@ abstract class AppLocalizations {
   /// No description provided for @combatModeStoryBadge.
   ///
   /// In pt, this message translates to:
-  /// **'EM BREVE · FASE 2'**
+  /// **'FASE 2 · JOGÁVEL'**
   String get combatModeStoryBadge;
 
   /// No description provided for @combatModeStoryDescription.
@@ -2481,6 +2481,126 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'T{turn}: Surto Lendário! O chefe desencadeou {dmg} de dano massivo!'**
   String combatLogLegendarySurge(int turn, int dmg);
+
+  /// No description provided for @combatModeStoryEnterButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar nas Crônicas da Forja'**
+  String get combatModeStoryEnterButton;
+
+  /// No description provided for @combatModeLegendaryTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chefes Semanais Lendários (18)'**
+  String get combatModeLegendaryTitle;
+
+  /// No description provided for @combatModeLegendaryBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'18 CHEFES · 0 XP'**
+  String get combatModeLegendaryBadge;
+
+  /// No description provided for @combatModeLegendaryDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enfrente o Soberano Lendário desta semana com mecânicas únicas de D&D 5e. Seus treinos e hábitos reais enfraquecem o chefe. Ative o Modo Tester para desafiar todos os 18!'**
+  String get combatModeLegendaryDescription;
+
+  /// No description provided for @combatModeLegendaryEnterButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver Chefes Lendários'**
+  String get combatModeLegendaryEnterButton;
+
+  /// No description provided for @storyWeeklyBossHeader.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chefe Semanal · {week}'**
+  String storyWeeklyBossHeader(String week);
+
+  /// No description provided for @storyWeaknessSealsLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selos de Enfraquecimento: {seals}/7'**
+  String storyWeaknessSealsLabel(int seals);
+
+  /// No description provided for @storyWeaknessSealsHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treinos, missões e saúde da semana reduzem o PV, CA e passivas deste Chefe.'**
+  String get storyWeaknessSealsHint;
+
+  /// No description provided for @storyBossDefeatedBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'DERROTADO ESTA SEMANA'**
+  String get storyBossDefeatedBadge;
+
+  /// No description provided for @storyChallengeWeeklyBoss.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desafiar Chefe Semanal'**
+  String get storyChallengeWeeklyBoss;
+
+  /// No description provided for @storyChronicleButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diário ({count})'**
+  String storyChronicleButton(int count);
+
+  /// No description provided for @storyChronicleTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Diário de Crônicas'**
+  String get storyChronicleTitle;
+
+  /// No description provided for @storyChronicleEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma cena registrada nesta semana ainda. Escolha um caminho ou escreva sua ação!'**
+  String get storyChronicleEmpty;
+
+  /// No description provided for @storyInputHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'O que seu herói faz agora? (texto livre...)'**
+  String get storyInputHint;
+
+  /// No description provided for @storySendAction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agir'**
+  String get storySendAction;
+
+  /// No description provided for @storyRerollInspiration.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gastar 1 Inspiração para Re-rolar d20 ({count} disp.)'**
+  String storyRerollInspiration(int count);
+
+  /// No description provided for @legendaryThisWeekBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'CHEFE DESTA SEMANA'**
+  String get legendaryThisWeekBadge;
+
+  /// No description provided for @legendaryTesterAllBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'TODOS OS 18 LENDÁRIOS (TESTER)'**
+  String get legendaryTesterAllBadge;
+
+  /// No description provided for @legendaryLockedTesterHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ative o Modo Tester para treinar contra outros chefes fora da rotação da semana.'**
+  String get legendaryLockedTesterHint;
+
+  /// No description provided for @legendaryFightButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enfrentar Lendário'**
+  String get legendaryFightButton;
 }
 
 class _AppLocalizationsDelegate

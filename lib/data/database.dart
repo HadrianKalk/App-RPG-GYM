@@ -206,6 +206,37 @@ class RoutineExercises extends Table {
   IntColumn get restSeconds => integer().withDefault(const Constant(90))();
 }
 
+/// Active or past Weekly Story Arc runs and compact campaign memory (schema v10).
+@DataClassName('StoryRunRow')
+class StoryRuns extends Table {
+  TextColumn get weekKey => text()();
+  TextColumn get weeklyBossId => text()();
+  IntColumn get weaknessStacks => integer().withDefault(const Constant(0))();
+  IntColumn get chaptersCompleted => integer().withDefault(const Constant(0))();
+  BoolColumn get bossDefeated => boolean().withDefault(const Constant(false))();
+  TextColumn get memoryJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {weekKey};
+}
+
+/// Persisted Chronicle entries of Story Mode scenes and outcomes (schema v10).
+@DataClassName('StoryChapterRow')
+class StoryChapters extends Table {
+  TextColumn get id => text()();
+  TextColumn get weekKey => text()();
+  TextColumn get locationName => text()();
+  TextColumn get playerAction => text()();
+  TextColumn get narration => text()();
+  TextColumn get triggerType => text()();
+  TextColumn get outcomeSummary => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   Routines,
   RoutineExercises,
@@ -213,6 +244,8 @@ class RoutineExercises extends Table {
   DailyHealthLogs,
   ArenaProgress,
   DailyArenaLogs,
+  StoryRuns,
+  StoryChapters,
   Exercises,
   WorkoutSessions,
   WorkoutSets,
@@ -225,7 +258,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -294,6 +327,11 @@ class AppDatabase extends _$AppDatabase {
           // v9: Modular Paper-Doll hero appearance (Decision #44).
           if (from < 9) {
             await m.addColumn(heroes, heroes.appearance);
+          }
+          // v10: Story Mode weekly runs & Chronicle log (Decision #49).
+          if (from < 10) {
+            await m.createTable(storyRuns);
+            await m.createTable(storyChapters);
           }
         },
         // SQLite needs this to honor ON DELETE CASCADE (routine exercises).

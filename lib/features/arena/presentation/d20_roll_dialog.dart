@@ -221,8 +221,9 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
             ? AppTheme.darkBlood
             : AppTheme.castIron,
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
           children: [
             // --- Header -----------------------------------------------------
             Row(
@@ -401,6 +402,7 @@ class _D20RollDialogBodyState extends State<_D20RollDialogBody>
               ),
             ],
           ],
+        ),
         ),
         ),
       ),

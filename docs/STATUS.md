@@ -2,10 +2,10 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-16 (Gemini / Antigravity) — Etapa 7A concluída: Backup JSON (PWA/Desktop) + 18 Chefes Semanais Lendários + Motor do Modo História (`story.dart`) & `TemplateStoryNarrator`
+**Última atualização:** 2026-11-16 (Gemini / Antigravity) — Etapa 7B concluída: Sprites/Auras 16-bit dos 18 Chefes Lendários + Drift v10 + UI do Modo História & Diário de Crônicas
 
 ## Fase atual
-**Etapa 7A concluída!** Pronto para iniciar a **Etapa 7B — Sprites/VFX dos 18 Lendários + Drift v10 + UI do Modo História & Diário**.
+**Etapa 7B concluída!** Pronto para a **Etapa 7C — Provedor de IA Real (`RemoteAiStoryNarrator` com BYOK Gemini & Fallback Offline)**.
 
 ## Fase 2 — Mundo Vivo, Inimigos Lendários & Narrador IA
 - [x] **Etapa 7A — Backup JSON + 18 Chefes Lendários + Motor de História & `StoryNarrator` Offline:**
@@ -13,10 +13,10 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   - [x] Sistema de **18 Inimigos Lendários** em `legendary_bosses.dart` + `combat.dart` com 9 mecânicas únicas D&D 5e e **Selos de Enfraquecimento** vindos dos hábitos reais da semana.
   - [x] Motor puro `lib/core/game/story.dart` (Arco Semanal + Capítulos livres com `StoryQuotaPolicy` pronto para tiers futuros + protocolo `StoryTriggerType` + `CampaignMemory` compacta + re-rolagem por Inspiração).
   - [x] Interface `StoryNarrator` + `TemplateStoryNarrator` offline-first (`pt-BR` e `en`).
-- [ ] **Etapa 7B — Sprites/VFX dos Lendários + Persistência v10 + UI Modo História & Diário:**
-  - [ ] Sprites e auras/VFX 16-bit no palco para os Chefes Lendários.
-  - [ ] Drift schema v10 (`story_runs`, `story_chapters`, `campaign_state`) + `StoryRepository`.
-  - [ ] Desbloqueio do card **Modo História · Crônicas da Forja** na aba Combate + `StoryScreen` (texto livre/escolhas + `D20RollDialog` + re-rolagem com Inspiração + transição para o palco 16-bit + Diário de Crônicas) + acesso direto aos 18 Lendários e cenas extras no **Modo Tester**.
+- [x] **Etapa 7B — Sprites/VFX dos Lendários + Persistência v10 + UI Modo História & Diário:**
+  - [x] Sprites 16-bit e indicadores/auras de mecânicas lendárias no `CombatStageWidget` (`OpponentSprites` + `pixel_sprite.dart`) para os 18 Chefes Semanais.
+  - [x] Drift schema v10 (`story_runs`, `story_chapters`) + `StoryRepository` + Backup JSON atualizado + desbloqueio de títulos/cosméticos lendários em `CombatRepository`.
+  - [x] Card **Modo História · Crônicas da Forja** desbloqueado no topo da aba Combate + `StoryModeView` (texto livre + escolhas rápidas + `D20RollDialog` + re-rolagem real por Inspiração + combate ao vivo no palco 16-bit + Diário de Crônicas) + aba/card **Chefes Semanais Lendários (18)** liberando todos no **Modo Tester**.
 - [ ] **Etapa 7C — Provedor de IA Real (`RemoteAiStoryNarrator`):**
   - [ ] Conector HTTP para Gemini usando **BYOK** (chave própria configurável no aparelho, pronta para proxy/tiers futuro), com JSON estrito e fallback automático para `TemplateStoryNarrator`.
 

@@ -11,10 +11,15 @@ import 'hero_repository.dart';
 import 'routine_repository.dart';
 import 'history_repository.dart';
 import 'combat_repository.dart';
+import 'story_repository.dart';
 import '../../core/game/attributes.dart';
+import '../../core/game/combat.dart';
 import '../../core/game/routine.dart';
 import '../../core/game/hero_profile.dart';
+import '../../core/game/story.dart';
 import '../../core/game/xp_rules.dart';
+import '../../features/story/domain/story_narrator.dart';
+import '../../features/story/domain/template_story_narrator.dart';
 
 /// Compile-time flag (`--dart-define=TESTER_MODE=true`) that enables Tester
 /// Mode by default on startup.
@@ -262,3 +267,28 @@ final arenaStateStreamProvider = StreamProvider<ArenaState>((ref) async* {
     yield mapArena(real);
   }
 });
+
+final storyRepositoryProvider = Provider<StoryRepository>((ref) {
+  return StoryRepository(ref.watch(databaseProvider));
+});
+
+/// Active Weekly Story Arc plus today/week real-world habit digest.
+final weeklyStoryArcProvider =
+    StreamProvider<({StoryArcState arc, StoryHabitDigest habits})>((ref) {
+  return ref.watch(storyRepositoryProvider).watchWeeklyArc();
+});
+
+/// Chronicle log rows for a given ISO week key (`YYYY-Www`).
+final weeklyStoryChaptersProvider =
+    StreamProvider.family<List<StoryChapterRow>, String>((ref, weekKey) {
+  return ref.watch(storyRepositoryProvider).watchChapters(weekKey);
+});
+
+/// Swappable Story Narrator (offline Template narrator now; Remote AI in 7C).
+final storyNarratorProvider = Provider<StoryNarrator>((ref) {
+  return const TemplateStoryNarrator();
+});
+
+/// Carries a finished Story-triggered combat encounter back to StoryModeView.
+final storyPendingCombatOutcomeProvider = StateProvider<
+    ({StoryCombatSpec spec, CombatEncounter encounter})?>((ref) => null);

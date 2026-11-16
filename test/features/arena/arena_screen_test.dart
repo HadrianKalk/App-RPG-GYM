@@ -72,10 +72,22 @@ void main() {
     );
     await settle(tester);
 
-    // 1. Verify Combat Hub shows Story Mode (locked at top) and 1v1 Duels card
+    // 1. Verify Combat Hub shows playable Story Mode at top, 1v1 Duels, and Legendary Bosses card
     expect(find.byKey(const Key('combat_mode_story_card')), findsOneWidget);
-    expect(find.textContaining('EM BREVE'), findsOneWidget);
+    expect(find.byKey(const Key('combat_mode_story_btn')), findsOneWidget);
     expect(find.byKey(const Key('combat_mode_duels_card')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('combat_mode_legendary_card')),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('combat_mode_legendary_card')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('open_tester_panel_btn')),
+      -250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await settle(tester);
 
     // 2. Open Tester Panel and force Natural 20 + Veteran preset (16 in all attributes)
     await tester.tap(find.byKey(const Key('open_tester_panel_btn')));

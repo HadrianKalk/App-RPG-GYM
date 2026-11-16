@@ -1165,7 +1165,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get combatModeStoryTitle => 'Story Mode · Forge Chronicles';
 
   @override
-  String get combatModeStoryBadge => 'COMING SOON · PHASE 2';
+  String get combatModeStoryBadge => 'PHASE 2 · PLAYABLE';
 
   @override
   String get combatModeStoryDescription =>
@@ -1511,4 +1511,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String combatLogLegendarySurge(int turn, int dmg) {
     return 'T$turn: Legendary Surge! The boss unleashed $dmg massive damage!';
   }
+
+  @override
+  String get combatModeStoryEnterButton => 'Enter Chronicles of the Forge';
+
+  @override
+  String get combatModeLegendaryTitle => 'Weekly Legendary Bosses (18)';
+
+  @override
+  String get combatModeLegendaryBadge => '18 BOSSES · 0 XP';
+
+  @override
+  String get combatModeLegendaryDescription =>
+      'Face this week\'s Legendary Sovereign with unique D&D 5e mechanics. Real-world workouts and habits weaken the boss. Enable Tester Mode to spar all 18!';
+
+  @override
+  String get combatModeLegendaryEnterButton => 'View Legendary Bosses';
+
+  @override
+  String storyWeeklyBossHeader(String week) {
+    return 'Weekly Boss · $week';
+  }
+
+  @override
+  String storyWeaknessSealsLabel(int seals) {
+    return 'Weakness Seals: $seals/7';
+  }
+
+  @override
+  String get storyWeaknessSealsHint =>
+      'Weekly workouts, quests, and health habits lower this Boss\'s HP, AC, and passives.';
+
+  @override
+  String get storyBossDefeatedBadge => 'DEFEATED THIS WEEK';
+
+  @override
+  String get storyChallengeWeeklyBoss => 'Challenge Weekly Boss';
+
+  @override
+  String storyChronicleButton(int count) {
+    return 'Chronicle ($count)';
+  }
+
+  @override
+  String get storyChronicleTitle => 'Chronicle Log';
+
+  @override
+  String get storyChronicleEmpty =>
+      'No scenes logged this week yet. Pick an option or type your own action!';
+
+  @override
+  String get storyInputHint => 'What does your hero do next? (free action...)';
+
+  @override
+  String get storySendAction => 'Act';
+
+  @override
+  String storyRerollInspiration(int count) {
+    return 'Spend 1 Inspiration to Re-roll d20 ($count left)';
+  }
+
+  @override
+  String get legendaryThisWeekBadge => 'THIS WEEK\'S BOSS';
+
+  @override
+  String get legendaryTesterAllBadge => 'ALL 18 LEGENDARY BOSSES (TESTER)';
+
+  @override
+  String get legendaryLockedTesterHint =>
+      'Enable Tester Mode to spar other bosses outside this week\'s rotation.';
+
+  @override
+  String get legendaryFightButton => 'Fight Legendary';
 }

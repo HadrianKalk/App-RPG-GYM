@@ -111,8 +111,14 @@ class GameText {
   // --- Combat (Skills, Arena NPCs, Titles & Cosmetics) ----------------------
   String skillName(String skillId) => t('skill.$skillId.name');
   String skillDescription(String skillId) => t('skill.$skillId.description');
-  String arenaNpcName(String npcId) => t('arenaNpc.$npcId.name');
-  String arenaNpcLore(String npcId) => t('arenaNpc.$npcId.lore');
+  String arenaNpcName(String npcId) =>
+      npcId.startsWith('boss_') && !has('arenaNpc.$npcId.name')
+          ? legendaryBossName(npcId)
+          : t('arenaNpc.$npcId.name');
+  String arenaNpcLore(String npcId) =>
+      npcId.startsWith('boss_') && !has('arenaNpc.$npcId.lore')
+          ? legendaryBossLore(npcId)
+          : t('arenaNpc.$npcId.lore');
   String tournamentName(String tournamentId) => t('tournament.$tournamentId.name');
   String tournamentLore(String tournamentId) => t('tournament.$tournamentId.lore');
   String dungeonName(String dungeonId) => t('dungeon.$dungeonId.name');

@@ -3,6 +3,17 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Etapa 7B: Sprites 16-bit dos 18 Lendários + Drift v10 + UI Modo História
+- **Sprites & Palco 16-bit dos 18 Chefes Lendários (`lib/app/ui/pixel_sprite.dart`, `combat_stage_widget.dart`):**
+  - Receitas 16-bit individuais para todos os 18 Chefes Semanais (`OpponentSprites._legendaryAppearance`), ataques correspondentes e chips/auras visuais no palco (Barreira do Infinito, Placas Blindadas, Fases 2/3, Sangramento).
+- **Persistência Drift Schema v10 (`lib/data/database.dart`, `database.g.dart`, `story_repository.dart`, `backup_service.dart`, `combat_repository.dart`):**
+  - Tabelas `story_runs` e `story_chapters` com migração `v10`, `StoryRepository` (digest real de hábitos da semana, Diário de Crônicas e gasto de Inspiração para re-rolagem), desbloqueio automático de Títulos/Cosméticos Lendários e suporte no Backup JSON.
+- **Modo História Desbloqueado & Chefes Lendários (`lib/features/story/presentation/story_mode_view.dart`, `arena_screen.dart`):**
+  - Card de topo **Modo História · Crônicas da Forja** jogável com texto livre/escolhas, `D20RollDialog`, botão de re-rolagem com **Inspiração**, transição para combate ao vivo com retorno automático da vitória/derrota para a narração e **Diário de Crônicas**.
+  - Retângulo/aba **Chefes Semanais Lendários (18)** exibindo o Chefe da semana com seus Selos de Enfraquecimento e liberando todos os 18 no **Modo Tester**.
+- **Verificação:** `flutter analyze` (0 erros) e `flutter test` (**137/137** testes passando).
+- **Próximo passo:** Etapa 7C — Conector Gemini (BYOK configurável + JSON estrito + fallback automático offline para `TemplateStoryNarrator`).
+
 ## 2026-11-16 — Gemini (Antigravity) — Etapa 7A: Backup JSON + 18 Chefes Lendários + Motor do Modo História
 - **Arquitetura da Fase 2 fechada em `docs/DECISIONS.md` (#49–#51):**
   - Modo História interativo via protocolo **Mestre + Gatilhos de Motor** (`narrative`, `skillCheck`, `combatTrigger`, `chapterComplete`), sem trava diária no MVP (com `StoryQuotaPolicy` pronto para plano gratuito vs. pago) e BYOK na Etapa 7C.

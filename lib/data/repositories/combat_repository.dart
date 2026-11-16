@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/game/attributes.dart';
 import '../../core/game/combat.dart';
+import '../../core/game/legendary_bosses.dart';
 import '../../core/game/xp_event.dart';
 import '../database.dart';
 import 'character_repository.dart';
@@ -42,11 +43,16 @@ final class ArenaState {
   int get dungeonsCompletedCount =>
       DungeonCatalog.dungeons.where((d) => isDefeated(d.id)).length;
 
-  /// Whether [opponentId] (or tournament/dungeon id) has been defeated at least once.
+  /// Number of distinct Legendary Weekly Bosses defeated at least once.
+  int get legendaryDefeatedCount =>
+      LegendaryBossCatalog.bosses.where((b) => isDefeated(b.id)).length;
+
+  /// Whether [opponentId] (or tournament/dungeon/legendary id) has been defeated.
   bool isDefeated(String opponentId) =>
       (victoriesByOpponent[opponentId] ?? 0) > 0;
 
-  /// All unlocked combat title ids (`title_*`) from Arena, Tournaments, and Dungeons.
+  /// All unlocked combat title ids (`title_*`) from Arena, Tournaments,
+  /// Dungeons, and Weekly Legendary Bosses.
   Set<String> get unlockedTitleIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.titleId,
@@ -54,9 +60,12 @@ final class ArenaState {
           if (isDefeated(t.id)) t.reward.titleId,
         for (final d in DungeonCatalog.dungeons)
           if (isDefeated(d.id)) d.reward.titleId,
+        for (final b in LegendaryBossCatalog.bosses)
+          if (isDefeated(b.id)) b.reward.titleId,
       };
 
-  /// All unlocked combat cosmetic ids (`cosmetic_*`) from Arena, Tournaments, and Dungeons.
+  /// All unlocked combat cosmetic ids (`cosmetic_*`) from Arena, Tournaments,
+  /// Dungeons, and Weekly Legendary Bosses.
   Set<String> get unlockedCosmeticIds => {
         for (final npc in ArenaCatalog.opponents)
           if (isDefeated(npc.id)) npc.reward.cosmeticId,
@@ -64,6 +73,8 @@ final class ArenaState {
           if (isDefeated(t.id)) t.reward.cosmeticId,
         for (final d in DungeonCatalog.dungeons)
           if (isDefeated(d.id)) d.reward.cosmeticId,
+        for (final b in LegendaryBossCatalog.bosses)
+          if (isDefeated(b.id)) b.reward.cosmeticId,
       };
 }
 

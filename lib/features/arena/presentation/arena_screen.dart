@@ -15,21 +15,25 @@ import '../../../core/audio/sound_service.dart';
 import '../../../core/game/attributes.dart';
 import '../../../core/game/combat.dart';
 import '../../../core/game/hero_appearance.dart';
+import '../../../core/game/hero_profile.dart';
+import '../../../core/game/legendary_bosses.dart';
+import '../../../core/game/story.dart';
 import '../../../data/repositories/character_repository.dart';
 import '../../../data/repositories/combat_repository.dart';
 import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
 import '../../settings/presentation/tester_panel_sheet.dart';
+import '../../story/presentation/story_mode_view.dart';
 import 'combat_stage_widget.dart';
 import 'd20_roll_dialog.dart';
 import 'd20_roller_widget.dart';
 
 /// Sub-modes selectable from the Combat Hub.
-enum CombatHubMode { duels, tournaments, dungeons }
+enum CombatHubMode { story, duels, tournaments, dungeons, legendary }
 
 /// Dedicated Combat Tab: Combat Hub with Mode Selection rectangles (Story Mode
-/// locked at top, 1v1 Duels, Tournaments, and Dungeons), animated D20 combat,
-/// and quick access to the Tester Mode sandbox.
+/// at top, 1v1 Duels, Tournaments, Dungeons, and 18 Weekly Legendary Bosses),
+/// animated D20 combat, and quick access to the Tester Mode sandbox.
 class ArenaScreen extends ConsumerStatefulWidget {
   const ArenaScreen({super.key});
 
@@ -42,6 +46,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
   CombatEncounter? _encounter;
   TournamentRun? _tournamentRun;
   DungeonRun? _dungeonRun;
+  StoryCombatSpec? _activeStoryCombat;
   bool _firstUnlockOnLastVictory = false;
   bool _busy = false;
   int _rollAnimationCounter = 0;
@@ -92,6 +97,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
         setState(() {
           _tournamentRun = null;
           _dungeonRun = null;
+          _activeStoryCombat = null;
           _encounter = started;
           _firstUnlockOnLastVictory = false;
         });
@@ -99,6 +105,60 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _startLegendary(
+    LegendaryBossSpec boss,
+    CharacterState char,
+    int weaknessStacks,
+  ) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final consumed = await _tryConsumeToken();
+      if (!consumed) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.arenaNoTokens)),
+          );
+        }
+        return;
+      }
+
+      final started = CombatEngine.startLegendary(
+        hero: _buildHeroStats(char),
+        boss: boss,
+        weaknessStacks: weaknessStacks,
+        availableInspiration: char.inspirationCount,
+      );
+
+      if (mounted) {
+        setState(() {
+          _tournamentRun = null;
+          _dungeonRun = null;
+          _activeStoryCombat = null;
+          _encounter = started;
+          _firstUnlockOnLastVictory = false;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _startStoryCombat(StoryCombatSpec spec, CharacterState char) {
+    final started = StoryEngine.startStoryCombat(
+      hero: _buildHeroStats(char),
+      spec: spec,
+      availableInspiration: char.inspirationCount,
+    );
+    setState(() {
+      _tournamentRun = null;
+      _dungeonRun = null;
+      _activeStoryCombat = spec;
+      _encounter = started;
+      _firstUnlockOnLastVictory = false;
+    });
   }
 
   Future<void> _startTournament(
@@ -257,7 +317,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
         attribute: attr,
         attributeModifier: current.hero.attackModifierFor(attr),
         proficiencyBonus: current.hero.proficiencyBonus,
-        targetNumber: current.opponent.armorClass,
+        targetNumber: current.effectiveArmorClass,
         soundService: sound,
         forcedD20: forcedD20,
         guaranteedNatural20: action == CombatAction.heroicInspiration,
@@ -406,15 +466,23 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     final hero = ref.watch(heroStreamProvider).valueOrNull;
     final tester = ref.watch(testerModeProvider);
 
+    final char = charAsync.valueOrNull;
+    final arena = arenaAsync.valueOrNull;
+
     return Scaffold(
       appBar: GameAppBar(title: l10n.combatHubTitle),
-      body: charAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(l10n.loadError('$e'))),
-        data: (char) => arenaAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text(l10n.loadError('$e'))),
-          data: (arena) {
+      body: Builder(
+        builder: (context) {
+          if (charAsync.hasError && char == null) {
+            return Center(child: Text(l10n.loadError('${charAsync.error}')));
+          }
+          if (arenaAsync.hasError && arena == null) {
+            return Center(child: Text(l10n.loadError('${arenaAsync.error}')));
+          }
+          if (char == null || arena == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return () {
             if (_dungeonRun != null && !_dungeonRun!.inBossPhase) {
               return _ActiveDungeonRoomView(
                 run: _dungeonRun!,
@@ -445,18 +513,56 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
                 onAction: _executeAction,
                 onNextTournamentRound: _advanceTournamentRound,
                 onEquipReward: () => _equipReward(_encounter!.opponent.reward),
-                onBackToRoster: () => setState(() {
-                  _encounter = null;
-                  _tournamentRun = null;
-                  _dungeonRun = null;
-                }),
+                onBackToRoster: () {
+                  final finished = _encounter;
+                  final storySpec = _activeStoryCombat;
+                  if (storySpec != null &&
+                      finished != null &&
+                      finished.status != CombatStatus.ongoing) {
+                    ref.read(storyPendingCombatOutcomeProvider.notifier).state = (
+                      spec: storySpec,
+                      encounter: finished,
+                    );
+                  }
+                  setState(() {
+                    _encounter = null;
+                    _tournamentRun = null;
+                    _dungeonRun = null;
+                    _activeStoryCombat = null;
+                  });
+                },
               );
             }
+
+            if (_selectedMode == CombatHubMode.story) {
+              final effectiveHero = hero ??
+                  HeroProfile(
+                    name: l10n.navHero,
+                    form: HeroForm.masculine,
+                    origin: HeroOrigin.soldier,
+                    createdAt: DateTime.now(),
+                  );
+              return StoryModeView(
+                char: char,
+                hero: effectiveHero,
+                testerEnabled: tester.enabled,
+                onBackToHub: () => setState(() => _selectedMode = null),
+                onStartStoryCombat: (spec) => _startStoryCombat(spec, char),
+              );
+            }
+
+            final weeklySeals = ref
+                    .watch(weeklyStoryArcProvider)
+                    .valueOrNull
+                    ?.arc
+                    .weaknessStacks ??
+                0;
 
             if (_selectedMode == null) {
               return _CombatHubView(
                 arena: arena,
                 testerEnabled: tester.enabled,
+                weeklySeals: weeklySeals,
                 onOpenTester: () => showTesterPanelSheet(context),
                 onSelectMode: (mode) => setState(() => _selectedMode = mode),
               );
@@ -467,6 +573,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
               char: char,
               busy: _busy,
               testerEnabled: tester.enabled,
+              weeklySeals: weeklySeals,
               selectedMode: _selectedMode!,
               onSelectMode: (mode) => setState(() => _selectedMode = mode),
               onBackToHub: () => setState(() => _selectedMode = null),
@@ -474,29 +581,39 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
               onChallenge: (npc) => _startChallenge(npc, char),
               onEnterTournament: (t) => _startTournament(t, char),
               onEnterDungeon: (d) => _startDungeon(d, char),
+              onChallengeLegendary: (boss) => _startLegendary(
+                boss,
+                char,
+                boss.id == LegendaryBossCatalog.forWeek(DateTime.now()).id
+                    ? weeklySeals
+                    : 0,
+              ),
             );
-          },
-        ),
+          }();
+        },
       ),
     );
   }
 }
 
-/// Top-level Combat Hub presenting the 4 Mode Selection rectangles:
-/// 1. Story Mode (top, emphasized, locked — coming in Phase 2)
+/// Top-level Combat Hub presenting the Mode Selection rectangles:
+/// 1. Story Mode (top, highlighted, live Phase 2)
 /// 2. 1v1 Duel Arena
 /// 3. Forge Tournaments (Gauntlet)
 /// 4. Deep Dungeons
+/// 5. Weekly Legendary Bosses (18)
 class _CombatHubView extends StatelessWidget {
   const _CombatHubView({
     required this.arena,
     required this.testerEnabled,
+    required this.weeklySeals,
     required this.onOpenTester,
     required this.onSelectMode,
   });
 
   final ArenaState arena;
   final bool testerEnabled;
+  final int weeklySeals;
   final VoidCallback onOpenTester;
   final ValueChanged<CombatHubMode> onSelectMode;
 
@@ -507,6 +624,7 @@ class _CombatHubView extends StatelessWidget {
     final hasTokens = arena.entriesRemainingToday > 0;
 
     return ListView(
+      scrollCacheExtent: const ScrollCacheExtent.pixels(1800),
       padding: const EdgeInsets.all(12),
       children: [
         // --- Header & Daily Combat Tokens + Tester Mode Button -------------
@@ -613,11 +731,12 @@ class _CombatHubView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // --- 1. STORY MODE (Top, Emphasized, Locked) -----------------------
+        // --- 1. STORY MODE (Top, Emphasized, Live Phase 2) -------------------
         PixelFrame(
           key: const Key('combat_mode_story_card'),
           highlight: true,
           color: AppTheme.darkBlood,
+          onTap: () => onSelectMode(CombatHubMode.story),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -651,6 +770,12 @@ class _CombatHubView extends StatelessWidget {
                   fontSize: 12,
                   height: 1.35,
                 ),
+              ),
+              const SizedBox(height: 10),
+              PixelButton(
+                key: const Key('combat_mode_story_btn'),
+                label: l10n.combatModeStoryEnterButton,
+                onPressed: () => onSelectMode(CombatHubMode.story),
               ),
             ],
           ),
@@ -807,6 +932,59 @@ class _CombatHubView extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 12),
+
+        // --- 5. WEEKLY LEGENDARY BOSSES (18) --------------------------------
+        PixelFrame(
+          key: const Key('combat_mode_legendary_card'),
+          onTap: () => onSelectMode(CombatHubMode.legendary),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const PixelIcon(
+                    PixelIcons.trophy,
+                    size: 24,
+                    color: AppTheme.emberGold,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l10n.combatModeLegendaryTitle,
+                      style: display.style(24, color: AppTheme.ashWhite),
+                    ),
+                  ),
+                  PixelTag(
+                    text: l10n.combatModeLegendaryBadge,
+                    color: AppTheme.emberGold,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.combatModeLegendaryDescription,
+                style: const TextStyle(
+                  color: AppTheme.dullSilver,
+                  fontSize: 12,
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 8),
+              PixelTag(
+                text: l10n.storyWeaknessSealsLabel(weeklySeals),
+                color: AppTheme.emberGold,
+              ),
+              const SizedBox(height: 10),
+              PixelButton(
+                key: const Key('combat_mode_legendary_btn'),
+                label: l10n.combatModeLegendaryEnterButton,
+                variant: PixelButtonVariant.secondary,
+                onPressed: () => onSelectMode(CombatHubMode.legendary),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -818,6 +996,7 @@ class _ArenaRosterView extends StatelessWidget {
     required this.char,
     required this.busy,
     required this.testerEnabled,
+    required this.weeklySeals,
     required this.selectedMode,
     required this.onSelectMode,
     required this.onBackToHub,
@@ -825,12 +1004,14 @@ class _ArenaRosterView extends StatelessWidget {
     required this.onChallenge,
     required this.onEnterTournament,
     required this.onEnterDungeon,
+    required this.onChallengeLegendary,
   });
 
   final ArenaState arena;
   final CharacterState char;
   final bool busy;
   final bool testerEnabled;
+  final int weeklySeals;
   final CombatHubMode selectedMode;
   final ValueChanged<CombatHubMode> onSelectMode;
   final VoidCallback onBackToHub;
@@ -838,6 +1019,7 @@ class _ArenaRosterView extends StatelessWidget {
   final ValueChanged<ArenaOpponent> onChallenge;
   final ValueChanged<TournamentDefinition> onEnterTournament;
   final ValueChanged<DungeonDefinition> onEnterDungeon;
+  final ValueChanged<LegendaryBossSpec> onChallengeLegendary;
 
   @override
   Widget build(BuildContext context) {
@@ -847,6 +1029,7 @@ class _ArenaRosterView extends StatelessWidget {
     final hasTokens = arena.entriesRemainingToday > 0;
 
     return ListView(
+      scrollCacheExtent: const ScrollCacheExtent.pixels(1800),
       padding: const EdgeInsets.all(12),
       children: [
         // --- Top Bar: Back to Hub + Tokens + Tester Button -----------------
@@ -903,7 +1086,7 @@ class _ArenaRosterView extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        // --- Mode Switcher: 1v1 Duels | Tournaments | Dungeons ------------
+        // --- Mode Switcher: 1v1 | Tournaments | Dungeons | Legendary --------
         Row(
           children: [
             Expanded(
@@ -938,6 +1121,17 @@ class _ArenaRosterView extends StatelessWidget {
                 onPressed: () => onSelectMode(CombatHubMode.dungeons),
               ),
             ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: PixelButton(
+                key: const Key('arena_tab_legendary'),
+                label: 'Bosses',
+                variant: selectedMode == CombatHubMode.legendary
+                    ? PixelButtonVariant.primary
+                    : PixelButtonVariant.secondary,
+                onPressed: () => onSelectMode(CombatHubMode.legendary),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -964,7 +1158,7 @@ class _ArenaRosterView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ]
-        else
+        else if (selectedMode == CombatHubMode.dungeons)
           for (final d in DungeonCatalog.dungeons) ...[
             _DungeonCard(
               dungeon: d,
@@ -974,7 +1168,43 @@ class _ArenaRosterView extends StatelessWidget {
               onEnter: () => onEnterDungeon(d),
             ),
             const SizedBox(height: 10),
+          ]
+        else ...[
+          if (testerEnabled)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: PixelTag(
+                text: l10n.legendaryTesterAllBadge,
+                color: AppTheme.emberGold,
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                l10n.legendaryLockedTesterHint,
+                style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
+              ),
+            ),
+          for (final boss in _orderedLegendaryBosses(DateTime.now())) ...[
+            _LegendaryBossCard(
+              boss: boss,
+              heroLevel: char.levelInfo.level,
+              isThisWeek: boss.id == LegendaryBossCatalog.forWeek(DateTime.now()).id,
+              weeklySeals: boss.id == LegendaryBossCatalog.forWeek(DateTime.now()).id
+                  ? weeklySeals
+                  : 0,
+              victories: arena.victoriesByOpponent[boss.id] ?? 0,
+              canChallenge: hasTokens &&
+                  !busy &&
+                  (testerEnabled ||
+                      boss.id == LegendaryBossCatalog.forWeek(DateTime.now()).id),
+              game: game,
+              onChallenge: () => onChallengeLegendary(boss),
+            ),
+            const SizedBox(height: 10),
           ],
+        ],
       ],
     );
   }
@@ -1334,6 +1564,7 @@ class _ActiveDungeonRoomView extends StatelessWidget {
     final hasNextRoom = run.roomIndex + 1 < run.totalRooms;
 
     return ListView(
+      scrollCacheExtent: const ScrollCacheExtent.pixels(1800),
       padding: const EdgeInsets.all(12),
       children: [
         // --- Dungeon Room Header --------------------------------------------
@@ -1683,7 +1914,7 @@ class _ActiveCombatView extends StatelessWidget {
                     const SizedBox(width: 6),
                   ],
                   PixelTag(
-                    text: l10n.combatArmorClassLabel(npc.armorClass),
+                    text: l10n.combatArmorClassLabel(encounter.effectiveArmorClass),
                     color: AppTheme.emberGold,
                   ),
                   const SizedBox(width: 6),
@@ -2017,6 +2248,135 @@ class _ActiveCombatView extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+List<LegendaryBossSpec> _orderedLegendaryBosses(DateTime now) {
+  final weekly = LegendaryBossCatalog.forWeek(now);
+  return [
+    weekly,
+    for (final b in LegendaryBossCatalog.bosses)
+      if (b.id != weekly.id) b,
+  ];
+}
+
+class _LegendaryBossCard extends StatelessWidget {
+  const _LegendaryBossCard({
+    required this.boss,
+    required this.heroLevel,
+    required this.isThisWeek,
+    required this.weeklySeals,
+    required this.victories,
+    required this.canChallenge,
+    required this.game,
+    required this.onChallenge,
+  });
+
+  final LegendaryBossSpec boss;
+  final int heroLevel;
+  final bool isThisWeek;
+  final int weeklySeals;
+  final int victories;
+  final bool canChallenge;
+  final GameText game;
+  final VoidCallback onChallenge;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final defeated = victories > 0;
+    final scaled = boss.instantiate(
+      heroLevel: heroLevel,
+      weaknessStacks: weeklySeals,
+    );
+
+    return PixelFrame(
+      highlight: isThisWeek || defeated,
+      color: isThisWeek ? AppTheme.darkBlood : AppTheme.castIron,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              OpponentAvatar(opponentId: boss.id, pixelSize: 2.0),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            game.legendaryBossName(boss.id),
+                            style: display.style(22, color: AppTheme.emberGold),
+                          ),
+                        ),
+                        if (isThisWeek)
+                          PixelTag(
+                            text: l10n.legendaryThisWeekBadge,
+                            color: AppTheme.emberGold,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      game.legendaryBossClass(boss.id),
+                      style: const TextStyle(
+                        color: AppTheme.dullSilver,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            game.legendaryBossLore(boss.id),
+            style: const TextStyle(
+              color: AppTheme.ashWhite,
+              fontSize: 12,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              PixelTag(
+                text: '${l10n.combatHpLabel} ${scaled.maxHp}',
+                color: AppTheme.bloodCrimson,
+              ),
+              PixelTag(
+                text: l10n.combatArmorClassLabel(scaled.armorClass),
+                color: AppTheme.emberGold,
+              ),
+              PixelTag(
+                text: game.combatTitle(boss.reward.titleId),
+                color: defeated ? AppTheme.emberGold : AppTheme.dullSilver,
+              ),
+              if (isThisWeek)
+                PixelTag(
+                  text: l10n.storyWeaknessSealsLabel(weeklySeals),
+                  color: AppTheme.emberGold,
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          PixelButton(
+            key: Key('legendary_challenge_${boss.id}'),
+            label: l10n.legendaryFightButton,
+            onPressed: canChallenge ? onChallenge : null,
+          ),
+        ],
+      ),
     );
   }
 }

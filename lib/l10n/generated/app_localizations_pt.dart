@@ -1169,7 +1169,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get combatModeStoryTitle => 'Modo História · Crônicas da Forja';
 
   @override
-  String get combatModeStoryBadge => 'EM BREVE · FASE 2';
+  String get combatModeStoryBadge => 'FASE 2 · JOGÁVEL';
 
   @override
   String get combatModeStoryDescription =>
@@ -1517,4 +1517,76 @@ class AppLocalizationsPt extends AppLocalizations {
   String combatLogLegendarySurge(int turn, int dmg) {
     return 'T$turn: Surto Lendário! O chefe desencadeou $dmg de dano massivo!';
   }
+
+  @override
+  String get combatModeStoryEnterButton => 'Entrar nas Crônicas da Forja';
+
+  @override
+  String get combatModeLegendaryTitle => 'Chefes Semanais Lendários (18)';
+
+  @override
+  String get combatModeLegendaryBadge => '18 CHEFES · 0 XP';
+
+  @override
+  String get combatModeLegendaryDescription =>
+      'Enfrente o Soberano Lendário desta semana com mecânicas únicas de D&D 5e. Seus treinos e hábitos reais enfraquecem o chefe. Ative o Modo Tester para desafiar todos os 18!';
+
+  @override
+  String get combatModeLegendaryEnterButton => 'Ver Chefes Lendários';
+
+  @override
+  String storyWeeklyBossHeader(String week) {
+    return 'Chefe Semanal · $week';
+  }
+
+  @override
+  String storyWeaknessSealsLabel(int seals) {
+    return 'Selos de Enfraquecimento: $seals/7';
+  }
+
+  @override
+  String get storyWeaknessSealsHint =>
+      'Treinos, missões e saúde da semana reduzem o PV, CA e passivas deste Chefe.';
+
+  @override
+  String get storyBossDefeatedBadge => 'DERROTADO ESTA SEMANA';
+
+  @override
+  String get storyChallengeWeeklyBoss => 'Desafiar Chefe Semanal';
+
+  @override
+  String storyChronicleButton(int count) {
+    return 'Diário ($count)';
+  }
+
+  @override
+  String get storyChronicleTitle => 'Diário de Crônicas';
+
+  @override
+  String get storyChronicleEmpty =>
+      'Nenhuma cena registrada nesta semana ainda. Escolha um caminho ou escreva sua ação!';
+
+  @override
+  String get storyInputHint => 'O que seu herói faz agora? (texto livre...)';
+
+  @override
+  String get storySendAction => 'Agir';
+
+  @override
+  String storyRerollInspiration(int count) {
+    return 'Gastar 1 Inspiração para Re-rolar d20 ($count disp.)';
+  }
+
+  @override
+  String get legendaryThisWeekBadge => 'CHEFE DESTA SEMANA';
+
+  @override
+  String get legendaryTesterAllBadge => 'TODOS OS 18 LENDÁRIOS (TESTER)';
+
+  @override
+  String get legendaryLockedTesterHint =>
+      'Ative o Modo Tester para treinar contra outros chefes fora da rotação da semana.';
+
+  @override
+  String get legendaryFightButton => 'Enfrentar Lendário';
 }

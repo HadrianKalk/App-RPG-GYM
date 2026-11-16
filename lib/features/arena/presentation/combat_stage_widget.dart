@@ -91,6 +91,34 @@ class _CombatStageWidgetState extends State<CombatStageWidget>
   }
 
   AttackAnimationKind _resolveEnemyAttackKind(String opponentId) {
+    if (opponentId == 'boss_satorion' ||
+        opponentId == 'boss_aforion' ||
+        opponentId == 'boss_kaibaron') {
+      return AttackAnimationKind.staffArcaneCast;
+    }
+    if (opponentId == 'boss_gonnir' ||
+        opponentId == 'boss_netherion' ||
+        opponentId == 'boss_kakarion' ||
+        opponentId == 'boss_toshirion' ||
+        opponentId == 'boss_vegor' ||
+        opponentId == 'boss_naruval') {
+      return AttackAnimationKind.martialKiStrike;
+    }
+    if (opponentId == 'boss_ryomoth' || opponentId == 'boss_sasukar') {
+      return AttackAnimationKind.daggerShadowFlurry;
+    }
+    if (opponentId == 'boss_arthorius' ||
+        opponentId == 'boss_vadric' ||
+        opponentId == 'boss_saurath') {
+      return AttackAnimationKind.eldritchRunicSlash;
+    }
+    if (opponentId == 'boss_gerric' ||
+        opponentId == 'boss_erendir' ||
+        opponentId == 'boss_reinor' ||
+        opponentId == 'boss_meruvor') {
+      return AttackAnimationKind.greatswordCleave;
+    }
+
     final enemyAppearance = OpponentSprites.forOpponent(opponentId);
     if (enemyAppearance.backStyle == BackStyle.runicStaffCape) {
       return AttackAnimationKind.staffArcaneCast;
@@ -281,18 +309,94 @@ class _CombatStageWidgetState extends State<CombatStageWidget>
                 Positioned(
                   right: 24 - enemyDx,
                   bottom: 22 - enemyDy,
-                  child: Opacity(
-                    opacity: widget.encounter.enemyHp <= 0 ? 0.35 : 1.0,
-                    child: OpponentAvatar(
-                      key: const Key('stage_opponent_avatar'),
-                      opponentId: enemyId,
-                      pose: enemyPose,
-                      pixelSize: 2.8,
-                      flipHorizontal: true,
-                      hitFlashColor: enemyFlash,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (widget.encounter.legendaryPhase >= 2)
+                        Container(
+                          width: 90,
+                          height: 108,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: (widget.encounter.legendaryPhase >= 3
+                                    ? AppTheme.ashWhite
+                                    : AppTheme.emberGold)
+                                .withValues(alpha: 0.16),
+                            border: Border.all(
+                              color: widget.encounter.legendaryPhase >= 3
+                                  ? AppTheme.ashWhite
+                                  : AppTheme.emberGold,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      Opacity(
+                        opacity: widget.encounter.enemyHp <= 0 ? 0.35 : 1.0,
+                        child: OpponentAvatar(
+                          key: const Key('stage_opponent_avatar'),
+                          opponentId: enemyId,
+                          pose: enemyPose,
+                          pixelSize: 2.8,
+                          flipHorizontal: true,
+                          hitFlashColor: enemyFlash,
+                        ),
+                      ),
+                      if (widget.encounter.legendaryBarrierTurns > 0)
+                        Container(
+                          width: 92,
+                          height: 106,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: const Color(0xFF7B61FF),
+                              width: 2,
+                            ),
+                            color: const Color(0xFF7B61FF)
+                                .withValues(alpha: 0.14),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
+
+                // 3b. Active Legendary / Bleed status badges at top corners
+                if (widget.encounter.isLegendary)
+                  Positioned(
+                    right: 8,
+                    top: 6,
+                    child: Wrap(
+                      spacing: 4,
+                      children: [
+                        if (widget.encounter.legendaryBarrierTurns > 0)
+                          _StageStatusChip(
+                            text: '∞ ${widget.encounter.legendaryBarrierTurns}T',
+                            color: const Color(0xFF7B61FF),
+                          ),
+                        if (widget.encounter.legendaryPlateStacks > 0)
+                          _StageStatusChip(
+                            text:
+                                'ARM ×${widget.encounter.legendaryPlateStacks}',
+                            color: AppTheme.emberGold,
+                          ),
+                        if (widget.encounter.legendaryPhase >= 2)
+                          _StageStatusChip(
+                            text: 'F${widget.encounter.legendaryPhase}',
+                            color: widget.encounter.legendaryPhase >= 3
+                                ? AppTheme.ashWhite
+                                : AppTheme.emberGold,
+                          ),
+                      ],
+                    ),
+                  ),
+                if (widget.encounter.heroBleedStacks > 0)
+                  Positioned(
+                    left: 8,
+                    top: 6,
+                    child: _StageStatusChip(
+                      text: 'BLEED ×${widget.encounter.heroBleedStacks}',
+                      color: AppTheme.bloodCrimson,
+                    ),
+                  ),
 
                 // 4. Weapon & Magic VFX Layer (Slashes, Staff Beams, Arrows, Ki, Holy Pillar, Ward)
                 if (inHeroPhase)
@@ -826,4 +930,31 @@ class _WeaponVfxPainter extends CustomPainter {
       oldDelegate.progress != progress ||
       oldDelegate.kind != kind ||
       oldDelegate.isCritical != isCritical;
+}
+
+class _StageStatusChip extends StatelessWidget {
+  const _StageStatusChip({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppTheme.obsidianBlack.withValues(alpha: 0.85),
+        border: Border.all(color: color, width: 1.5),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
 }

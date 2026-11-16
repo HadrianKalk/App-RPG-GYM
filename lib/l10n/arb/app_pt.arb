@@ -989,7 +989,7 @@
   "combatHubSubtitle": "Ponha seus atributos reais à prova em duelos, torneios e masmorras (sem ganho de XP — recompensas de prestígio).",
   "combatBackToHub": "Voltar aos Modos",
   "combatModeStoryTitle": "Modo História · Crônicas da Forja",
-  "combatModeStoryBadge": "EM BREVE · FASE 2",
+  "combatModeStoryBadge": "FASE 2 · JOGÁVEL",
   "combatModeStoryDescription": "Campanha narrativa sombria conduzida pelo Mestre de Jogo. Suas escolhas, sua origem e o nível real dos seus 6 atributos abrirão caminhos, diálogos e provações únicas.",
   "combatModeDuelsTitle": "Arena de Duelos (1v1)",
   "combatModeDuelsDescription": "Duelos táticos 1v1 por turnos contra os campeões da Forja. Role o d20 + seu atributo principal contra a Classe de Armadura (CA) do inimigo, use sua habilidade de classe e conquiste títulos e cosméticos exclusivos.",
@@ -1284,5 +1284,45 @@
       "turn": { "type": "int" },
       "dmg": { "type": "int" }
     }
-  }
+  },
+  "combatModeStoryEnterButton": "Entrar nas Crônicas da Forja",
+  "combatModeLegendaryTitle": "Chefes Semanais Lendários (18)",
+  "combatModeLegendaryBadge": "18 CHEFES · 0 XP",
+  "combatModeLegendaryDescription": "Enfrente o Soberano Lendário desta semana com mecânicas únicas de D&D 5e. Seus treinos e hábitos reais enfraquecem o chefe. Ative o Modo Tester para desafiar todos os 18!",
+  "combatModeLegendaryEnterButton": "Ver Chefes Lendários",
+  "storyWeeklyBossHeader": "Chefe Semanal · {week}",
+  "@storyWeeklyBossHeader": {
+    "placeholders": {
+      "week": { "type": "String" }
+    }
+  },
+  "storyWeaknessSealsLabel": "Selos de Enfraquecimento: {seals}/7",
+  "@storyWeaknessSealsLabel": {
+    "placeholders": {
+      "seals": { "type": "int" }
+    }
+  },
+  "storyWeaknessSealsHint": "Treinos, missões e saúde da semana reduzem o PV, CA e passivas deste Chefe.",
+  "storyBossDefeatedBadge": "DERROTADO ESTA SEMANA",
+  "storyChallengeWeeklyBoss": "Desafiar Chefe Semanal",
+  "storyChronicleButton": "Diário ({count})",
+  "@storyChronicleButton": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "storyChronicleTitle": "Diário de Crônicas",
+  "storyChronicleEmpty": "Nenhuma cena registrada nesta semana ainda. Escolha um caminho ou escreva sua ação!",
+  "storyInputHint": "O que seu herói faz agora? (texto livre...)",
+  "storySendAction": "Agir",
+  "storyRerollInspiration": "Gastar 1 Inspiração para Re-rolar d20 ({count} disp.)",
+  "@storyRerollInspiration": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "legendaryThisWeekBadge": "CHEFE DESTA SEMANA",
+  "legendaryTesterAllBadge": "TODOS OS 18 LENDÁRIOS (TESTER)",
+  "legendaryLockedTesterHint": "Ative o Modo Tester para treinar contra outros chefes fora da rotação da semana.",
+  "legendaryFightButton": "Enfrentar Lendário"
 }

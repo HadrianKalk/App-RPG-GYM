@@ -303,7 +303,7 @@
   "combatHubSubtitle": "Put your real-world attributes to the test in duels, tournaments, and dungeons (zero XP — prestige rewards).",
   "combatBackToHub": "Back to Modes",
   "combatModeStoryTitle": "Story Mode · Forge Chronicles",
-  "combatModeStoryBadge": "COMING SOON · PHASE 2",
+  "combatModeStoryBadge": "PHASE 2 · PLAYABLE",
   "combatModeStoryDescription": "Dark narrative campaign guided by the Game Master. Your choices, your origin, and the real level of your 6 attributes will unlock unique paths, dialogues, and trials.",
   "combatModeDuelsTitle": "Duel Arena (1v1)",
   "combatModeDuelsDescription": "Tactical turn-based 1v1 duels against Forge champions. Roll d20 + your primary attribute against the enemy's Armor Class (AC), unleash your class skill, and claim exclusive titles and cosmetics.",
@@ -444,5 +444,45 @@
       "turn": { "type": "int" },
       "dmg": { "type": "int" }
     }
-  }
+  },
+  "combatModeStoryEnterButton": "Enter Chronicles of the Forge",
+  "combatModeLegendaryTitle": "Weekly Legendary Bosses (18)",
+  "combatModeLegendaryBadge": "18 BOSSES · 0 XP",
+  "combatModeLegendaryDescription": "Face this week's Legendary Sovereign with unique D&D 5e mechanics. Real-world workouts and habits weaken the boss. Enable Tester Mode to spar all 18!",
+  "combatModeLegendaryEnterButton": "View Legendary Bosses",
+  "storyWeeklyBossHeader": "Weekly Boss · {week}",
+  "@storyWeeklyBossHeader": {
+    "placeholders": {
+      "week": { "type": "String" }
+    }
+  },
+  "storyWeaknessSealsLabel": "Weakness Seals: {seals}/7",
+  "@storyWeaknessSealsLabel": {
+    "placeholders": {
+      "seals": { "type": "int" }
+    }
+  },
+  "storyWeaknessSealsHint": "Weekly workouts, quests, and health habits lower this Boss's HP, AC, and passives.",
+  "storyBossDefeatedBadge": "DEFEATED THIS WEEK",
+  "storyChallengeWeeklyBoss": "Challenge Weekly Boss",
+  "storyChronicleButton": "Chronicle ({count})",
+  "@storyChronicleButton": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "storyChronicleTitle": "Chronicle Log",
+  "storyChronicleEmpty": "No scenes logged this week yet. Pick an option or type your own action!",
+  "storyInputHint": "What does your hero do next? (free action...)",
+  "storySendAction": "Act",
+  "storyRerollInspiration": "Spend 1 Inspiration to Re-roll d20 ({count} left)",
+  "@storyRerollInspiration": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "legendaryThisWeekBadge": "THIS WEEK'S BOSS",
+  "legendaryTesterAllBadge": "ALL 18 LEGENDARY BOSSES (TESTER)",
+  "legendaryLockedTesterHint": "Enable Tester Mode to spar other bosses outside this week's rotation.",
+  "legendaryFightButton": "Fight Legendary"
 }
