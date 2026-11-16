@@ -3,6 +3,11 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Configuração PWA iOS + Deploy GitHub Pages
+- Ajustado `web/index.html` e `web/manifest.json` para experiência PWA no iPhone/Safari (viewport com `viewport-fit=cover`, `apple-mobile-web-app-capable`, `black-translucent`, tema `#0F0F12`).
+- Adicionado `.github/workflows/deploy-web.yml` para build e deploy automático do PWA no GitHub Pages a cada push na `main`.
+- Validado localmente com `flutter build web --release --base-href "/App-RPG-GYM/"`.
+
 ## 2026-11-16 — Gemini (Antigravity) — Modal do d20 aguarda clique do usuário após revelar
 - Removido o fechamento automático de 950ms do `D20RollDialog`; agora, após o dado cair e revelar o número + fórmula D&D 5e, a janela permanece aberta até o usuário clicar em qualquer ponto dela (`TOQUE PARA CONTINUAR`) para iniciar a animação do golpe na arena.
 - Arquivos principais tocados: `lib/features/arena/presentation/d20_roll_dialog.dart`, `test/features/arena/arena_screen_test.dart`.
