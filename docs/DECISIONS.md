@@ -209,3 +209,14 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Inclui respiração *idle* contínua, *hit flash/shake* ao receber dano,
       recuo de esquiva e popups flutuantes (`-Dano`, `CRIT!`, `FALHA 1!`,
       `+PV`, `ATORDOADO!`, `ESQUIVOU!`).
+48. **Mini-Janela Interativa do d20 + Efeitos Sonoros Dark Fantasy Offline (Etapa 6C):**
+    - Ao atacar na Arena/Torneio ou rolar uma provação de Masmorra, uma
+      mini-janela central (`showInteractiveD20RollDialog`) solicita o toque do
+      jogador no dado d20; ao tocar, o dado cai quicando na mesa de pedra, gira
+      e revela o número natural (`1..20`) com a fórmula completa antes de
+      disparar a animação da arma no palco. O número rolado é passado
+      determinísticamente para `CombatEngine` (`forcedD20`).
+    - Áudio 100% offline via síntese procedural PCM WAV 16-bit (`WavSynth` +
+      `SoundService`), com reprodução nativa sem plugins extras no Windows
+      (`winmm.dll!PlaySoundA` via `dart:ffi`) e fallback seguro em outras
+      plataformas/testes, controlado por `settings.soundEnabled`.

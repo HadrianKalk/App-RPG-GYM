@@ -11,6 +11,7 @@ class SettingsRepository {
 
   static const _kLanguage = 'settings.languageCode';
   static const _kFontStyle = 'settings.fontStyle';
+  static const _kSoundEnabled = 'settings.soundEnabled';
 
   /// Reads the saved settings, ignoring unknown/corrupted values.
   AppSettings load() {
@@ -19,6 +20,7 @@ class SettingsRepository {
     return AppSettings(
       languageCode: _prefs.getString(_kLanguage),
       fontStyle: font ?? AppFontStyle.pixel,
+      soundEnabled: _prefs.getBool(_kSoundEnabled) ?? true,
     );
   }
 
@@ -31,5 +33,6 @@ class SettingsRepository {
       await _prefs.setString(_kLanguage, lang);
     }
     await _prefs.setString(_kFontStyle, settings.fontStyle.name);
+    await _prefs.setBool(_kSoundEnabled, settings.soundEnabled);
   }
 }

@@ -368,5 +368,12 @@
   "appearanceBootsTitle": "Footwear / Boots",
   "appearanceBackTitle": "Cape & Back Weapon",
   "appearanceTintTitle": "Armor / Outfit Palette",
-  "appearanceCustomizeButton": "Edit Hero Appearance"
+  "appearanceCustomizeButton": "Edit Hero Appearance",
+  "settingsSound": "Audio & Effects",
+  "settingsSoundEffects": "Sound Effects (Retro SFX)",
+  "settingsSoundHint": "Offline synthesized sounds for d20 rolls, weapon strikes, criticals, and workouts.",
+  "d20DialogTapToRoll": "TAP THE DIE TO ROLL",
+  "d20DialogRolling": "Rolling across the stone table...",
+  "d20DialogTapToContinue": "Tap to unleash the strike!",
+  "d20DialogInspiredBanner": "HEROIC INSPIRATION! GUARANTEED CRIT (20)"
 }

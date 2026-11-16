@@ -2319,6 +2319,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Editar Aparência do Herói'**
   String get appearanceCustomizeButton;
+
+  /// No description provided for @settingsSound.
+  ///
+  /// In pt, this message translates to:
+  /// **'Áudio & Efeitos'**
+  String get settingsSound;
+
+  /// No description provided for @settingsSoundEffects.
+  ///
+  /// In pt, this message translates to:
+  /// **'Efeitos Sonoros (Retro SFX)'**
+  String get settingsSoundEffects;
+
+  /// No description provided for @settingsSoundHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sons sintetizados offline para o dado d20, golpes de arma, crítico e treinos.'**
+  String get settingsSoundHint;
+
+  /// No description provided for @d20DialogTapToRoll.
+  ///
+  /// In pt, this message translates to:
+  /// **'TOQUE NO DADO PARA ROLAR'**
+  String get d20DialogTapToRoll;
+
+  /// No description provided for @d20DialogRolling.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rolando na mesa de pedra...'**
+  String get d20DialogRolling;
+
+  /// No description provided for @d20DialogTapToContinue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toque para executar o golpe!'**
+  String get d20DialogTapToContinue;
+
+  /// No description provided for @d20DialogInspiredBanner.
+  ///
+  /// In pt, this message translates to:
+  /// **'INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)'**
+  String get d20DialogInspiredBanner;
 }
 
 class _AppLocalizationsDelegate

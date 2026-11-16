@@ -3,6 +3,31 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-15 — Gemini (Antigravity) — Mini-Janela Interativa do d20 + Etapa 6C: Efeitos Sonoros Offline
+- **Mini-Janela Central Interativa do d20 (`lib/features/arena/presentation/d20_roll_dialog.dart`, `arena_screen.dart`):**
+  - Ao atacar (`basicStrike`, `classSkill`, `heroicInspiration`) ou rolar uma
+    provação na Masmorra, abre `showInteractiveD20RollDialog` no centro da tela
+    exibindo a ação, `vs CA/CD` e os modificadores (`1d20 + Atributo + Prof`).
+  - Ao tocar no dado, o d20 cai com quique (`Curves.bounceOut`), gira
+    ciclando faces e revela o resultado (`1..20`) com destaque dourado no 20
+    Crítico e carmesim na Falha Absurda (1), passando o valor rolado
+    determinísticamente para o `CombatEngine` antes de disparar a animação da
+    arma no palco.
+- **Efeitos Sonoros Dark Fantasy Retro Offline (`lib/core/audio/wav_synth.dart`, `sound_service.dart`, `sound_backend_io.dart`, `sound_backend_stub.dart`):**
+  - `WavSynth`: sintetizador procedural PCM 16-bit WAV em Dart puro (zero
+    dependências externas) para `diceRoll`, `diceReveal`, `criticalHit`,
+    `criticalFumble`, `swordSlash`, `staffCast`, `bowShot`, `daggerFlurry`,
+    `holySmite`, `shieldGuard`, `hitImpact`, `levelUp` e `setComplete`.
+  - `SoundService`: reprodução nativa via `winmm.dll!PlaySoundA` no Windows
+    (sem plugins nativos que exijam symlink/Developer Mode) e fallback seguro.
+  - Toggle **Efeitos Sonoros (Retro SFX)** persistido em `AppSettings` e
+    disponível em `SettingsScreen`; sons integrados ao d20, armas/magias no
+    combate e conclusão de treino / level-up (`WorkoutCompleteScreen`).
+- **Testes:** 119 testes passando (`test/core/audio/wav_synth_test.dart`,
+  `test/features/arena/arena_screen_test.dart` atualizado para o modal do d20 +
+  suíte completa), `flutter analyze` limpo.
+- **Próximo:** Fase 2 — Narrador IA e Modo História (*Crônicas da Forja*).
+
 ## 2026-11-15 — Gemini (Antigravity) — Etapa 6B: Palco de Batalha 16-bit + Animações Específicas por Arma e Classe
 - **Resolução de Animação por Arma e Classe (`lib/core/game/hero_appearance.dart`):**
   - `AttackAnimationKind` e `HeroAppearance.resolveAttackAnimation`: determina a

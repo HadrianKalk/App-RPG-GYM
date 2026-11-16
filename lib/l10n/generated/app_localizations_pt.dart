@@ -1411,4 +1411,27 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get appearanceCustomizeButton => 'Editar Aparência do Herói';
+
+  @override
+  String get settingsSound => 'Áudio & Efeitos';
+
+  @override
+  String get settingsSoundEffects => 'Efeitos Sonoros (Retro SFX)';
+
+  @override
+  String get settingsSoundHint =>
+      'Sons sintetizados offline para o dado d20, golpes de arma, crítico e treinos.';
+
+  @override
+  String get d20DialogTapToRoll => 'TOQUE NO DADO PARA ROLAR';
+
+  @override
+  String get d20DialogRolling => 'Rolando na mesa de pedra...';
+
+  @override
+  String get d20DialogTapToContinue => 'Toque para executar o golpe!';
+
+  @override
+  String get d20DialogInspiredBanner =>
+      'INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)';
 }

@@ -2,10 +2,10 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Etapa 6B: Palco de Batalha 16-bit + Animações Específicas por Arma e Classe (Cajado, Espadão, Adagas, Arco, Ki, Luz Divina, Escudo)
+**Última atualização:** 2026-11-15 (Gemini / Antigravity) — Mini-Janela Interativa do d20 + Etapa 6C: Efeitos Sonoros Dark Fantasy Offline (`SoundService` + `WavSynth`)
 
 ## Fase atual
-**Fase 1 — MVP offline concluído**; executando **Etapa 6 (Arte, Animações e Sons)** antes da Fase 2 (Narrador IA & Modo História).
+**Fase 1 + Etapa 6 (Arte, Animações e Sons) concluídos!** Pronto para iniciar a **Fase 2 — Mundo Vivo & Narrador IA (Modo História)**.
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes
@@ -36,14 +36,14 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 - **Modo Tester / Sandbox (`TesterPanelSheet`):** edição ao vivo dos 6 atributos
   (8–30), presets rápidos, fichas infinitas e forçar rolagem `20` ou `1` no d20
   sem tocar no `xp_ledger`.
-- **Etapa 6A & 6B — Sistema Paper-Doll 16-bit (`28×36 px`) + Palco de Batalha e Animações por Arma/Classe (`CombatStageWidget`):**
+- **Etapa 6A, 6B & 6C — Sistema Paper-Doll 16-bit (`28×36 px`) + Palco de Batalha + Mini-Janela do d20 + Sons Offline:**
   customização modular em camadas + 7 arquétipos pré-prontos + sprites 16-bit
-  para os oponentes (`OpponentAvatar`, espelhados no combate) + poses de arma em
-  mãos (`HeroPose.attackGreatsword`, `attackStaff`, `attackDaggers`, `attackBow`,
-  `attackMartial`, `attackHolyBlade`, `guard`) + 9 animações de ataque/VFX
-  específicas por arma e classe + respiração *idle*, *hit flash/shake* e números
-  flutuantes de dano/crítico/cura.
-- 118 testes passando; `flutter analyze` limpo.
+  para os oponentes (`OpponentAvatar`) + poses de arma em mãos + 9 animações de
+  ataque/VFX por arma e classe + mini-janela interativa central do dado d20
+  (`D20RollDialog`: toque para rolar, queda quicando, giro e revelação) +
+  síntese procedural WAV offline (`WavSynth` + `SoundService`) com toggle nas
+  Configurações.
+- 119 testes passando; `flutter analyze` limpo.
 
 ## Fechamento da Fase 1 (concluído)
 - [x] Criação do herói (onboarding).
@@ -86,9 +86,11 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       VFX (Cajado Arcano, Espadão, Adagas Gêmeas, Arco, Punho de Ki, Espada
       Sagrada, Lâmina Rúnica, Onda Primal e Escudo de Guarda), *hit flash/shake*
       e números flutuantes de dano/crítico/cura.
-- [ ] **Etapa 6C — Efeitos Sonoros Dark Fantasy Retro:** síntese procedural WAV
-      offline (`SoundService`) para dado d20, golpes, crítico, falha, concluir
-      série e subir de nível + toggle nas configurações.
+- [x] **Etapa 6C — Mini-Janela Interativa do d20 + Efeitos Sonoros Dark Fantasy Retro:**
+      mini-janela central solicitando toque no dado (queda com quique, giro e
+      revelação antes do golpe) + síntese procedural WAV offline (`WavSynth` +
+      `SoundService`) para dado d20, armas/magias, crítico, falha, concluir
+      treino e subir de nível + toggle em Configurações.
 
 ## Fase 2 — Mundo Vivo & Narrador IA
 - [ ] Narrador IA: "Capítulo do Dia" a partir das atividades do dia (2–4 chamadas/dia).

@@ -100,7 +100,7 @@ class D20RollerBanner extends StatelessWidget {
                     width: 60,
                     height: 60,
                     child: CustomPaint(
-                      painter: _D20FacetPainter(
+                      painter: D20FacetPainter(
                         borderColor: accentColor,
                         fillColor: AppTheme.obsidianBlack,
                       ),
@@ -150,8 +150,8 @@ class D20RollerBanner extends StatelessWidget {
   }
 }
 
-class _D20FacetPainter extends CustomPainter {
-  const _D20FacetPainter({
+class D20FacetPainter extends CustomPainter {
+  const D20FacetPainter({
     required this.borderColor,
     required this.fillColor,
   });
@@ -214,7 +214,7 @@ class _D20FacetPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_D20FacetPainter oldDelegate) =>
+  bool shouldRepaint(D20FacetPainter oldDelegate) =>
       oldDelegate.borderColor != borderColor ||
       oldDelegate.fillColor != fillColor;
 }

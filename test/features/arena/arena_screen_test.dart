@@ -109,7 +109,7 @@ void main() {
     expect(find.byKey(const Key('stage_hero_avatar')), findsOneWidget);
     expect(find.byKey(const Key('stage_opponent_avatar')), findsOneWidget);
 
-    // 5. Execute basic strikes (with forced 20 criticals) and verify the animated D20 banner
+    // 5. Execute basic strikes: opens interactive D20 dialog, tap die to roll (Nat 20), and verify battle banner
     for (var turn = 0; turn < 5; turn++) {
       final basicBtn = find.byKey(const Key('combat_action_basic'));
       if (basicBtn.evaluate().isEmpty) break;
@@ -117,6 +117,15 @@ void main() {
       await settle(tester);
       await tester.tap(basicBtn);
       await settle(tester);
+
+      // Interactive center D20 modal appears asking user to tap the die
+      expect(find.byKey(const Key('d20_interactive_dialog')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('d20_dialog_tap_area')));
+      // Pump through the 620ms drop/spin animation + auto-close reveal
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pump(const Duration(milliseconds: 1050));
+      await settle(tester);
+
       expect(find.byKey(const Key('d20_roller_banner')), findsOneWidget);
       expect(find.byKey(const Key('d20_natural_value')), findsOneWidget);
     }

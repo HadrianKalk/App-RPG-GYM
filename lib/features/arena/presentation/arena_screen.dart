@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -9,6 +11,7 @@ import '../../../app/ui/pixel_icon.dart';
 import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/pixel_tag.dart';
 import '../../../app/ui/segmented_bar.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../../core/game/attributes.dart';
 import '../../../core/game/combat.dart';
 import '../../../core/game/hero_appearance.dart';
@@ -18,6 +21,7 @@ import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
 import '../../settings/presentation/tester_panel_sheet.dart';
 import 'combat_stage_widget.dart';
+import 'd20_roll_dialog.dart';
 import 'd20_roller_widget.dart';
 
 /// Sub-modes selectable from the Combat Hub.
@@ -169,11 +173,32 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
     }
   }
 
-  void _rollDungeonRoomCheck() {
+  Future<void> _rollDungeonRoomCheck() async {
     final run = _dungeonRun;
     if (run == null || run.inBossPhase || run.roomResolved || _busy) return;
+    final room = run.currentRoom;
     final forced = ref.read(testerModeProvider).forcedD20;
-    final updated = CombatEngine.resolveDungeonRoom(run, forcedD20: forced);
+    final sound = ref.read(soundServiceProvider);
+
+    final rolled = await showInteractiveD20RollDialog(
+      context: context,
+      actionTitle: context.game.dungeonRoomName(room.id),
+      attribute: room.attribute,
+      attributeModifier: run.hero.attackModifierFor(room.attribute),
+      proficiencyBonus: run.hero.proficiencyBonus,
+      targetNumber: room.difficultyClass,
+      soundService: sound,
+      isDifficultyClass: true,
+      forcedD20: forced,
+    );
+    if (rolled == null || !mounted) return;
+
+    final updated = CombatEngine.resolveDungeonRoom(run, forcedD20: rolled);
+    if (updated.lastRoomRoll?.isHit ?? false) {
+      unawaited(sound.play(GameSfx.holySmite));
+    } else {
+      unawaited(sound.play(GameSfx.hitImpact));
+    }
     setState(() {
       _rollAnimationCounter++;
       _dungeonRun = updated;
@@ -209,11 +234,48 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
       return;
     }
 
+    final sound = ref.read(soundServiceProvider);
     final forcedD20 = ref.read(testerModeProvider).forcedD20;
+    final hero = ref.read(heroStreamProvider).valueOrNull;
+    final appearance = hero?.appearance ?? HeroAppearance.defaultAppearance;
+
+    int? rolledNatural = forcedD20;
+    if (action != CombatAction.defend) {
+      final attr = action == CombatAction.classSkill
+          ? (current.skill.scalesWith ?? current.hero.primaryAttackAttribute)
+          : current.hero.primaryAttackAttribute;
+      final actionTitle = switch (action) {
+        CombatAction.basicStrike => context.l10n.combatActionBasic,
+        CombatAction.classSkill => context.game.skillName(current.skill.id),
+        CombatAction.heroicInspiration =>
+          context.l10n.combatActionInspiration(current.availableInspiration),
+        CombatAction.defend => context.l10n.combatActionDefend,
+      };
+      rolledNatural = await showInteractiveD20RollDialog(
+        context: context,
+        actionTitle: actionTitle,
+        attribute: attr,
+        attributeModifier: current.hero.attackModifierFor(attr),
+        proficiencyBonus: current.hero.proficiencyBonus,
+        targetNumber: current.opponent.armorClass,
+        soundService: sound,
+        forcedD20: forcedD20,
+        guaranteedNatural20: action == CombatAction.heroicInspiration,
+      );
+      if (rolledNatural == null || !mounted) return;
+    }
+
+    final animKind = appearance.resolveAttackAnimation(
+      characterClass: current.hero.characterClass,
+      isClassSkill: action == CombatAction.classSkill,
+      isDefend: action == CombatAction.defend,
+    );
+    unawaited(sound.playForAttack(animKind));
+
     final next = CombatEngine.executeTurn(
       current,
       action,
-      forcedD20: forcedD20,
+      forcedD20: rolledNatural,
     );
     final activeTournament = _tournamentRun;
     final activeDungeon = _dungeonRun;
@@ -1575,7 +1637,7 @@ class _ActiveCombatView extends StatelessWidget {
         : l10n.combatActionSkill(game.skillName(skill.id), skill.focusCost);
 
     return ListView(
-      cacheExtent: 1500,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(1500),
       padding: const EdgeInsets.all(12),
       children: [
         // --- Opponent Panel -------------------------------------------------

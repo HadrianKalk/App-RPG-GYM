@@ -28,6 +28,9 @@ class SettingsNotifier extends Notifier<AppSettings> {
   Future<void> setFontStyle(AppFontStyle style) =>
       _update(state.copyWith(fontStyle: style));
 
+  Future<void> setSoundEnabled(bool enabled) =>
+      _update(state.copyWith(soundEnabled: enabled));
+
   Future<void> _update(AppSettings next) async {
     state = next;
     await ref.read(settingsRepositoryProvider).save(next);

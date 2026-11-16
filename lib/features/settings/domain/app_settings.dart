@@ -13,19 +13,23 @@ final class AppSettings {
   const AppSettings({
     this.languageCode,
     this.fontStyle = AppFontStyle.pixel,
+    this.soundEnabled = true,
   });
 
   /// `null` = follow the device language; otherwise 'pt' or 'en'.
   final String? languageCode;
   final AppFontStyle fontStyle;
+  final bool soundEnabled;
 
   AppSettings copyWith({
     String? Function()? languageCode,
     AppFontStyle? fontStyle,
+    bool? soundEnabled,
   }) {
     return AppSettings(
       languageCode: languageCode != null ? languageCode() : this.languageCode,
       fontStyle: fontStyle ?? this.fontStyle,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
     );
   }
 }

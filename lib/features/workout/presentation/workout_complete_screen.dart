@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -7,6 +9,7 @@ import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
 import '../../../app/ui/pixel_sprite.dart';
 import '../../../app/ui/segmented_bar.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../../core/game/hero_appearance.dart';
 import '../../../core/game/weekly_progress.dart';
 import '../../../data/repositories/providers.dart';
@@ -48,6 +51,7 @@ class _WorkoutCompleteScreenState extends ConsumerState<WorkoutCompleteScreen> w
   late final AnimationController _reveal;
   late final AnimationController _glow;
   int _lineCount = 0;
+  bool _playedAudio = false;
 
   @override
   void initState() {
@@ -66,6 +70,15 @@ class _WorkoutCompleteScreenState extends ConsumerState<WorkoutCompleteScreen> w
       _reveal
         ..duration = _lineDelay * (count + 2)
         ..forward(from: 0);
+    }
+    if (!_playedAudio) {
+      _playedAudio = true;
+      final leveledUp = widget.summary.progress?.leveledUp ?? false;
+      unawaited(
+        ref.read(soundServiceProvider).play(
+              leveledUp ? GameSfx.levelUp : GameSfx.setComplete,
+            ),
+      );
     }
   }
 

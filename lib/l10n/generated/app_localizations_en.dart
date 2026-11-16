@@ -1406,4 +1406,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appearanceCustomizeButton => 'Edit Hero Appearance';
+
+  @override
+  String get settingsSound => 'Audio & Effects';
+
+  @override
+  String get settingsSoundEffects => 'Sound Effects (Retro SFX)';
+
+  @override
+  String get settingsSoundHint =>
+      'Offline synthesized sounds for d20 rolls, weapon strikes, criticals, and workouts.';
+
+  @override
+  String get d20DialogTapToRoll => 'TAP THE DIE TO ROLL';
+
+  @override
+  String get d20DialogRolling => 'Rolling across the stone table...';
+
+  @override
+  String get d20DialogTapToContinue => 'Tap to unleash the strike!';
+
+  @override
+  String get d20DialogInspiredBanner =>
+      'HEROIC INSPIRATION! GUARANTEED CRIT (20)';
 }

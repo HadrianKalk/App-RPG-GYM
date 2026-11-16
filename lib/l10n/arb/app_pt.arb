@@ -1208,5 +1208,12 @@
   "appearanceBootsTitle": "Calçado / Botas",
   "appearanceBackTitle": "Capa & Arma nas Costas",
   "appearanceTintTitle": "Paleta da Armadura / Roupa",
-  "appearanceCustomizeButton": "Editar Aparência do Herói"
+  "appearanceCustomizeButton": "Editar Aparência do Herói",
+  "settingsSound": "Áudio & Efeitos",
+  "settingsSoundEffects": "Efeitos Sonoros (Retro SFX)",
+  "settingsSoundHint": "Sons sintetizados offline para o dado d20, golpes de arma, crítico e treinos.",
+  "d20DialogTapToRoll": "TOQUE NO DADO PARA ROLAR",
+  "d20DialogRolling": "Rolando na mesa de pedra...",
+  "d20DialogTapToContinue": "Toque para executar o golpe!",
+  "d20DialogInspiredBanner": "INSPIRAÇÃO HEROICA! CRÍTICO GARANTIDO (20)"
 }

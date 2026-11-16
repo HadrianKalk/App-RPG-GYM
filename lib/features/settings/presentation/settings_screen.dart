@@ -70,6 +70,37 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 20),
+          _SectionTitle(l10n.settingsSound),
+          PixelFrame(
+            child: Row(
+              children: [
+                const Icon(Icons.volume_up, size: 22, color: AppTheme.emberGold),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.settingsSoundEffects,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        l10n.settingsSoundHint,
+                        style: const TextStyle(color: AppTheme.darkAsh, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  key: const Key('settings_sound_switch'),
+                  value: settings.soundEnabled,
+                  activeThumbColor: AppTheme.emberGold,
+                  onChanged: notifier.setSoundEnabled,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
           _SectionTitle(l10n.settingsTraining),
           const _WeeklyGoalTile(),
           const SizedBox(height: 10),
