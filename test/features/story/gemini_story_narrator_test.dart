@@ -237,6 +237,38 @@ void main() {
     expect(bad.error, isNot(contains('AIza-secret-bad')));
   });
 
+  test('GeminiStoryNarrator fails over to fallback model on HTTP 503 high demand', () async {
+    final attemptedUrls = <String>[];
+    final failoverNarrator = GeminiStoryNarrator(
+      apiKey: 'AIza-test-failover',
+      model: 'gemini-3.8-flash',
+      poster: ({required url, required body, timeout = const Duration(seconds: 18)}) async {
+        attemptedUrls.add(url.toString());
+        if (url.toString().contains('gemini-3.8-flash')) {
+          throw StateError(
+            'AI HTTP 503: {"error":{"code":503,"message":"High demand"}}',
+          );
+        }
+        return jsonEncode({
+          'candidates': [
+            {
+              'content': {
+                'parts': [
+                  {'text': 'OK'},
+                ],
+              },
+            },
+          ],
+        });
+      },
+    );
+
+    final res = await failoverNarrator.testConnection();
+    expect(res.ok, isTrue);
+    expect(res.usedModel, 'gemini-3.5-flash-lite');
+    expect(attemptedUrls.length, 2);
+  });
+
   test('SettingsRepository persists local Gemini BYOK key and model cleanly', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();

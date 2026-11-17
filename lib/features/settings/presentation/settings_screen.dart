@@ -697,11 +697,15 @@ class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
     );
     final res = await narrator.testConnection();
     if (!mounted) return;
+    final usedModel = res.usedModel;
+    final currentModel = _modelController.text.trim();
     setState(() {
       _testing = false;
       _testOk = res.ok;
       _testMessage = res.ok
-          ? context.l10n.settingsAiTestSuccess
+          ? (usedModel != null && usedModel != currentModel
+              ? '${context.l10n.settingsAiTestSuccess} ($usedModel)'
+              : context.l10n.settingsAiTestSuccess)
           : context.l10n.settingsAiTestFailed(res.error ?? 'Unknown error');
     });
   }
@@ -777,12 +781,32 @@ class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
           TextField(
             key: const Key('settings_ai_model_input'),
             controller: _modelController,
+            onChanged: (_) => setState(() {}),
             style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
             decoration: InputDecoration(
               labelText: l10n.settingsAiModelLabel,
               isDense: true,
               border: const OutlineInputBorder(),
             ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final preset in GeminiStoryNarrator.fallbackModels)
+                GestureDetector(
+                  onTap: _testing
+                      ? null
+                      : () => setState(() => _modelController.text = preset),
+                  child: PixelTag(
+                    text: preset,
+                    color: _modelController.text.trim() == preset
+                        ? AppTheme.emberGold
+                        : AppTheme.dullSilver,
+                  ),
+                ),
+            ],
           ),
           if (_testing || _testMessage != null) ...[
             const SizedBox(height: 8),

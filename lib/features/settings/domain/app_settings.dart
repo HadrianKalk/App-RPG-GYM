@@ -18,7 +18,7 @@ final class AppSettings {
     this.geminiModel = defaultGeminiModel,
   });
 
-  static const String defaultGeminiModel = 'gemini-2.5-flash';
+  static const String defaultGeminiModel = 'gemini-3.8-flash';
 
   /// `null` = follow the device language; otherwise 'pt' or 'en'.
   final String? languageCode;

@@ -28,7 +28,15 @@ class GeminiStoryNarrator implements StoryNarrator {
     AiJsonPoster? poster,
   }) : _poster = poster ?? postJsonPayload;
 
-  static const String defaultModel = 'gemini-2.5-flash';
+  static const String defaultModel = 'gemini-3.8-flash';
+
+  /// Ordered fallback models tried automatically on transient HTTP 503/429/404.
+  static const List<String> fallbackModels = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-flash',
+  ];
 
   final String apiKey;
   final String model;
@@ -102,11 +110,6 @@ class GeminiStoryNarrator implements StoryNarrator {
     }
 
     try {
-      final safeModel = model.trim().isEmpty ? defaultModel : model.trim();
-      final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/'
-        '$safeModel:generateContent?key=${Uri.encodeQueryComponent(cleanKey)}',
-      );
       final body = <String, dynamic>{
         'system_instruction': {
           'parts': [
@@ -133,12 +136,12 @@ class GeminiStoryNarrator implements StoryNarrator {
         },
       };
 
-      final rawBody = await _poster(
-        url: url,
+      final result = await _postWithModelFallback(
+        cleanKey: cleanKey,
         body: body,
         timeout: const Duration(seconds: 18),
       );
-      return _parseGeminiResponse(rawBody, context);
+      return _parseGeminiResponse(result.rawBody, context);
     } catch (error) {
       final fallbackResponse = await onFallback();
       return fallbackResponse.withFallbackReason(
@@ -149,17 +152,12 @@ class GeminiStoryNarrator implements StoryNarrator {
 
   /// Sends a lightweight probe to Gemini `generateContent` to verify that the
   /// configured API key, model, and browser/device network path are working.
-  Future<({bool ok, String? error})> testConnection() async {
+  Future<({bool ok, String? error, String? usedModel})> testConnection() async {
     final cleanKey = apiKey.trim();
     if (cleanKey.isEmpty) {
-      return (ok: false, error: 'Missing API key.');
+      return (ok: false, error: 'Missing API key.', usedModel: null);
     }
     try {
-      final safeModel = model.trim().isEmpty ? defaultModel : model.trim();
-      final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/'
-        '$safeModel:generateContent?key=${Uri.encodeQueryComponent(cleanKey)}',
-      );
       final body = <String, dynamic>{
         'contents': [
           {
@@ -174,20 +172,76 @@ class GeminiStoryNarrator implements StoryNarrator {
           'maxOutputTokens': 16,
         },
       };
-      final rawBody = await _poster(
-        url: url,
+      final result = await _postWithModelFallback(
+        cleanKey: cleanKey,
         body: body,
         timeout: const Duration(seconds: 15),
       );
-      final decoded = jsonDecode(rawBody) as Map<String, dynamic>;
+      final decoded = jsonDecode(result.rawBody) as Map<String, dynamic>;
       final candidates = decoded['candidates'] as List<dynamic>?;
       if (candidates == null || candidates.isEmpty) {
-        return (ok: false, error: 'Gemini returned no response candidates.');
+        return (
+          ok: false,
+          error: 'Gemini returned no response candidates.',
+          usedModel: result.usedModel,
+        );
       }
-      return (ok: true, error: null);
+      return (ok: true, error: null, usedModel: result.usedModel);
     } catch (error) {
-      return (ok: false, error: sanitizeError(error, apiKey: cleanKey));
+      return (
+        ok: false,
+        error: sanitizeError(error, apiKey: cleanKey),
+        usedModel: null,
+      );
     }
+  }
+
+  Future<({String rawBody, String usedModel})> _postWithModelFallback({
+    required String cleanKey,
+    required Map<String, dynamic> body,
+    required Duration timeout,
+  }) async {
+    final candidates = _candidateModels(model);
+    Object? firstError;
+
+    for (var i = 0; i < candidates.length; i++) {
+      final candidateModel = candidates[i];
+      final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/'
+        '$candidateModel:generateContent?key=${Uri.encodeQueryComponent(cleanKey)}',
+      );
+      try {
+        final rawBody = await _poster(url: url, body: body, timeout: timeout);
+        return (rawBody: rawBody, usedModel: candidateModel);
+      } catch (error) {
+        firstError ??= error;
+        final isLast = i == candidates.length - 1;
+        if (isLast || !_isModelRecoverableError(error)) {
+          rethrow;
+        }
+      }
+    }
+    throw firstError!;
+  }
+
+  static List<String> _candidateModels(String preferred) {
+    final cleanPreferred = preferred.trim().isEmpty ? defaultModel : preferred.trim();
+    final seen = <String>{cleanPreferred};
+    final list = <String>[cleanPreferred];
+    for (final alt in fallbackModels) {
+      if (seen.add(alt)) list.add(alt);
+    }
+    return list;
+  }
+
+  static bool _isModelRecoverableError(Object error) {
+    final msg = error.toString();
+    return msg.contains('AI HTTP 404') ||
+        msg.contains('AI HTTP 429') ||
+        msg.contains('AI HTTP 500') ||
+        msg.contains('AI HTTP 502') ||
+        msg.contains('AI HTTP 503') ||
+        msg.contains('AI HTTP 504');
   }
 
   /// Strips secret API keys and extracts readable Gemini HTTP errors.

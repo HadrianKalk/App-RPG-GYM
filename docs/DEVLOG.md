@@ -3,6 +3,13 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Failover automático entre modelos Gemini em HTTP 503/404 + chips de modelo
+- **Resiliência contra picos de demanda (`gemini_story_narrator.dart`, `app_settings.dart`):**
+  - Modelo padrão atualizado para `gemini-3.8-flash` com failover automático em cadeia (`gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-2.5-flash-lite` → `gemini-2.5-flash`) quando ocorrer HTTP `503`/`429`/`404`/`5xx` (falhando rápido em erros `400`/`401`/`403` de chave inválida).
+- **Atalhos rápidos nas Configurações (`settings_screen.dart`):**
+  - Chips clicáveis com os modelos principais logo abaixo do campo de modelo e exibição do modelo que conectou no retorno de `testConnection()`.
+- **Verificação:** `flutter analyze` (0 erros) e `flutter test`.
+
 ## 2026-11-16 — Gemini (Antigravity) — Correção do fetch Web/PWA Gemini + Diagnóstico de Conexão
 - **Correção crítica no conector Web/PWA (`lib/features/story/data/ai_http_web.dart`):**
   - Substituídos os tipos `@JS()` `_JsRequestInit` e `_JsHeaders` (que tentavam invocar `new _JsHeaders()` inexistente no JS do navegador/iOS Safari PWA e derrubavam toda chamada `fetch` para o fallback `OFFLINE`) por `Map.jsify()` com `headers: {'Content-Type': 'application/json'}`.
