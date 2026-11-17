@@ -257,3 +257,15 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Para proteger o progresso dos usuários (especialmente no PWA do Safari/iOS),
       as Configurações oferecem Exportar e Importar snapshot JSON completo de
       treinos, rotinas, atividades, saúde, livro-razão de XP, herói e campanha.
+53. **Arte dos personagens: estilo chibi 28×36** (aprovado pelo usuário; a
+    tentativa 64×72 da #52 foi revertida):
+    - Proporção chibi (cabelo/cabeça ≈ metade da altura), contorno preto
+      grosso, 2–3 tons chapados por material, capas envolvendo o corpo.
+    - **Fonte de verdade:** `tool/art/chibi_gen.py` → gera
+      `lib/app/ui/paper_doll/chibi_layers.g.dart`. Cada peça é feita sobre
+      **moldes do corpo** (poses parado/flexionando) para tudo se alinhar;
+      cabelo espetado e rosto do herói vêm direto do protótipo aprovado.
+      `tool/art/chibi_preview.py` gera a galeria PNG (paletas reais).
+    - Nova camada `backFront.<estilo>` (parte da frente da capa, sobre o tronco).
+    - Mesmas 11 categorias, tamanho e paleta de antes; inimigos herdam o estilo.
+    - **Regra:** nenhuma troca de arte em massa sem protótipo aprovado.

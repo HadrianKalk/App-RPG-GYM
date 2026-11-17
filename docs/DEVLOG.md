@@ -3,6 +3,23 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-17 — Claude Code — Arte chibi aplicada a todo o paper-doll
+- Usuário aprovou o protótipo chibi e pediu o redesenho completo (decisão #53).
+- `tool/art/chibi_gen.py` (moldes do corpo + 65 peças: 2 poses de corpo,
+  6 torsos × 2 poses, 6 pernas, 6 botas, 5 olhos, 5 barbas, 8 cabelos,
+  6 costas + 6 frentes de capa, 7 armas, aura) e `tool/art/chibi_preview.py`.
+- `lib/app/ui/paper_doll/chibi_layers.g.dart` (gerado) consumido por
+  `HeroPaperDoll.compose` (pixel_sprite.dart); ~1.500 linhas de grades
+  antigas removidas. API das telas inalterada.
+- Teste novo: `test/app/ui/chibi_paper_doll_test.dart` (catálogo completo e
+  paleta cobre todos os pixels em todos os presets/poses). 148 testes.
+- Verificado no navegador: onboarding, ficha, lista da Arena, palco.
+- **Editar arte:** mudar o gerador e rodar
+  `python3 tool/art/chibi_gen.py --preview galeria.png` (Pillow; a galeria
+  usa `old_sprites.json` com as paletas — ver docstring do preview).
+- Pendências: polir peças com feedback; sprites únicos dos chefes; o palco
+  de combate voltou ao cenário anterior junto com o revert.
+
 ## 2026-11-17 — Claude Code — Revamp de arte revertido + protótipo chibi
 - O usuário não gostou do paper-doll v2 (64×72, ver commit ed6bbd7):
   **revertido** (commit de revert, sem reescrever histórico). A arte voltou ao
