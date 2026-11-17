@@ -2698,6 +2698,30 @@ abstract class AppLocalizations {
   /// **'MODO OFFLINE'**
   String get settingsAiStatusOffline;
 
+  /// No description provided for @settingsAiTestButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Testar'**
+  String get settingsAiTestButton;
+
+  /// No description provided for @settingsAiTesting.
+  ///
+  /// In pt, this message translates to:
+  /// **'Testando...'**
+  String get settingsAiTesting;
+
+  /// No description provided for @settingsAiTestSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conectado! Mestre IA pronto para narrar.'**
+  String get settingsAiTestSuccess;
+
+  /// No description provided for @settingsAiTestFailed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falha ao conectar: {reason}'**
+  String settingsAiTestFailed(String reason);
+
   /// No description provided for @storyModeAiBadge.
   ///
   /// In pt, this message translates to:
@@ -2709,6 +2733,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'OFFLINE'**
   String get storyModeOfflineBadge;
+
+  /// No description provided for @storyAiFallbackHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'IA indisponível ({reason}). Usando Narrador Offline.'**
+  String storyAiFallbackHint(String reason);
+
+  /// No description provided for @storyAiRetryButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar IA'**
+  String get storyAiRetryButton;
 }
 
 class _AppLocalizationsDelegate

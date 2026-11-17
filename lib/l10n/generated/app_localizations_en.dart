@@ -1638,8 +1638,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAiStatusOffline => 'OFFLINE MODE';
 
   @override
+  String get settingsAiTestButton => 'Test';
+
+  @override
+  String get settingsAiTesting => 'Testing...';
+
+  @override
+  String get settingsAiTestSuccess => 'Connected! AI Game Master is ready.';
+
+  @override
+  String settingsAiTestFailed(String reason) {
+    return 'Connection failed: $reason';
+  }
+
+  @override
   String get storyModeAiBadge => 'AI GM';
 
   @override
   String get storyModeOfflineBadge => 'OFFLINE';
+
+  @override
+  String storyAiFallbackHint(String reason) {
+    return 'AI unavailable ($reason). Using Offline Narrator.';
+  }
+
+  @override
+  String get storyAiRetryButton => 'Retry AI';
 }

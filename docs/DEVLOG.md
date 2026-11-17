@@ -3,6 +3,15 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Correção do fetch Web/PWA Gemini + Diagnóstico de Conexão
+- **Correção crítica no conector Web/PWA (`lib/features/story/data/ai_http_web.dart`):**
+  - Substituídos os tipos `@JS()` `_JsRequestInit` e `_JsHeaders` (que tentavam invocar `new _JsHeaders()` inexistente no JS do navegador/iOS Safari PWA e derrubavam toda chamada `fetch` para o fallback `OFFLINE`) por `Map.jsify()` com `headers: {'Content-Type': 'application/json'}`.
+- **Diagnósticos de conexão & atualização automática no Modo História (`story_narrator.dart`, `gemini_story_narrator.dart`, `settings_screen.dart`, `story_mode_view.dart`, `app_pt/en.arb`):**
+  - Adicionado `testConnection()` e `fallbackReason` sanitizado (removendo chaves secretas de URLs/erros HTTP) ao `GeminiStoryNarrator` e `StorySceneResponse`.
+  - Botão **Testar** (e teste automático ao clicar **Salvar Chave**) na seção **Mestre de Jogo (IA · BYOK)** das Configurações para confirmar conexão ou mostrar o erro exato da API Gemini.
+  - `StoryModeView` passa a recarregar a cena inicial automaticamente quando o usuário ativa a chave nas Configurações e exibe banner com o motivo caso ocorra fallback + botão **Tentar IA**.
+- **Verificação:** `flutter analyze` (0 erros), `flutter test` e `flutter build web --release`.
+
 ## 2026-11-16 — Gemini (Antigravity) — Etapa 7C: Bíblia do Mundo + GeminiStoryNarrator (BYOK) + Fallback Offline
 - **Bíblia do Mundo & Engenharia de Prompt (`lib/features/story/domain/world_lore_prompt.dart`):**
   - Pré-texto canônico de Grindheim (atmosfera Dark Fantasy, marcos recorrentes, regras estritas D&D 5e e contrato JSON) combinado dinamicamente com ficha do herói (forma de tratamento, origem própria, modificadores), feitos reais de hoje, Chefe Semanal Lendário + Selos e `CampaignMemory` compacta.

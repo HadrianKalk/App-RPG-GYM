@@ -48,6 +48,7 @@ final class StorySceneResponse {
     this.npcUpdate,
     this.memorySummary,
     this.isAiGenerated = false,
+    this.fallbackReason,
   });
 
   final String narration;
@@ -62,6 +63,24 @@ final class StorySceneResponse {
 
   /// True when authored by the live AI Game Master; false for offline templates.
   final bool isAiGenerated;
+
+  /// Sanitized diagnostic note when AI narration failed and fell back to offline.
+  final String? fallbackReason;
+
+  /// Returns a copy carrying [reason] (used when annotating offline fallbacks).
+  StorySceneResponse withFallbackReason(String reason) => StorySceneResponse(
+        narration: narration,
+        locationName: locationName,
+        triggerType: triggerType,
+        choices: choices,
+        skillCheck: skillCheck,
+        combatTrigger: combatTrigger,
+        placeVisited: placeVisited,
+        npcUpdate: npcUpdate,
+        memorySummary: memorySummary,
+        isAiGenerated: isAiGenerated,
+        fallbackReason: reason,
+      );
 }
 
 /// Swappable narrator contract (Offline Template or Remote AI Game Master).

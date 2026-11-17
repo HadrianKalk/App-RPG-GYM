@@ -190,14 +190,51 @@ void main() {
     expect(res.combatTrigger?.opponentId, ctx.arc.weeklyBossId);
     expect(res.choices, isNotEmpty);
 
-    // Network/JSON failure silently falls back to offline TemplateStoryNarrator.
+    // Network/JSON failure falls back to offline TemplateStoryNarrator with sanitized reason.
     final brokenNarrator = GeminiStoryNarrator(
-      apiKey: 'AIza-test-key',
+      apiKey: 'AIza-secret-test-key',
       poster: ({required url, required body, timeout = const Duration(seconds: 18)}) async =>
-          throw Exception('Network timeout'),
+          throw StateError(
+            'AI HTTP 400 at $url: {"error":{"code":400,"message":"API key not valid."}}',
+          ),
     );
     final fallbackRes = await brokenNarrator.advanceScene(ctx);
     expect(fallbackRes.isAiGenerated, isFalse);
+    expect(fallbackRes.fallbackReason, isNotNull);
+    expect(fallbackRes.fallbackReason, isNot(contains('AIza-secret-test-key')));
+  });
+
+  test('GeminiStoryNarrator testConnection reports success and sanitizes HTTP errors', () async {
+    final okNarrator = GeminiStoryNarrator(
+      apiKey: 'AIza-secret-ok',
+      poster: ({required url, required body, timeout = const Duration(seconds: 18)}) async =>
+          jsonEncode({
+        'candidates': [
+          {
+            'content': {
+              'parts': [
+                {'text': 'OK'},
+              ],
+            },
+          },
+        ],
+      }),
+    );
+    final ok = await okNarrator.testConnection();
+    expect(ok.ok, isTrue);
+    expect(ok.error, isNull);
+
+    final badKeyNarrator = GeminiStoryNarrator(
+      apiKey: 'AIza-secret-bad',
+      poster: ({required url, required body, timeout = const Duration(seconds: 18)}) async =>
+          throw StateError(
+            'AI HTTP 400: {"error":{"code":400,"message":"Key AIza-secret-bad not valid. key=AIza-secret-bad"}}',
+          ),
+    );
+    final bad = await badKeyNarrator.testConnection();
+    expect(bad.ok, isFalse);
+    expect(bad.error, contains('HTTP 400'));
+    expect(bad.error, isNot(contains('AIza-secret-bad')));
   });
 
   test('SettingsRepository persists local Gemini BYOK key and model cleanly', () async {

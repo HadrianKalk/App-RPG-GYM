@@ -506,6 +506,22 @@
   "settingsAiSavedToast": "AI configuration saved on this device!",
   "settingsAiStatusActive": "AI ACTIVE",
   "settingsAiStatusOffline": "OFFLINE MODE",
+  "settingsAiTestButton": "Test",
+  "settingsAiTesting": "Testing...",
+  "settingsAiTestSuccess": "Connected! AI Game Master is ready.",
+  "settingsAiTestFailed": "Connection failed: {reason}",
+  "@settingsAiTestFailed": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
   "storyModeAiBadge": "AI GM",
-  "storyModeOfflineBadge": "OFFLINE"
+  "storyModeOfflineBadge": "OFFLINE",
+  "storyAiFallbackHint": "AI unavailable ({reason}). Using Offline Narrator.",
+  "@storyAiFallbackHint": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "storyAiRetryButton": "Retry AI"
 }

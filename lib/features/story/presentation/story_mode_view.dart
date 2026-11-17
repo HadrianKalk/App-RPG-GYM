@@ -17,6 +17,7 @@ import '../../../data/repositories/providers.dart';
 import '../../../l10n/l10n.dart';
 import '../../arena/presentation/d20_roll_dialog.dart';
 import '../../arena/presentation/d20_roller_widget.dart';
+import '../domain/gemini_story_narrator.dart';
 import '../domain/story_narrator.dart';
 
 /// Interactive Dark Fantasy Story Mode screen driven by [StoryEngine] and
@@ -50,6 +51,12 @@ class _StoryModeViewState extends ConsumerState<StoryModeView> {
   int _rollSeed = 0;
   bool _loading = false;
   bool _initialized = false;
+  String? _sceneSourceFingerprint;
+
+  String _narratorFingerprint(StoryNarrator narrator) => switch (narrator) {
+        GeminiStoryNarrator g => 'gemini:${g.model}:${g.apiKey.hashCode}',
+        _ => 'offline:${narrator.runtimeType}',
+      };
 
   @override
   void dispose() {
@@ -90,14 +97,37 @@ class _StoryModeViewState extends ConsumerState<StoryModeView> {
     StoryArcState arc,
     StoryHabitDigest habits,
   ) async {
-    if (_initialized || _loading) return;
-    _initialized = true;
-    _loading = true;
     final narrator = ref.read(storyNarratorProvider);
+    final fp = _narratorFingerprint(narrator);
+    final shouldAutoUpgradeToAi = _initialized &&
+        !_loading &&
+        _scene != null &&
+        !_scene!.isAiGenerated &&
+        narrator is GeminiStoryNarrator &&
+        _sceneSourceFingerprint != fp;
+
+    if ((_initialized && !shouldAutoUpgradeToAi) || _loading) return;
+    await _loadOpeningScene(arc, habits);
+  }
+
+  Future<void> _loadOpeningScene(
+    StoryArcState arc,
+    StoryHabitDigest habits,
+  ) async {
+    if (_loading) return;
+    _initialized = true;
+    final narrator = ref.read(storyNarratorProvider);
+    final fp = _narratorFingerprint(narrator);
+    if (mounted) {
+      setState(() => _loading = true);
+    } else {
+      _loading = true;
+    }
     final response = await narrator.advanceScene(_buildContext(arc, habits));
     if (!mounted) return;
     setState(() {
       _scene = response;
+      _sceneSourceFingerprint = fp;
       _loading = false;
     });
   }
@@ -427,6 +457,7 @@ class _StoryModeViewState extends ConsumerState<StoryModeView> {
     }
     final arc = bundle.arc;
     final habits = bundle.habits;
+    final narrator = ref.watch(storyNarratorProvider);
     final chaptersCount =
         ref.watch(weeklyStoryChaptersProvider(arc.weekKey)).valueOrNull?.length ??
             0;
@@ -641,6 +672,47 @@ class _StoryModeViewState extends ConsumerState<StoryModeView> {
                             ),
                           ],
                         ),
+                        if (!_scene!.isAiGenerated &&
+                            narrator is GeminiStoryNarrator &&
+                            _scene!.fallbackReason != null) ...[
+                          const SizedBox(height: 8),
+                          PixelFrame(
+                            key: const Key('story_ai_fallback_banner'),
+                            color: AppTheme.darkBlood,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.storyAiFallbackHint(
+                                      _scene!.fallbackReason!,
+                                    ),
+                                    style: const TextStyle(
+                                      color: AppTheme.emberGoldLight,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                TextButton(
+                                  key: const Key('story_ai_retry_btn'),
+                                  onPressed: () =>
+                                      _loadOpeningScene(arc, habits),
+                                  child: Text(
+                                    l10n.storyAiRetryButton,
+                                    style: const TextStyle(
+                                      color: AppTheme.emberGold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 10),
                         Text(
                           _scene!.narration,

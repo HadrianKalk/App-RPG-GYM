@@ -1643,8 +1643,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsAiStatusOffline => 'MODO OFFLINE';
 
   @override
+  String get settingsAiTestButton => 'Testar';
+
+  @override
+  String get settingsAiTesting => 'Testando...';
+
+  @override
+  String get settingsAiTestSuccess =>
+      'Conectado! Mestre IA pronto para narrar.';
+
+  @override
+  String settingsAiTestFailed(String reason) {
+    return 'Falha ao conectar: $reason';
+  }
+
+  @override
   String get storyModeAiBadge => 'MESTRE IA';
 
   @override
   String get storyModeOfflineBadge => 'OFFLINE';
+
+  @override
+  String storyAiFallbackHint(String reason) {
+    return 'IA indisponível ($reason). Usando Narrador Offline.';
+  }
+
+  @override
+  String get storyAiRetryButton => 'Tentar IA';
 }

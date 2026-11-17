@@ -139,9 +139,93 @@ class GeminiStoryNarrator implements StoryNarrator {
         timeout: const Duration(seconds: 18),
       );
       return _parseGeminiResponse(rawBody, context);
-    } catch (_) {
-      return onFallback();
+    } catch (error) {
+      final fallbackResponse = await onFallback();
+      return fallbackResponse.withFallbackReason(
+        sanitizeError(error, apiKey: cleanKey),
+      );
     }
+  }
+
+  /// Sends a lightweight probe to Gemini `generateContent` to verify that the
+  /// configured API key, model, and browser/device network path are working.
+  Future<({bool ok, String? error})> testConnection() async {
+    final cleanKey = apiKey.trim();
+    if (cleanKey.isEmpty) {
+      return (ok: false, error: 'Missing API key.');
+    }
+    try {
+      final safeModel = model.trim().isEmpty ? defaultModel : model.trim();
+      final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/'
+        '$safeModel:generateContent?key=${Uri.encodeQueryComponent(cleanKey)}',
+      );
+      final body = <String, dynamic>{
+        'contents': [
+          {
+            'role': 'user',
+            'parts': [
+              {'text': 'Reply with OK.'},
+            ],
+          },
+        ],
+        'generationConfig': {
+          'temperature': 0.0,
+          'maxOutputTokens': 16,
+        },
+      };
+      final rawBody = await _poster(
+        url: url,
+        body: body,
+        timeout: const Duration(seconds: 15),
+      );
+      final decoded = jsonDecode(rawBody) as Map<String, dynamic>;
+      final candidates = decoded['candidates'] as List<dynamic>?;
+      if (candidates == null || candidates.isEmpty) {
+        return (ok: false, error: 'Gemini returned no response candidates.');
+      }
+      return (ok: true, error: null);
+    } catch (error) {
+      return (ok: false, error: sanitizeError(error, apiKey: cleanKey));
+    }
+  }
+
+  /// Strips secret API keys and extracts readable Gemini HTTP errors.
+  static String sanitizeError(Object error, {String? apiKey}) {
+    var msg = error.toString().trim();
+    final cleanKey = apiKey?.trim();
+    if (cleanKey != null && cleanKey.isNotEmpty) {
+      msg = msg.replaceAll(cleanKey, '***');
+      msg = msg.replaceAll(Uri.encodeQueryComponent(cleanKey), '***');
+    }
+    msg = msg.replaceAll(RegExp(r'key=[^&\s)]+'), 'key=***');
+
+    // Extract clean message when `postJsonPayload` throws `AI HTTP <status>: <json>`.
+    final httpMatch = RegExp(r'AI HTTP (\d+):\s*(.+)', dotAll: true).firstMatch(msg);
+    if (httpMatch != null) {
+      final code = httpMatch.group(1);
+      final rawJson = httpMatch.group(2) ?? '';
+      try {
+        final decoded = jsonDecode(rawJson);
+        if (decoded is Map<String, dynamic>) {
+          final err = decoded['error'];
+          if (err is Map<String, dynamic> && err['message'] is String) {
+            final apiMsg = (err['message'] as String).trim();
+            return _truncate('HTTP $code: $apiMsg', 180);
+          }
+        }
+      } catch (_) {
+        // Ignore JSON parse error and fall through to generic message truncation.
+      }
+      return _truncate('HTTP $code: $rawJson', 180);
+    }
+    return _truncate(msg, 180);
+  }
+
+  static String _truncate(String value, int maxLen) {
+    final compact = value.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (compact.length <= maxLen) return compact;
+    return '${compact.substring(0, maxLen - 3)}...';
   }
 
   StorySceneResponse _parseGeminiResponse(

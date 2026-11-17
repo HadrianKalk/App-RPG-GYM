@@ -16,6 +16,7 @@ import '../../../core/game/xp_rules.dart';
 import '../../../data/repositories/providers.dart';
 import '../data/settings_providers.dart';
 import '../domain/app_settings.dart';
+import '../../story/domain/gemini_story_narrator.dart';
 import 'tester_panel_sheet.dart';
 
 /// User preferences: language and display font, plus the About section.
@@ -635,6 +636,9 @@ class _AiNarratorSection extends ConsumerStatefulWidget {
 class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
   late final TextEditingController _keyController;
   late final TextEditingController _modelController;
+  bool _testing = false;
+  bool? _testOk;
+  String? _testMessage;
 
   @override
   void initState() {
@@ -657,9 +661,49 @@ class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
           model: _modelController.text,
         );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.settingsAiSavedToast)),
+    if (_keyController.text.trim().isEmpty) {
+      setState(() {
+        _testOk = null;
+        _testMessage = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.settingsAiSavedToast)),
+      );
+      return;
+    }
+    await _runConnectionTest();
+  }
+
+  Future<void> _runConnectionTest() async {
+    if (_testing) return;
+    final cleanKey = _keyController.text.trim();
+    if (cleanKey.isEmpty) return;
+
+    await ref.read(settingsProvider.notifier).setGeminiConfig(
+          apiKey: cleanKey,
+          model: _modelController.text,
+        );
+    if (!mounted) return;
+    setState(() {
+      _testing = true;
+      _testOk = null;
+      _testMessage = null;
+    });
+
+    final settings = ref.read(settingsProvider);
+    final narrator = GeminiStoryNarrator(
+      apiKey: settings.geminiApiKey ?? cleanKey,
+      model: settings.geminiModel,
     );
+    final res = await narrator.testConnection();
+    if (!mounted) return;
+    setState(() {
+      _testing = false;
+      _testOk = res.ok;
+      _testMessage = res.ok
+          ? context.l10n.settingsAiTestSuccess
+          : context.l10n.settingsAiTestFailed(res.error ?? 'Unknown error');
+    });
   }
 
   Future<void> _clear() async {
@@ -669,6 +713,10 @@ class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
           model: _modelController.text,
         );
     if (!mounted) return;
+    setState(() {
+      _testOk = null;
+      _testMessage = null;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.settingsAiSavedToast)),
     );
@@ -736,24 +784,56 @@ class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
               border: const OutlineInputBorder(),
             ),
           ),
+          if (_testing || _testMessage != null) ...[
+            const SizedBox(height: 8),
+            PixelFrame(
+              key: const Key('settings_ai_test_status'),
+              color: _testOk == false
+                  ? AppTheme.darkBlood
+                  : AppTheme.obsidianBlack,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Text(
+                _testing ? l10n.settingsAiTesting : (_testMessage ?? ''),
+                style: TextStyle(
+                  color: _testOk == true
+                      ? AppTheme.emberGold
+                      : (_testOk == false
+                          ? AppTheme.emberGoldLight
+                          : AppTheme.ashWhite),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: PixelButton(
                   key: const Key('settings_ai_save_btn'),
                   label: l10n.settingsAiSaveButton,
-                  onPressed: _save,
+                  onPressed: _testing ? null : _save,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
+                flex: 2,
+                child: PixelButton(
+                  key: const Key('settings_ai_test_btn'),
+                  label: l10n.settingsAiTestButton,
+                  variant: PixelButtonVariant.secondary,
+                  onPressed: _testing ? null : _runConnectionTest,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                flex: 2,
                 child: PixelButton(
                   key: const Key('settings_ai_clear_btn'),
                   label: l10n.settingsAiClearButton,
                   variant: PixelButtonVariant.secondary,
-                  onPressed: settings.hasGeminiKey ? _clear : null,
+                  onPressed: settings.hasGeminiKey && !_testing ? _clear : null,
                 ),
               ),
             ],

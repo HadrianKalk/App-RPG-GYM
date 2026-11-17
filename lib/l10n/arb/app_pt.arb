@@ -1346,6 +1346,22 @@
   "settingsAiSavedToast": "Configuração da IA salva neste aparelho!",
   "settingsAiStatusActive": "IA ATIVA",
   "settingsAiStatusOffline": "MODO OFFLINE",
+  "settingsAiTestButton": "Testar",
+  "settingsAiTesting": "Testando...",
+  "settingsAiTestSuccess": "Conectado! Mestre IA pronto para narrar.",
+  "settingsAiTestFailed": "Falha ao conectar: {reason}",
+  "@settingsAiTestFailed": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
   "storyModeAiBadge": "MESTRE IA",
-  "storyModeOfflineBadge": "OFFLINE"
+  "storyModeOfflineBadge": "OFFLINE",
+  "storyAiFallbackHint": "IA indisponível ({reason}). Usando Narrador Offline.",
+  "@storyAiFallbackHint": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "storyAiRetryButton": "Tentar IA"
 }
