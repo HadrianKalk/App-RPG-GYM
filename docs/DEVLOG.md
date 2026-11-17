@@ -3,6 +3,16 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-17 — Claude Code — Revamp de arte revertido + protótipo chibi
+- O usuário não gostou do paper-doll v2 (64×72, ver commit ed6bbd7):
+  **revertido** (commit de revert, sem reescrever histórico). A arte voltou ao
+  paper-doll 28×36 da Etapa 6A.
+- Nova direção pedida: melhorar o design 28×36 rumo a uma referência chibi
+  (cabeça/cabelo ≈ metade da altura, rosto estreito, capa envolvendo o corpo,
+  2–3 tons chapados, contorno preto grosso). Protótipo de 1 herói mostrado ao
+  usuário, **aguardando aprovação antes de redesenhar as ~50 peças**.
+- Lição: protótipo aprovado antes de qualquer troca em massa de arte.
+
 ## 2026-11-17 — Claude Code — Sincronização com a main + plano de pré-lançamento
 - Branch `claude/gracious-euler-2uq6t2` avançada (fast-forward) até a `main`
   (115715a); `flutter analyze` limpo e 146 testes passando.
