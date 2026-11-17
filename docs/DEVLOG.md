@@ -3,6 +3,27 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-17 — Claude Code — Revamp da arte dos personagens (paper-doll v2)
+- Estilo aprovado pelo usuário após testes (ref. 4 e ref. 2; herói forte com
+  tronco em V). Decisão #52.
+- **Novo pipeline de arte:** `tool/art/paper_doll_gen.py` (66 peças: 3 poses
+  de corpo, 6 torsos × 3 poses, 6 pernas, 6 botas, 5 olhos, 5 barbas,
+  8 cabelos, 6 costas + capa de combate, 7 armas, aura) → arquivo gerado
+  `lib/app/ui/paper_doll/paper_doll_layers.g.dart` (RLE, ~68 KB).
+  `tool/art/preview.py` = galeria PNG (mesmo algoritmo do app).
+- `lib/app/ui/paper_doll/paper_doll_shader.dart`: empilha e sombreia.
+  `HeroPaperDoll` (pixel_sprite.dart) reescrito em cima dele; ~1.500 linhas
+  de grades 28×36 feitas à mão removidas. API (`HeroAvatar`,
+  `OpponentAvatar`, `HeroSprites`, `compose`) mantida — nenhuma tela mudou.
+- Palco de combate: cenário noturno novo (céu em faixas, estrelas, lua,
+  montanhas, piso de tijolos) em `combat_stage_widget.dart`.
+- Testes: `test/app/ui/paper_doll_test.dart` (catálogo completo, paleta
+  cobre todos os tokens em todas as poses/presets, regras do shader). 150.
+- **Para editar a arte:** mudar o gerador e rodar
+  `python3 tool/art/paper_doll_gen.py --preview galeria.png` (requer Pillow).
+- Pendências: polir peças com feedback do usuário; sprites únicos dos chefes
+  (junto dos Flagelos); ícones/UI ainda no estilo anterior.
+
 ## 2026-11-17 — Claude Code — Sincronização com a main + plano de pré-lançamento
 - Branch `claude/gracious-euler-2uq6t2` avançada (fast-forward) até a `main`
   (115715a); `flutter analyze` limpo e 146 testes passando.

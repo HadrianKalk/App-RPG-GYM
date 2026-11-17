@@ -88,6 +88,7 @@ lib/l10n/arb/       textos de interface (app_pt.arb = modelo, app_en.arb)
 lib/l10n/content/   conteúdo de jogo traduzido (mapas por idioma, chaves estáveis)
 lib/l10n/generated/ gerado pelo `flutter gen-l10n` (commitado)
 assets/fonts/       Jersey 10, Inter, Cinzel (+ licenças OFL)
+tool/art/           gerador da arte dos personagens (Python + Pillow) — ver decisão #52
 test/               motor, repositórios (SQLite em memória), widgets, l10n
 docs/               STATUS, DEVLOG, DECISIONS, design/
 ```
