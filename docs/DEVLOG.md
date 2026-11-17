@@ -3,6 +3,16 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-17 — Claude Code — Sincronização com a main + plano de pré-lançamento
+- Branch `claude/gracious-euler-2uq6t2` avançada (fast-forward) até a `main`
+  (115715a); `flutter analyze` limpo e 146 testes passando.
+- Proposta de chefes lendários originais ("Os 18 Flagelos", cada um um vício
+  que a disciplina real enfraquece) em `docs/design/chefes-lendarios-v2.md`
+  — mesmas mecânicas/atributos/níveis, novos nomes, lore, títulos e sprites.
+- STATUS ganhou a seção "Pré-lançamento" com as prioridades definidas pelo usuário.
+- Decisões do usuário: proxy da IA adiado (uso pessoal com BYOK); GitHub Pages
+  ok para testes; distribuição futura só como app nativo; Modo Hardcore depois.
+
 ## 2026-11-16 — Gemini (Antigravity) — Failover automático entre modelos Gemini em HTTP 503/404 + chips de modelo
 - **Resiliência contra picos de demanda (`gemini_story_narrator.dart`, `app_settings.dart`):**
   - Modelo padrão atualizado para `gemini-3.8-flash` com failover automático em cadeia (`gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-2.5-flash-lite` → `gemini-2.5-flash`) quando ocorrer HTTP `503`/`429`/`404`/`5xx` (falhando rápido em erros `400`/`401`/`403` de chave inválida).

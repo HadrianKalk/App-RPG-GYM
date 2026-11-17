@@ -106,6 +106,15 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
       `SoundService`) para dado d20, armas/magias, crítico, falha, concluir
       treino e subir de nível + toggle em Configurações.
 
+## Pré-lançamento (prioridade atual)
+- [ ] **Chefes Lendários originais** — proposta "Os 18 Flagelos" em
+      `docs/design/chefes-lendarios-v2.md`, aguardando aprovação do usuário.
+- [ ] **Revamp da arte** — usuário vai enviar referências.
+- [ ] README do projeto.
+- [ ] Upgrade de dependências (Riverpod 3, go_router 18, …) em tarefa própria.
+- [ ] Servidor intermediário da IA (proxy) — adiado: por enquanto o app é de
+      uso pessoal com BYOK. Distribuição futura: só APK/IPA (sem GitHub Pages).
+
 ## Fase 3 (futuro)
 - Modo Hardcore: atrofia após 7 dias inativo + memória muscular (2x ao voltar).
 
