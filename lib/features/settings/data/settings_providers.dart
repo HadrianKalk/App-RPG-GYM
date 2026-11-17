@@ -31,6 +31,17 @@ class SettingsNotifier extends Notifier<AppSettings> {
   Future<void> setSoundEnabled(bool enabled) =>
       _update(state.copyWith(soundEnabled: enabled));
 
+  Future<void> setGeminiConfig({String? apiKey, String? model}) =>
+      _update(
+        state.copyWith(
+          geminiApiKey: () =>
+              (apiKey == null || apiKey.trim().isEmpty) ? null : apiKey.trim(),
+          geminiModel: model != null && model.trim().isNotEmpty
+              ? model.trim()
+              : AppSettings.defaultGeminiModel,
+        ),
+      );
+
   Future<void> _update(AppSettings next) async {
     state = next;
     await ref.read(settingsRepositoryProvider).save(next);

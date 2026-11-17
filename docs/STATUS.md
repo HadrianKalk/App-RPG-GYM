@@ -2,10 +2,10 @@
 
 _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 
-**Última atualização:** 2026-11-16 (Gemini / Antigravity) — Etapa 7B concluída: Sprites/Auras 16-bit dos 18 Chefes Lendários + Drift v10 + UI do Modo História & Diário de Crônicas
+**Última atualização:** 2026-11-16 (Gemini / Antigravity) — Fase 2 concluída! (Etapa 7C: Bíblia do Mundo `WorldLorePrompt`, `GeminiStoryNarrator` BYOK com fallback offline & config local nas Configurações)
 
 ## Fase atual
-**Etapa 7B concluída!** Pronto para a **Etapa 7C — Provedor de IA Real (`RemoteAiStoryNarrator` com BYOK Gemini & Fallback Offline)**.
+**Fase 2 (Mundo Vivo, 18 Chefes Lendários & Narrador IA) concluída!** Pronto para testes de campanha com IA ao vivo ou iniciar a **Fase 3**.
 
 ## Fase 2 — Mundo Vivo, Inimigos Lendários & Narrador IA
 - [x] **Etapa 7A — Backup JSON + 18 Chefes Lendários + Motor de História & `StoryNarrator` Offline:**
@@ -17,8 +17,9 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
   - [x] Sprites 16-bit e indicadores/auras de mecânicas lendárias no `CombatStageWidget` (`OpponentSprites` + `pixel_sprite.dart`) para os 18 Chefes Semanais.
   - [x] Drift schema v10 (`story_runs`, `story_chapters`) + `StoryRepository` + Backup JSON atualizado + desbloqueio de títulos/cosméticos lendários em `CombatRepository`.
   - [x] Card **Modo História · Crônicas da Forja** desbloqueado no topo da aba Combate + `StoryModeView` (texto livre + escolhas rápidas + `D20RollDialog` + re-rolagem real por Inspiração + combate ao vivo no palco 16-bit + Diário de Crônicas) + aba/card **Chefes Semanais Lendários (18)** liberando todos no **Modo Tester**.
-- [ ] **Etapa 7C — Provedor de IA Real (`RemoteAiStoryNarrator`):**
-  - [ ] Conector HTTP para Gemini usando **BYOK** (chave própria configurável no aparelho, pronta para proxy/tiers futuro), com JSON estrito e fallback automático para `TemplateStoryNarrator`.
+- [x] **Etapa 7C — Provedor de IA Real (`GeminiStoryNarrator`):**
+  - [x] Bíblia do Mundo (`WorldLorePrompt`) injetando contexto Dark Fantasy de Grindheim, ficha/origem real, hábitos do dia, Chefe Semanal Lendário + Selos e regras estritas D&D 5e (`0` alucinação numérica).
+  - [x] Conector HTTP multiplataforma sem dependências extras (`ai_http_io.dart` + `ai_http_web.dart` via `fetch` para PWA) usando **BYOK** (chave Gemini configurável localmente nas Configurações, fora do Backup JSON) com JSON estrito e fallback automático para `TemplateStoryNarrator`.
 
 ## O que existe
 - Motor de jogo (`lib/core/game/`): atributos D&D, XP com retornos decrescentes

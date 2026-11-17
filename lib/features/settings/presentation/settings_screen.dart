@@ -8,6 +8,7 @@ import '../../../app/theme.dart';
 import '../../../app/ui/pixel_button.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/pixel_tag.dart';
 import '../../../data/backup/backup_service.dart';
 import '../../../l10n/l10n.dart';
 import '../../../core/game/attributes.dart';
@@ -130,6 +131,9 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          _SectionTitle(l10n.settingsAiTitle),
+          const _AiNarratorSection(),
           const SizedBox(height: 20),
           _SectionTitle(l10n.settingsBackup),
           const _BackupSection(),
@@ -615,6 +619,146 @@ class _RestoreBackupDialogState extends State<_RestoreBackupDialog> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Optional local-only Gemini BYOK configuration for live AI storytelling.
+class _AiNarratorSection extends ConsumerStatefulWidget {
+  const _AiNarratorSection();
+
+  @override
+  ConsumerState<_AiNarratorSection> createState() => _AiNarratorSectionState();
+}
+
+class _AiNarratorSectionState extends ConsumerState<_AiNarratorSection> {
+  late final TextEditingController _keyController;
+  late final TextEditingController _modelController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = ref.read(settingsProvider);
+    _keyController = TextEditingController(text: initial.geminiApiKey ?? '');
+    _modelController = TextEditingController(text: initial.geminiModel);
+  }
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    _modelController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    await ref.read(settingsProvider.notifier).setGeminiConfig(
+          apiKey: _keyController.text,
+          model: _modelController.text,
+        );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.settingsAiSavedToast)),
+    );
+  }
+
+  Future<void> _clear() async {
+    _keyController.clear();
+    await ref.read(settingsProvider.notifier).setGeminiConfig(
+          apiKey: null,
+          model: _modelController.text,
+        );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.settingsAiSavedToast)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final settings = ref.watch(settingsProvider);
+
+    return PixelFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const PixelIcon(
+                PixelIcons.scroll,
+                size: 20,
+                color: AppTheme.emberGold,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.settingsAiTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              PixelTag(
+                key: const Key('settings_ai_status_tag'),
+                text: settings.hasGeminiKey
+                    ? l10n.settingsAiStatusActive
+                    : l10n.settingsAiStatusOffline,
+                color: settings.hasGeminiKey
+                    ? AppTheme.emberGold
+                    : AppTheme.dullSilver,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.settingsAiHint,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            key: const Key('settings_ai_key_input'),
+            controller: _keyController,
+            obscureText: true,
+            style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
+            decoration: InputDecoration(
+              labelText: l10n.settingsAiKeyLabel,
+              isDense: true,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            key: const Key('settings_ai_model_input'),
+            controller: _modelController,
+            style: const TextStyle(color: AppTheme.ashWhite, fontSize: 13),
+            decoration: InputDecoration(
+              labelText: l10n.settingsAiModelLabel,
+              isDense: true,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: PixelButton(
+                  key: const Key('settings_ai_save_btn'),
+                  label: l10n.settingsAiSaveButton,
+                  onPressed: _save,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: PixelButton(
+                  key: const Key('settings_ai_clear_btn'),
+                  label: l10n.settingsAiClearButton,
+                  variant: PixelButtonVariant.secondary,
+                  onPressed: settings.hasGeminiKey ? _clear : null,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

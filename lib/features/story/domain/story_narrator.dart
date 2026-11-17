@@ -47,6 +47,7 @@ final class StorySceneResponse {
     this.placeVisited,
     this.npcUpdate,
     this.memorySummary,
+    this.isAiGenerated = false,
   });
 
   final String narration;
@@ -58,6 +59,9 @@ final class StorySceneResponse {
   final String? placeVisited;
   final StoryNpcMemory? npcUpdate;
   final String? memorySummary;
+
+  /// True when authored by the live AI Game Master; false for offline templates.
+  final bool isAiGenerated;
 }
 
 /// Swappable narrator contract (Offline Template or Remote AI Game Master).

@@ -2643,6 +2643,72 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Descartar e Iniciar Novo'**
   String get workoutDiscardAndStart;
+
+  /// No description provided for @settingsAiTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mestre de Jogo (IA · BYOK)'**
+  String get settingsAiTitle;
+
+  /// No description provided for @settingsAiHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cole sua chave da API Gemini (salva apenas neste aparelho) para ativar narração livre por IA no Modo História. Sem chave ou sem sinal, o app usa o Narrador Offline.'**
+  String get settingsAiHint;
+
+  /// No description provided for @settingsAiKeyLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chave da API Gemini'**
+  String get settingsAiKeyLabel;
+
+  /// No description provided for @settingsAiModelLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modelo Gemini'**
+  String get settingsAiModelLabel;
+
+  /// No description provided for @settingsAiSaveButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar Chave'**
+  String get settingsAiSaveButton;
+
+  /// No description provided for @settingsAiClearButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limpar'**
+  String get settingsAiClearButton;
+
+  /// No description provided for @settingsAiSavedToast.
+  ///
+  /// In pt, this message translates to:
+  /// **'Configuração da IA salva neste aparelho!'**
+  String get settingsAiSavedToast;
+
+  /// No description provided for @settingsAiStatusActive.
+  ///
+  /// In pt, this message translates to:
+  /// **'IA ATIVA'**
+  String get settingsAiStatusActive;
+
+  /// No description provided for @settingsAiStatusOffline.
+  ///
+  /// In pt, this message translates to:
+  /// **'MODO OFFLINE'**
+  String get settingsAiStatusOffline;
+
+  /// No description provided for @storyModeAiBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'MESTRE IA'**
+  String get storyModeAiBadge;
+
+  /// No description provided for @storyModeOfflineBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'OFFLINE'**
+  String get storyModeOfflineBadge;
 }
 
 class _AppLocalizationsDelegate

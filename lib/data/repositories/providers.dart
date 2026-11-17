@@ -18,6 +18,8 @@ import '../../core/game/routine.dart';
 import '../../core/game/hero_profile.dart';
 import '../../core/game/story.dart';
 import '../../core/game/xp_rules.dart';
+import '../../features/settings/data/settings_providers.dart';
+import '../../features/story/domain/gemini_story_narrator.dart';
 import '../../features/story/domain/story_narrator.dart';
 import '../../features/story/domain/template_story_narrator.dart';
 
@@ -289,8 +291,20 @@ final weeklyStoryChaptersProvider =
   return ref.watch(storyRepositoryProvider).watchChapters(weekKey);
 });
 
-/// Swappable Story Narrator (offline Template narrator now; Remote AI in 7C).
+/// Swappable Story Narrator: live Gemini BYOK when configured, with automatic
+/// fallback to [TemplateStoryNarrator] when offline or unconfigured.
 final storyNarratorProvider = Provider<StoryNarrator>((ref) {
+  try {
+    final settings = ref.watch(settingsProvider);
+    if (settings.hasGeminiKey) {
+      return GeminiStoryNarrator(
+        apiKey: settings.geminiApiKey!,
+        model: settings.geminiModel,
+      );
+    }
+  } catch (_) {
+    // Widget tests that omit sharedPreferencesProvider fall back offline.
+  }
   return const TemplateStoryNarrator();
 });
 

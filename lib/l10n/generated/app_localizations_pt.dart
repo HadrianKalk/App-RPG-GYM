@@ -1613,4 +1613,38 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get workoutDiscardAndStart => 'Descartar e Iniciar Novo';
+
+  @override
+  String get settingsAiTitle => 'Mestre de Jogo (IA · BYOK)';
+
+  @override
+  String get settingsAiHint =>
+      'Cole sua chave da API Gemini (salva apenas neste aparelho) para ativar narração livre por IA no Modo História. Sem chave ou sem sinal, o app usa o Narrador Offline.';
+
+  @override
+  String get settingsAiKeyLabel => 'Chave da API Gemini';
+
+  @override
+  String get settingsAiModelLabel => 'Modelo Gemini';
+
+  @override
+  String get settingsAiSaveButton => 'Salvar Chave';
+
+  @override
+  String get settingsAiClearButton => 'Limpar';
+
+  @override
+  String get settingsAiSavedToast => 'Configuração da IA salva neste aparelho!';
+
+  @override
+  String get settingsAiStatusActive => 'IA ATIVA';
+
+  @override
+  String get settingsAiStatusOffline => 'MODO OFFLINE';
+
+  @override
+  String get storyModeAiBadge => 'MESTRE IA';
+
+  @override
+  String get storyModeOfflineBadge => 'OFFLINE';
 }

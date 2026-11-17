@@ -12,6 +12,8 @@ class SettingsRepository {
   static const _kLanguage = 'settings.languageCode';
   static const _kFontStyle = 'settings.fontStyle';
   static const _kSoundEnabled = 'settings.soundEnabled';
+  static const _kGeminiApiKey = 'settings.geminiApiKey';
+  static const _kGeminiModel = 'settings.geminiModel';
 
   /// Reads the saved settings, ignoring unknown/corrupted values.
   AppSettings load() {
@@ -21,6 +23,9 @@ class SettingsRepository {
       languageCode: _prefs.getString(_kLanguage),
       fontStyle: font ?? AppFontStyle.pixel,
       soundEnabled: _prefs.getBool(_kSoundEnabled) ?? true,
+      geminiApiKey: _prefs.getString(_kGeminiApiKey),
+      geminiModel:
+          _prefs.getString(_kGeminiModel) ?? AppSettings.defaultGeminiModel,
     );
   }
 
@@ -34,5 +39,12 @@ class SettingsRepository {
     }
     await _prefs.setString(_kFontStyle, settings.fontStyle.name);
     await _prefs.setBool(_kSoundEnabled, settings.soundEnabled);
+    final key = settings.geminiApiKey?.trim();
+    if (key == null || key.isEmpty) {
+      await _prefs.remove(_kGeminiApiKey);
+    } else {
+      await _prefs.setString(_kGeminiApiKey, key);
+    }
+    await _prefs.setString(_kGeminiModel, settings.geminiModel);
   }
 }

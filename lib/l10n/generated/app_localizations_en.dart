@@ -1608,4 +1608,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workoutDiscardAndStart => 'Discard & Start New';
+
+  @override
+  String get settingsAiTitle => 'Game Master (AI · BYOK)';
+
+  @override
+  String get settingsAiHint =>
+      'Paste your Gemini API key (stored locally on this device only) to enable live AI storytelling in Story Mode. Without a key or signal, the Offline Narrator runs automatically.';
+
+  @override
+  String get settingsAiKeyLabel => 'Gemini API Key';
+
+  @override
+  String get settingsAiModelLabel => 'Gemini Model';
+
+  @override
+  String get settingsAiSaveButton => 'Save Key';
+
+  @override
+  String get settingsAiClearButton => 'Clear';
+
+  @override
+  String get settingsAiSavedToast => 'AI configuration saved on this device!';
+
+  @override
+  String get settingsAiStatusActive => 'AI ACTIVE';
+
+  @override
+  String get settingsAiStatusOffline => 'OFFLINE MODE';
+
+  @override
+  String get storyModeAiBadge => 'AI GM';
+
+  @override
+  String get storyModeOfflineBadge => 'OFFLINE';
 }

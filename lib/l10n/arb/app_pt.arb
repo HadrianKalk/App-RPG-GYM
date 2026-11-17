@@ -1336,5 +1336,16 @@
       "title": { "type": "String" }
     }
   },
-  "workoutDiscardAndStart": "Descartar e Iniciar Novo"
+  "workoutDiscardAndStart": "Descartar e Iniciar Novo",
+  "settingsAiTitle": "Mestre de Jogo (IA · BYOK)",
+  "settingsAiHint": "Cole sua chave da API Gemini (salva apenas neste aparelho) para ativar narração livre por IA no Modo História. Sem chave ou sem sinal, o app usa o Narrador Offline.",
+  "settingsAiKeyLabel": "Chave da API Gemini",
+  "settingsAiModelLabel": "Modelo Gemini",
+  "settingsAiSaveButton": "Salvar Chave",
+  "settingsAiClearButton": "Limpar",
+  "settingsAiSavedToast": "Configuração da IA salva neste aparelho!",
+  "settingsAiStatusActive": "IA ATIVA",
+  "settingsAiStatusOffline": "MODO OFFLINE",
+  "storyModeAiBadge": "MESTRE IA",
+  "storyModeOfflineBadge": "OFFLINE"
 }

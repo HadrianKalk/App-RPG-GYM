@@ -629,6 +629,16 @@ class _StoryModeViewState extends ConsumerState<StoryModeView> {
                               text: _scene!.locationName,
                               color: AppTheme.emberGold,
                             ),
+                            const Spacer(),
+                            PixelTag(
+                              key: const Key('story_narrator_source_tag'),
+                              text: _scene!.isAiGenerated
+                                  ? l10n.storyModeAiBadge
+                                  : l10n.storyModeOfflineBadge,
+                              color: _scene!.isAiGenerated
+                                  ? AppTheme.emberGold
+                                  : AppTheme.dullSilver,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 10),

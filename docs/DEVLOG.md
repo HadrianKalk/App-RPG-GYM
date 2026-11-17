@@ -3,6 +3,14 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Etapa 7C: Bíblia do Mundo + GeminiStoryNarrator (BYOK) + Fallback Offline
+- **Bíblia do Mundo & Engenharia de Prompt (`lib/features/story/domain/world_lore_prompt.dart`):**
+  - Pré-texto canônico de Grindheim (atmosfera Dark Fantasy, marcos recorrentes, regras estritas D&D 5e e contrato JSON) combinado dinamicamente com ficha do herói (forma de tratamento, origem própria, modificadores), feitos reais de hoje, Chefe Semanal Lendário + Selos e `CampaignMemory` compacta.
+- **Conector Gemini Multiplataforma & Config BYOK (`gemini_story_narrator.dart`, `ai_http_io/web/stub.dart`, `settings_screen.dart`):**
+  - Transporte HTTP nativo (`dart:io` + `window.fetch` via `dart:js_interop` no Safari PWA) sem novas dependências, parse e sanitização estrita de `skillCheck` (`CD` sempre calculada pelo `StoryEngine`) e `combatTrigger` (`opponentId` validado), com fallback automático para `TemplateStoryNarrator`.
+  - Seção **Mestre de Jogo (IA · BYOK)** nas Configurações (chave salva só localmente no aparelho e nunca exposta no Backup JSON) e tag **`MESTRE IA` / `OFFLINE`** na cena do `StoryModeView`.
+- **Verificação:** `flutter analyze` (0 erros), `flutter test` (**144/144** testes passando) e `flutter build web --release`.
+
 ## 2026-11-16 — Gemini (Antigravity) — Treino retomável entre abas/reinícios + 7 novos exercícios
 - **Persistência em tempo real e saída sem perda no treino ativo (`workout_repository.dart`, `active_workout_controller.dart`, `active_workout_screen.dart`, `workout_screen.dart`):**
   - Séries (inclusive rascunhos não marcados e alterações de carga/reps/tempo) agora são persistidas no Drift imediatamente (`workout_sets`).
