@@ -2601,6 +2601,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Enfrentar Lendário'**
   String get legendaryFightButton;
+
+  /// No description provided for @workoutResumeBadge.
+  ///
+  /// In pt, this message translates to:
+  /// **'TREINO EM ANDAMENTO'**
+  String get workoutResumeBadge;
+
+  /// No description provided for @workoutResumeHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seu progresso está salvo automaticamente. Continue de onde parou a qualquer momento.'**
+  String get workoutResumeHint;
+
+  /// No description provided for @workoutResumeButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Retomar Treino'**
+  String get workoutResumeButton;
+
+  /// No description provided for @workoutMinimizeTooltip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Minimizar treino (mantém tudo salvo)'**
+  String get workoutMinimizeTooltip;
+
+  /// No description provided for @workoutActiveExistsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treino já em andamento'**
+  String get workoutActiveExistsTitle;
+
+  /// No description provided for @workoutActiveExistsBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você já tem \"{title}\" aberto. Deseja retomá-lo ou descartá-lo para iniciar um novo?'**
+  String workoutActiveExistsBody(String title);
+
+  /// No description provided for @workoutDiscardAndStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descartar e Iniciar Novo'**
+  String get workoutDiscardAndStart;
 }
 
 class _AppLocalizationsDelegate

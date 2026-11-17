@@ -3,6 +3,15 @@
 _Entradas mais recentes no topo. Todo agente (e humano) registra aqui o que fez
 ao fim de cada sessão. Formato definido em `AGENTS.md` §0._
 
+## 2026-11-16 — Gemini (Antigravity) — Treino retomável entre abas/reinícios + 7 novos exercícios
+- **Persistência em tempo real e saída sem perda no treino ativo (`workout_repository.dart`, `active_workout_controller.dart`, `active_workout_screen.dart`, `workout_screen.dart`):**
+  - Séries (inclusive rascunhos não marcados e alterações de carga/reps/tempo) agora são persistidas no Drift imediatamente (`workout_sets`).
+  - Botão **Minimizar** (`workout_minimize_btn`) e `PopScope(canPop: true)` permitem sair da tela de treino (ex.: fazer um combate ou fechar o app/PWA) sem descartar; card **Treino em Andamento** na `WorkoutScreen` restaura os exercícios, séries e tempo decorrido exatos.
+  - "Descartar" continua seguro e acessível no menu `⋮` e no botão do card de retomada, além de confirmação ao tentar iniciar outro treino enquanto um estiver aberto.
+- **7 novos exercícios no catálogo com passo a passo pt-BR e inglês (`exercise_seed.dart`, `game_content_pt/en.dart`):**
+  - Tríceps Francês Unilateral na Polia, Tríceps Coice na Polia, Tríceps Coice com Halter, Flexão de Punho na Polia (Antebraço), Extensão de Punho na Polia (Antebraço), Rosca Inversa na Polia (Antebraço) e Agachamento Búlgaro no Smith.
+- **Verificação:** `flutter analyze` (0 erros) e `flutter test` (**139/139** testes passando).
+
 ## 2026-11-16 — Gemini (Antigravity) — Etapa 7B: Sprites 16-bit dos 18 Lendários + Drift v10 + UI Modo História
 - **Sprites & Palco 16-bit dos 18 Chefes Lendários (`lib/app/ui/pixel_sprite.dart`, `combat_stage_widget.dart`):**
   - Receitas 16-bit individuais para todos os 18 Chefes Semanais (`OpponentSprites._legendaryAppearance`), ataques correspondentes e chips/auras visuais no palco (Barreira do Infinito, Placas Blindadas, Fases 2/3, Sangramento).

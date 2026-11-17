@@ -149,6 +149,35 @@ class WorkoutRepository {
     return (_db.select(_db.workoutSessions)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 
+  /// Watches the most recent unfinished workout session (`completedAt == null`).
+  Stream<WorkoutSession?> watchActiveWorkoutSession() {
+    return (_db.select(_db.workoutSessions)
+          ..where((t) => t.completedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.startedAt)])
+          ..limit(1))
+        .watchSingleOrNull();
+  }
+
+  /// Returns the most recent unfinished workout session, if any.
+  Future<WorkoutSession?> getActiveWorkoutSession() {
+    return (_db.select(_db.workoutSessions)
+          ..where((t) => t.completedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.startedAt)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  /// Loads all saved sets (completed or draft) for [sessionId] in creation order.
+  Future<List<WorkoutSet>> getSessionSets(String sessionId) {
+    return (_db.select(_db.workoutSets)
+          ..where((t) => t.sessionId.equals(sessionId))
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.id),
+            (t) => OrderingTerm.asc(t.setOrder),
+          ]))
+        .get();
+  }
+
   /// Inserts or updates one set of the running workout. No XP here: all XP
   /// (sets and records) is granted on [completeWorkoutSession], so editing,
   /// un-checking or discarding never leaves orphan ledger entries.

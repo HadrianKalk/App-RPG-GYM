@@ -7,6 +7,7 @@ import '../../../app/ui/pixel_button.dart';
 import '../../../app/ui/pixel_border.dart';
 import '../../../app/ui/pixel_frame.dart';
 import '../../../app/ui/pixel_icon.dart';
+import '../../../app/ui/pixel_tag.dart';
 import '../../../core/game/routine.dart';
 import '../../../data/database.dart';
 import '../../../data/repositories/providers.dart';
@@ -26,12 +27,36 @@ class WorkoutScreen extends ConsumerWidget {
     final display = DisplayFont.from(context);
     final templates = ref.watch(routineRepositoryProvider).templates;
     final customAsync = ref.watch(customRoutinesProvider);
+    final activeSession = ref.watch(activeWorkoutSessionProvider).valueOrNull;
+
+    Routine? resolveRoutine(String? routineId) {
+      if (routineId == null) return null;
+      for (final r in templates) {
+        if (r.id == routineId) return r;
+      }
+      for (final r in customAsync.valueOrNull ?? const <Routine>[]) {
+        if (r.id == routineId) return r;
+      }
+      return null;
+    }
 
     return Scaffold(
       appBar: GameAppBar(title: l10n.workoutTitle),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
+          if (activeSession != null) ...[
+            _ResumeWorkoutBanner(
+              session: activeSession,
+              onResume: () => resumeWorkout(
+                context,
+                activeSession,
+                routine: resolveRoutine(activeSession.routineId),
+              ),
+              onDiscard: () => _confirmDiscardActive(context, ref, activeSession),
+            ),
+            const SizedBox(height: 12),
+          ],
           PixelFrame(
             highlight: true,
             color: AppTheme.darkBlood,
@@ -105,13 +130,187 @@ class WorkoutScreen extends ConsumerWidget {
   }
 }
 
+/// Opens an already running workout session restoring saved sets and targets.
+Future<void> resumeWorkout(
+  BuildContext context,
+  WorkoutSession session, {
+  Routine? routine,
+}) async {
+  await Navigator.of(context, rootNavigator: true).push(
+    MaterialPageRoute(
+      builder: (_) => ActiveWorkoutScreen(
+        session: session,
+        routine: routine,
+        resume: true,
+      ),
+    ),
+  );
+}
+
+Future<void> _confirmDiscardActive(
+  BuildContext context,
+  WidgetRef ref,
+  WorkoutSession session,
+) async {
+  final l10n = context.l10n;
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.workoutDiscardTitle),
+      content: Text(l10n.workoutDiscardBody),
+      actions: [
+        PixelButton(
+          label: l10n.workoutKeepGoing,
+          expand: false,
+          variant: PixelButtonVariant.secondary,
+          onPressed: () => Navigator.of(ctx).pop(false),
+        ),
+        PixelButton(
+          label: l10n.workoutDiscard,
+          expand: false,
+          variant: PixelButtonVariant.danger,
+          onPressed: () => Navigator.of(ctx).pop(true),
+        ),
+      ],
+    ),
+  );
+  if (ok == true) {
+    await ref.read(workoutRepositoryProvider).discardWorkoutSession(session.id);
+  }
+}
+
 /// Creates a session (optionally from [routine]) and opens the workout.
+///
+/// If an unfinished workout already exists, asks whether to resume it or
+/// discard it before starting a fresh session.
 Future<void> startWorkout(BuildContext context, WidgetRef ref, {required String title, Routine? routine}) async {
-  final session = await ref.read(workoutRepositoryProvider).startWorkoutSession(title: title, routineId: routine?.id);
+  final repo = ref.read(workoutRepositoryProvider);
+  final existing = await repo.getActiveWorkoutSession();
+  if (existing != null && context.mounted) {
+    final l10n = context.l10n;
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.workoutActiveExistsTitle),
+        content: Text(l10n.workoutActiveExistsBody(existing.title)),
+        actions: [
+          PixelButton(
+            label: l10n.commonCancel,
+            expand: false,
+            variant: PixelButtonVariant.secondary,
+            onPressed: () => Navigator.of(ctx).pop('cancel'),
+          ),
+          PixelButton(
+            label: l10n.workoutDiscardAndStart,
+            expand: false,
+            variant: PixelButtonVariant.danger,
+            onPressed: () => Navigator.of(ctx).pop('discard'),
+          ),
+          PixelButton(
+            label: l10n.workoutResumeButton,
+            expand: false,
+            onPressed: () => Navigator.of(ctx).pop('resume'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || choice == null || choice == 'cancel') return;
+    if (choice == 'resume') {
+      final templates = ref.read(routineRepositoryProvider).templates;
+      final customs = ref.read(customRoutinesProvider).valueOrNull ?? const [];
+      Routine? match;
+      for (final r in [...templates, ...customs]) {
+        if (r.id == existing.routineId) {
+          match = r;
+          break;
+        }
+      }
+      await resumeWorkout(context, existing, routine: match);
+      return;
+    }
+    await repo.discardWorkoutSession(existing.id);
+  }
+
+  final session = await repo.startWorkoutSession(title: title, routineId: routine?.id);
   if (context.mounted) {
     // Root navigator: the workout is full-screen, without the tab bar.
     await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(session: session, routine: routine)),
+    );
+  }
+}
+
+class _ResumeWorkoutBanner extends StatelessWidget {
+  const _ResumeWorkoutBanner({
+    required this.session,
+    required this.onResume,
+    required this.onDiscard,
+  });
+
+  final WorkoutSession session;
+  final VoidCallback onResume;
+  final VoidCallback onDiscard;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final display = DisplayFont.from(context);
+    final elapsed = DateTime.now().difference(session.startedAt).inSeconds;
+
+    return PixelFrame(
+      key: const Key('active_workout_resume_card'),
+      highlight: true,
+      color: AppTheme.castIron,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              PixelTag(
+                text: l10n.workoutResumeBadge,
+                color: AppTheme.emberGold,
+              ),
+              const Spacer(),
+              PixelTag(
+                text: WorkoutFormat.duration(elapsed),
+                color: AppTheme.ashWhite,
+                background: AppTheme.darkBlood,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            session.title,
+            style: display.style(24, color: AppTheme.emberGold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.workoutResumeHint,
+            style: const TextStyle(color: AppTheme.dullSilver, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: PixelButton(
+                  key: const Key('workout_resume_btn'),
+                  label: l10n.workoutResumeButton,
+                  icon: const Icon(Icons.play_arrow),
+                  onPressed: onResume,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                key: const Key('workout_discard_active_btn'),
+                tooltip: l10n.workoutDiscard,
+                onPressed: onDiscard,
+                icon: const Icon(Icons.delete_outline, color: AppTheme.bloodCrimson),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -272,8 +471,9 @@ class _RoutinePreviewSheet extends ConsumerWidget {
                       label: l10n.routineStart,
                       icon: const Icon(Icons.play_arrow),
                       onPressed: () {
+                        final rootContext = Navigator.of(context, rootNavigator: true).context;
                         Navigator.of(context).pop();
-                        startWorkout(context, ref, title: name, routine: routine);
+                        startWorkout(rootContext, ref, title: name, routine: routine);
                       },
                     ),
                     const SizedBox(height: 8),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/game/exercise_taxonomy.dart';
@@ -68,9 +70,10 @@ class ActiveWorkoutController extends ChangeNotifier {
   bool get isBusy => _busy;
   bool get hasCompletedSets => exercises.any((e) => e.sets.any((s) => s.completed));
 
-  String _newSetId() => 'set_${session.id}_${DateTime.now().microsecondsSinceEpoch}_${_idCounter++}';
+  String _newSetId() =>
+      'set_${session.id}_${DateTime.now().microsecondsSinceEpoch}_${(_idCounter++).toString().padLeft(4, '0')}';
 
-  /// Pre-fills the workout with every exercise of [routine].
+  /// Pre-fills the workout with every exercise of [routine] and persists drafts.
   Future<void> loadRoutine(Routine routine) async {
     final catalog = await _repo.getExercises(routine.exercises.map((e) => e.exerciseId).toList());
     final byId = {for (final e in catalog) e.id: e};
@@ -82,7 +85,68 @@ class ActiveWorkoutController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds a free exercise (one set, pre-filled from history).
+  /// Restores sets from an unfinished [session] saved in the database.
+  Future<void> restoreSession({Routine? routine}) async {
+    final savedRows = await _repo.getSessionSets(session.id);
+    if (savedRows.isEmpty) {
+      if (routine != null) {
+        await loadRoutine(routine);
+      }
+      return;
+    }
+
+    // Group sets by exercise preserving the order in which each exercise appeared.
+    final orderedIds = <String>[];
+    final groupedRows = <String, List<WorkoutSet>>{};
+    for (final row in savedRows) {
+      if (!groupedRows.containsKey(row.exerciseId)) {
+        orderedIds.add(row.exerciseId);
+        groupedRows[row.exerciseId] = [];
+      }
+      groupedRows[row.exerciseId]!.add(row);
+    }
+
+    final catalog = await _repo.getExercises(orderedIds);
+    final exById = {for (final e in catalog) e.id: e};
+    final targetsById = {
+      if (routine != null)
+        for (final t in routine.exercises) t.exerciseId: t,
+    };
+
+    exercises.clear();
+    for (final exId in orderedIds) {
+      final exercise = exById[exId];
+      if (exercise == null) continue;
+      final rows = groupedRows[exId]!
+        ..sort((a, b) => a.setOrder.compareTo(b.setOrder));
+      final previous = await _repo.getPreviousSets(
+        exId,
+        excludeSessionId: session.id,
+      );
+      final drafts = <WorkoutSetDraft>[
+        for (final r in rows)
+          WorkoutSetDraft(
+            id: r.id,
+            weightKg: r.weightKg,
+            reps: r.reps,
+            durationSeconds: r.durationSeconds,
+          )..completed = r.isCompleted,
+      ];
+      final group = WorkoutExerciseDraft(
+        exercise: exercise,
+        target: targetsById[exId],
+        previous: previous,
+        sets: drafts,
+      );
+      exercises.add(group);
+      for (final d in drafts) {
+        if (d.completed) await _refreshPreview(group, d);
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Adds a free exercise (one set, pre-filled from history) and saves draft.
   Future<void> addExercise(Exercise exercise) async {
     await _append(exercise, null);
     notifyListeners();
@@ -95,17 +159,17 @@ class ActiveWorkoutController extends ChangeNotifier {
       tracking: exercise.tracking,
       previous: previous,
     );
-    exercises.add(
-      WorkoutExerciseDraft(
-        exercise: exercise,
-        target: target,
-        previous: previous,
-        sets: [
-          for (final p in planned)
-            WorkoutSetDraft(id: _newSetId(), weightKg: p.weightKg, reps: p.reps, durationSeconds: p.durationSeconds),
-        ],
-      ),
+    final group = WorkoutExerciseDraft(
+      exercise: exercise,
+      target: target,
+      previous: previous,
+      sets: [
+        for (final p in planned)
+          WorkoutSetDraft(id: _newSetId(), weightKg: p.weightKg, reps: p.reps, durationSeconds: p.durationSeconds),
+      ],
     );
+    exercises.add(group);
+    await _persistGroup(group, onlyCompleted: false);
   }
 
   /// Removes an exercise and any of its saved sets.
@@ -115,18 +179,18 @@ class ActiveWorkoutController extends ChangeNotifier {
     await _repo.deleteExerciseSets(session.id, group.exercise.id);
   }
 
-  /// Adds a set copying the last one of [group].
+  /// Adds a set copying the last one of [group] and saves it immediately.
   void addSet(WorkoutExerciseDraft group) {
     final last = group.sets.isNotEmpty ? group.sets.last : null;
-    group.sets.add(
-      WorkoutSetDraft(
-        id: _newSetId(),
-        weightKg: last?.weightKg ?? 0,
-        reps: last?.reps ?? RoutinePlanner.defaultReps,
-        durationSeconds: last?.durationSeconds ?? RoutinePlanner.defaultDurationSeconds,
-      ),
+    final added = WorkoutSetDraft(
+      id: _newSetId(),
+      weightKg: last?.weightKg ?? 0,
+      reps: last?.reps ?? RoutinePlanner.defaultReps,
+      durationSeconds: last?.durationSeconds ?? RoutinePlanner.defaultDurationSeconds,
     );
+    group.sets.add(added);
     notifyListeners();
+    unawaited(_save(group, added));
   }
 
   /// Removes one set and renumbers the remaining saved sets.
@@ -134,10 +198,10 @@ class ActiveWorkoutController extends ChangeNotifier {
     group.sets.remove(set);
     notifyListeners();
     await _repo.deleteWorkoutSet(set.id);
-    await _persistGroup(group, onlyCompleted: true);
+    await _persistGroup(group, onlyCompleted: false);
   }
 
-  /// Updates values of a set; re-saves it if it was already completed.
+  /// Updates values of a set and persists immediately (even before check-off).
   Future<void> updateSet(
     WorkoutExerciseDraft group,
     WorkoutSetDraft set, {
@@ -148,8 +212,8 @@ class ActiveWorkoutController extends ChangeNotifier {
     if (weightKg != null) set.weightKg = weightKg;
     if (reps != null) set.reps = reps;
     if (durationSeconds != null) set.durationSeconds = durationSeconds;
+    await _save(group, set);
     if (set.completed) {
-      await _save(group, set);
       await _refreshPreview(group, set);
       notifyListeners();
     }

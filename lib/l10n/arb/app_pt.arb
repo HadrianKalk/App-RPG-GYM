@@ -1324,5 +1324,17 @@
   "legendaryThisWeekBadge": "CHEFE DESTA SEMANA",
   "legendaryTesterAllBadge": "TODOS OS 18 LENDÁRIOS (TESTER)",
   "legendaryLockedTesterHint": "Ative o Modo Tester para treinar contra outros chefes fora da rotação da semana.",
-  "legendaryFightButton": "Enfrentar Lendário"
+  "legendaryFightButton": "Enfrentar Lendário",
+  "workoutResumeBadge": "TREINO EM ANDAMENTO",
+  "workoutResumeHint": "Seu progresso está salvo automaticamente. Continue de onde parou a qualquer momento.",
+  "workoutResumeButton": "Retomar Treino",
+  "workoutMinimizeTooltip": "Minimizar treino (mantém tudo salvo)",
+  "workoutActiveExistsTitle": "Treino já em andamento",
+  "workoutActiveExistsBody": "Você já tem \"{title}\" aberto. Deseja retomá-lo ou descartá-lo para iniciar um novo?",
+  "@workoutActiveExistsBody": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "workoutDiscardAndStart": "Descartar e Iniciar Novo"
 }

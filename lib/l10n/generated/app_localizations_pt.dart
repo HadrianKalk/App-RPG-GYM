@@ -1589,4 +1589,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get legendaryFightButton => 'Enfrentar Lendário';
+
+  @override
+  String get workoutResumeBadge => 'TREINO EM ANDAMENTO';
+
+  @override
+  String get workoutResumeHint =>
+      'Seu progresso está salvo automaticamente. Continue de onde parou a qualquer momento.';
+
+  @override
+  String get workoutResumeButton => 'Retomar Treino';
+
+  @override
+  String get workoutMinimizeTooltip => 'Minimizar treino (mantém tudo salvo)';
+
+  @override
+  String get workoutActiveExistsTitle => 'Treino já em andamento';
+
+  @override
+  String workoutActiveExistsBody(String title) {
+    return 'Você já tem \"$title\" aberto. Deseja retomá-lo ou descartá-lo para iniciar um novo?';
+  }
+
+  @override
+  String get workoutDiscardAndStart => 'Descartar e Iniciar Novo';
 }

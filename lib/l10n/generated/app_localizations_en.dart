@@ -1583,4 +1583,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legendaryFightButton => 'Fight Legendary';
+
+  @override
+  String get workoutResumeBadge => 'WORKOUT IN PROGRESS';
+
+  @override
+  String get workoutResumeHint =>
+      'Your sets and weights are saved automatically. Resume anytime, even after closing the app.';
+
+  @override
+  String get workoutResumeButton => 'Resume Workout';
+
+  @override
+  String get workoutMinimizeTooltip =>
+      'Minimize workout (keeps everything saved)';
+
+  @override
+  String get workoutActiveExistsTitle => 'Workout Already in Progress';
+
+  @override
+  String workoutActiveExistsBody(String title) {
+    return 'You already have \"$title\" in progress. Resume it or discard it to start a new workout?';
+  }
+
+  @override
+  String get workoutDiscardAndStart => 'Discard & Start New';
 }

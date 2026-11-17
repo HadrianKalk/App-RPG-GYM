@@ -26,10 +26,16 @@ import 'workout_format.dart';
 /// Opened with an already-created [session]; when [routine] is given its
 /// exercises are pre-loaded with targets and last-workout values.
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
-  const ActiveWorkoutScreen({required this.session, this.routine, super.key});
+  const ActiveWorkoutScreen({
+    required this.session,
+    this.routine,
+    this.resume = false,
+    super.key,
+  });
 
   final WorkoutSession session;
   final Routine? routine;
+  final bool resume;
 
   @override
   ConsumerState<ActiveWorkoutScreen> createState() => _ActiveWorkoutScreenState();
@@ -47,11 +53,16 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   void initState() {
     super.initState();
     _controller = ActiveWorkoutController(repository: ref.read(workoutRepositoryProvider), session: widget.session);
-    // Elapsed time is derived from startedAt, so it survives rebuilds.
+    // Elapsed time is derived from startedAt, so it survives rebuilds and app restarts.
     _clock = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
-    if (widget.routine != null) {
+    if (widget.resume) {
+      _loading = true;
+      _controller.restoreSession(routine: widget.routine).whenComplete(() {
+        if (mounted) setState(() => _loading = false);
+      });
+    } else if (widget.routine != null) {
       _loading = true;
       _controller.loadRoutine(widget.routine!).whenComplete(() {
         if (mounted) setState(() => _loading = false);
@@ -164,12 +175,15 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     final display = DisplayFont.from(context);
 
     return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _confirmDiscard();
-      },
+      canPop: true,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            key: const Key('workout_minimize_btn'),
+            icon: const Icon(Icons.keyboard_arrow_down),
+            tooltip: l10n.workoutMinimizeTooltip,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           title: Text(widget.session.title),
           actions: [
             Center(
@@ -181,6 +195,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               ),
             ),
             PopupMenuButton<String>(
+              key: const Key('workout_menu_btn'),
               icon: const Icon(Icons.more_vert, color: AppTheme.dullSilver),
               onSelected: (_) => _confirmDiscard(),
               itemBuilder: (_) => [PopupMenuItem(value: 'discard', child: Text(l10n.workoutDiscard))],

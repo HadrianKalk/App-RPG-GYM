@@ -484,5 +484,17 @@
   "legendaryThisWeekBadge": "THIS WEEK'S BOSS",
   "legendaryTesterAllBadge": "ALL 18 LEGENDARY BOSSES (TESTER)",
   "legendaryLockedTesterHint": "Enable Tester Mode to spar other bosses outside this week's rotation.",
-  "legendaryFightButton": "Fight Legendary"
+  "legendaryFightButton": "Fight Legendary",
+  "workoutResumeBadge": "WORKOUT IN PROGRESS",
+  "workoutResumeHint": "Your sets and weights are saved automatically. Resume anytime, even after closing the app.",
+  "workoutResumeButton": "Resume Workout",
+  "workoutMinimizeTooltip": "Minimize workout (keeps everything saved)",
+  "workoutActiveExistsTitle": "Workout Already in Progress",
+  "workoutActiveExistsBody": "You already have \"{title}\" in progress. Resume it or discard it to start a new workout?",
+  "@workoutActiveExistsBody": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "workoutDiscardAndStart": "Discard & Start New"
 }

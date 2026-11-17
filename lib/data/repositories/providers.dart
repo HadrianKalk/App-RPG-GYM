@@ -147,6 +147,11 @@ final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
   return repo;
 });
 
+/// Watches the currently unfinished workout session, if any (survives restart).
+final activeWorkoutSessionProvider = StreamProvider<WorkoutSession?>((ref) {
+  return ref.watch(workoutRepositoryProvider).watchActiveWorkoutSession();
+});
+
 final activityRepositoryProvider = Provider<ActivityRepository>((ref) {
   final db = ref.watch(databaseProvider);
   final charRepo = ref.watch(characterRepositoryProvider);
