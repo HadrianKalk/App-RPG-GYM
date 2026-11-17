@@ -540,106 +540,46 @@ class _FloatingBattlePopup extends StatelessWidget {
   }
 }
 
-/// Paints the night scene behind the fighters (approved art style):
-/// banded teal night sky, cross-shaped stars, crescent moon, distant
-/// mountains and a stone-brick floor. Drawn on a coarse pixel grid ([_px])
-/// so it matches the sprites.
+/// Paints the 16-bit dark-fantasy stone arena floor and night/ember sky
+/// inspired by the 2nd reference image.
 class _ArenaBackdropPainter extends CustomPainter {
-  static const double _px = 3;
-  static const _skyDark = Color(0xFF325664);
-  static const _sky = Color(0xFF49797D);
-  static const _skyLight = Color(0xFF618283);
-  static const _skyLine = Color(0xFF3C646E);
-  static const _star = Color(0xFFBED6D0);
-  static const _starDim = Color(0xFF8CB0B0);
-  static const _moon = Color(0xFFD6E2D6);
-  static const _mountain = Color(0xFF282832);
-  static const _mountainLit = Color(0xFF3E3E4A);
-  static const _stoneTop = Color(0xFF626470);
-  static const _stoneEdge = Color(0xFF464854);
-  static const _stone = Color(0xFF2F313A);
-  static const _joint = Color(0xFF1B1C21);
-
-  void _cell(Canvas c, Paint p, double x, double y, Color color) {
-    p.color = color;
-    c.drawRect(Rect.fromLTWH(x * _px, y * _px, _px, _px), p);
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    final cols = (size.width / _px).ceil();
+
+    // 1. Night / Twilight Forge Sky bands
+    paint.color = const Color(0xFF141820);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+    paint.color = const Color(0xFF1B222C);
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.height * 0.35, size.width, size.height * 0.45),
+      paint,
+    );
+
+    // Subtle pixel stars & crescent moon on top-right
+    paint.color = const Color(0xFF3A4659);
+    for (var i = 0; i < 6; i++) {
+      final sx = (size.width * (0.12 + i * 0.14));
+      final sy = 14.0 + (i.isEven ? 6.0 : 18.0);
+      canvas.drawRect(Rect.fromLTWH(sx, sy, 3, 3), paint);
+    }
+
+    // 2. Stonebrick Platform Floor (bottom 22px, matching 2nd reference image)
     final floorTop = size.height - 22;
-    final floorRow = (floorTop / _px).floor();
+    paint.color = const Color(0xFF3E3D4A);
+    canvas.drawRect(Rect.fromLTWH(0, floorTop, size.width, 4), paint);
 
-    // 1. Sky: dark top, then light/teal horizontal bands near the horizon.
-    paint.color = _skyDark;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, floorTop), paint);
-    final bandTop = floorRow * 0.42;
-    void band(double fromRow, double rows, Color color) {
-      paint.color = color;
-      canvas.drawRect(Rect.fromLTWH(0, fromRow * _px, size.width, rows * _px), paint);
-    }
-    band(bandTop, 1, _skyLine);
-    band(bandTop + 1, 3, _skyLight);
-    band(bandTop + 4, 3, _sky);
-    band(bandTop + 7, 2, _skyLight);
-    band(bandTop + 9, floorRow - bandTop - 9, _sky);
+    paint.color = const Color(0xFF23222B);
+    canvas.drawRect(Rect.fromLTWH(0, floorTop + 4, size.width, 18), paint);
 
-    // 2. Stars (small crosses + dots), spread across the width.
-    for (var i = 0; i < 7; i++) {
-      final x = (cols * (0.08 + i * 0.13)).floorToDouble();
-      final y = (i.isEven ? 3.0 : 7.0) + (i % 3);
-      _cell(canvas, paint, x, y, _star);
-      if (i % 2 == 0) {
-        for (final (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)]) {
-          _cell(canvas, paint, x + dx, y + dy, _starDim);
-        }
-      }
+    // Pixel stone tile joints
+    paint.color = const Color(0xFF0F0F12);
+    for (var x = 0.0; x < size.width; x += 24) {
+      canvas.drawRect(Rect.fromLTWH(x, floorTop, 2, 10), paint);
+      canvas.drawRect(Rect.fromLTWH(x + 12, floorTop + 10, 2, 12), paint);
     }
-
-    // 3. Crescent moon (top-right): bright disc minus a sky-coloured disc.
-    final mx = cols - 9.0, my = 2.0, r = 4.0;
-    for (var yy = -r; yy <= r; yy++) {
-      for (var xx = -r; xx <= r; xx++) {
-        final inMoon = xx * xx + yy * yy <= r * r;
-        final inBite = (xx + 2) * (xx + 2) + (yy + 1) * (yy + 1) <= r * r;
-        if (inMoon && !inBite) _cell(canvas, paint, mx + xx, my + r + yy, _moon);
-      }
-    }
-
-    // 4. Distant mountains (stepped silhouettes) sitting on the floor line.
-    void mountain(double cx, double height, double halfWidth) {
-      for (var row = 0.0; row < height; row++) {
-        final w = (halfWidth * (row + 1) / height).floorToDouble();
-        final y = floorRow - height + row;
-        for (var dx = -w; dx <= w; dx++) {
-          _cell(canvas, paint, cx + dx, y, dx < -w / 3 && row > 1 ? _mountainLit : _mountain);
-        }
-      }
-    }
-    mountain(cols * 0.08, 5, 6);
-    mountain(cols * 0.22, 3, 4);
-    mountain(cols * 0.80, 6, 7);
-    mountain(cols * 0.93, 4, 5);
-
-    // 5. Stone-brick floor (bottom 22 px) with staggered joints.
-    paint.color = _stone;
-    canvas.drawRect(Rect.fromLTWH(0, floorTop, size.width, size.height - floorTop), paint);
-    paint.color = _stoneTop;
-    canvas.drawRect(Rect.fromLTWH(0, floorTop, size.width, _px), paint);
-    paint.color = _stoneEdge;
-    canvas.drawRect(Rect.fromLTWH(0, floorTop + _px, size.width, _px), paint);
-    paint.color = _joint;
-    final course = (size.height - floorTop - 2 * _px) / 2;
-    for (var row = 0; row < 2; row++) {
-      final y = floorTop + 2 * _px + row * course;
-      canvas.drawRect(Rect.fromLTWH(0, y + course - _px / 2, size.width, _px / 2 + 0.5), paint);
-      final offset = row.isEven ? 0.0 : 15.0;
-      for (var x = -offset; x < size.width; x += 30) {
-        canvas.drawRect(Rect.fromLTWH(x, y, _px / 2 + 0.5, course), paint);
-      }
-    }
+    canvas.drawRect(Rect.fromLTWH(0, floorTop + 10, size.width, 2), paint);
   }
 
   @override

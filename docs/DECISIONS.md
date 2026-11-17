@@ -257,20 +257,3 @@ numeradas. Se uma decisão for substituída, marque como **Substituída por #N**
     - Para proteger o progresso dos usuários (especialmente no PWA do Safari/iOS),
       as Configurações oferecem Exportar e Importar snapshot JSON completo de
       treinos, rotinas, atividades, saúde, livro-razão de XP, herói e campanha.
-52. **Arte dos personagens v2 — "paper-doll" 64×72 com sombreamento automático**
-    (substitui o tamanho 28×36 da decisão #46; categorias e receitas iguais):
-    - Estilo aprovado pelo usuário: herói "fortinho" com tronco em V, no
-      estilo da referência 2 (contorno escuro, 3 tons por material, luz de
-      cima-esquerda), cenário noturno verde-azulado.
-    - **Fonte de verdade da arte:** `tool/art/paper_doll_gen.py` desenha cada
-      peça com formas e materiais *chapados* e gera
-      `lib/app/ui/paper_doll/paper_doll_layers.g.dart`. `tool/art/preview.py`
-      gera uma galeria PNG para revisão.
-    - **Sombreamento em tempo de montagem** (`paper_doll_shader.dart`):
-      contorno na silhueta, tons forçados (minúscula = sombra, dígito = brilho),
-      linha escura entre peças diferentes (mesmo material de outra camada) e
-      luz de cima-esquerda. Qualquer combinação fica consistente.
-    - Inimigos continuam sendo variações do boneco (receitas em
-      `OpponentSprites`); chefes ganham silhuetas próprias junto dos Flagelos.
-    - As telas continuam passando `pixelSize` em unidades do sprite antigo;
-      `HeroPaperDoll.legacyScale` mantém o tamanho na tela.

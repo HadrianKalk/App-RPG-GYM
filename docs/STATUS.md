@@ -109,8 +109,7 @@ _Atualize este arquivo sempre que o estado ou os próximos passos mudarem._
 ## Pré-lançamento (prioridade atual)
 - [ ] **Chefes Lendários originais** — proposta "Os 18 Flagelos" em
       `docs/design/chefes-lendarios-v2.md`, aguardando aprovação do usuário.
-- [x] **Revamp da arte dos personagens** (paper-doll v2 64×72 + palco noturno).
-- [ ] Polir peças com o feedback do usuário; sprites únicos dos chefes.
+- [ ] **Revamp da arte** — usuário vai enviar referências.
 - [ ] README do projeto.
 - [ ] Upgrade de dependências (Riverpod 3, go_router 18, …) em tarefa própria.
 - [ ] Servidor intermediário da IA (proxy) — adiado: por enquanto o app é de
